@@ -27,6 +27,9 @@ out/
 build
 dist
 
+# Foundry
+cache/
+broadcast/
 
 # Debug
 npm-debug.log*
