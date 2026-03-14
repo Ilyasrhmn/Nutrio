@@ -2,7 +2,10 @@
   "name": "@workspace/contract-types",
   "version": "0.0.0",
   "private": true,
+  "type": "module",
   "scripts": {
+    "build": "tsc",
+    "dev": "tsc --watch",
     "lint": "eslint . --max-warnings 0",
     "typecheck": "tsc --noEmit"
   },
@@ -14,8 +17,13 @@
     "@workspace/typescript-config": "workspace:*",
     "typescript": "^5.9.3"
   },
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
   "exports": {
-    ".": "./src/index.ts",
+    ".": {
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
+    },
     "./abis/*": "./src/abis/*.json"
   }
 }
