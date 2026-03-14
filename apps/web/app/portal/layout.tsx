@@ -2,7 +2,7 @@
 
 import * as React from "react"
 import Link from "next/link"
-import { usePathname } from "next/navigation"
+import { usePathname, useRouter } from "next/navigation"
 import { 
   LayoutDashboard, 
   Map as MapIcon, 
@@ -13,11 +13,14 @@ import {
   Settings, 
   HelpCircle,
   ShieldCheck,
-  User
+  User,
+  LogOut
 } from "lucide-react"
 import { Button } from "@workspace/ui/components/button"
 import { Avatar, AvatarFallback, AvatarImage } from "@workspace/ui/components/avatar"
 import { cn } from "@workspace/ui/lib/utils"
+import { TokenStorage } from "@/lib/api-client"
+import { useToast } from "@workspace/ui/hooks/use-toast"
 
 export default function PortalLayout({
   children,
@@ -25,6 +28,8 @@ export default function PortalLayout({
   children: React.ReactNode
 }) {
   const pathname = usePathname()
+  const router = useRouter()
+  const { toast } = useToast()
 
   const navItems = [
     { name: "Dashboard", icon: LayoutDashboard, href: "/portal" },
@@ -34,6 +39,15 @@ export default function PortalLayout({
     { name: "Audit Log", icon: History, href: "/portal/audit" },
     { name: "Laporan AI", icon: FileBarChart, href: "/portal/reports" },
   ]
+
+  const handleLogout = () => {
+    TokenStorage.clearTokens()
+    toast({
+      title: "Logout Berhasil",
+      description: "Berhasil keluar dari sesi.",
+    })
+    router.push("/login")
+  }
 
   return (
     <div className="flex min-h-screen bg-background">
@@ -49,7 +63,7 @@ export default function PortalLayout({
           </div>
         </div>
 
-        <nav className="flex-1 px-4 py-4 space-y-1">
+        <nav className="flex-1 px-4 py-4 space-y-1 overflow-y-auto">
           {navItems.map((item) => {
             const isActive = pathname === item.href
             return (
@@ -91,6 +105,16 @@ export default function PortalLayout({
             <Button variant="ghost" className="w-full justify-start gap-3 text-muted-foreground hover:text-primary hover:bg-primary/5 h-10 px-3 transition-colors">
               <HelpCircle className="size-4" />
               Help Center
+            </Button>
+            
+            {/* Logout Button */}
+            <Button 
+              variant="ghost" 
+              onClick={handleLogout}
+              className="w-full justify-start gap-3 h-10 px-3 text-destructive hover:bg-destructive/5 hover:text-destructive transition-colors"
+            >
+              <LogOut className="size-4" />
+              Keluar (Log Out)
             </Button>
           </div>
         </div>

@@ -194,6 +194,21 @@ CREATE TYPE training_status AS ENUM (
     'certified'
 );
 
+CREATE TYPE payment_type AS ENUM (
+    'subscription',
+    'topup',
+    'fine',
+    'other'
+);
+
+CREATE TYPE payment_status AS ENUM (
+    'pending',
+    'paid',
+    'failed',
+    'expired',
+    'refunded'
+);
+
 -- =============================================================================
 -- SECTION 2: CORE IDENTITY TABLES
 -- =============================================================================

@@ -1,5 +1,5 @@
 import { Injectable } from "@nestjs/common";
-import { APP_NAME, API_VERSION } from "@workspace/common/constants";
+import { APP_NAME, API_VERSION } from "@workspace/common";
 
 @Injectable()
 export class AppService {

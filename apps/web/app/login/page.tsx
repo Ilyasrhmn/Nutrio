@@ -2,15 +2,19 @@
 
 import * as React from "react"
 import Link from "next/link"
+import { useRouter } from "next/navigation"
+import { useForm } from "react-hook-form"
+import { zodResolver } from "@hookform/resolvers/zod"
+import * as z from "zod"
 import { 
   ShieldCheck, 
   Eye, 
   EyeOff, 
-  ArrowRight, 
   HelpCircle, 
   BookOpen, 
   Lock,
-  Globe
+  Globe,
+  Loader2
 } from "lucide-react"
 
 import { Button } from "@workspace/ui/components/button"
@@ -25,9 +29,59 @@ import {
   CardContent, 
   CardFooter 
 } from "@workspace/ui/components/card"
+import { useToast } from "@workspace/ui/hooks/use-toast"
+import { api, TokenStorage, ApiException } from "@/lib/api-client"
+
+const loginSchema = z.object({
+  email: z.string().email("Email tidak valid"),
+  password: z.string().min(8, "Kata sandi minimal 8 karakter"),
+  rememberMe: z.boolean().optional(),
+})
+
+type LoginFormValues = z.infer<typeof loginSchema>
 
 export default function LoginPage() {
   const [showPassword, setShowPassword] = React.useState(false)
+  const [isLoading, setIsLoading] = React.useState(false)
+  const router = useRouter()
+  const { toast } = useToast()
+
+  const form = useForm<LoginFormValues>({
+    resolver: zodResolver(loginSchema),
+    defaultValues: {
+      email: "",
+      password: "",
+      rememberMe: false,
+    },
+  })
+
+  async function onSubmit(data: LoginFormValues) {
+    setIsLoading(true)
+    try {
+      const response = await api.post("/auth/login", {
+        email: data.email,
+        password: data.password,
+      })
+
+      TokenStorage.setTokens(response.accessToken, response.refreshToken)
+      
+      toast({
+        title: "Login Berhasil",
+        description: `Selamat datang kembali, ${response.user.fullName}!`,
+      })
+
+      router.push("/portal")
+    } catch (error) {
+      const message = error instanceof ApiException ? error.message : "Terjadi kesalahan saat login"
+      toast({
+        variant: "destructive",
+        title: "Login Gagal",
+        description: message,
+      })
+    } finally {
+      setIsLoading(false)
+    }
+  }
 
   return (
     <div className="min-h-screen bg-slate-50/50 flex flex-col">
@@ -68,49 +122,80 @@ export default function LoginPage() {
           </CardHeader>
           
           <CardContent className="space-y-6 px-10 pb-10">
-            <div className="space-y-4">
-              <div className="space-y-2">
-                <Label htmlFor="identity" className="text-slate-700 font-semibold">Email atau NIK</Label>
-                <Input 
-                  id="identity" 
-                  placeholder="Masukkan email atau NIK terdaftar" 
-                  className="h-11 border-slate-200 bg-slate-50/30 focus-visible:bg-white transition-all"
-                />
-              </div>
-              
-              <div className="space-y-2">
-                <div className="flex items-center justify-between">
-                  <Label htmlFor="password" className="text-slate-700 font-semibold">Kata Sandi</Label>
-                  <Link href="#" className="text-xs font-bold text-primary hover:underline">Lupa sandi?</Link>
-                </div>
-                <div className="relative">
+            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+              <div className="space-y-4">
+                <div className="space-y-2">
+                  <Label htmlFor="email" className="text-slate-700 font-semibold">Email atau NIK</Label>
                   <Input 
-                    id="password" 
-                    type={showPassword ? "text" : "password"} 
-                    placeholder="••••••••" 
-                    className="h-11 border-slate-200 bg-slate-50/30 pr-10 focus-visible:bg-white transition-all"
+                    id="email" 
+                    placeholder="Masukkan email atau NIK terdaftar" 
+                    className="h-11 border-slate-200 bg-slate-50/30 focus-visible:bg-white transition-all"
+                    disabled={isLoading}
+                    {...form.register("email")}
                   />
-                  <button 
-                    type="button"
-                    onClick={() => setShowPassword(!showPassword)}
-                    className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 transition-colors"
-                  >
-                    {showPassword ? <EyeOff className="size-4" /> : <Eye className="size-4" />}
-                  </button>
+                  {form.formState.errors.email && (
+                    <p className="text-xs font-medium text-destructive mt-1">
+                      {form.formState.errors.email.message}
+                    </p>
+                  )}
+                </div>
+                
+                <div className="space-y-2">
+                  <div className="flex items-center justify-between">
+                    <Label htmlFor="password" className="text-slate-700 font-semibold">Kata Sandi</Label>
+                    <Link href="#" className="text-xs font-bold text-primary hover:underline">Lupa sandi?</Link>
+                  </div>
+                  <div className="relative">
+                    <Input 
+                      id="password" 
+                      type={showPassword ? "text" : "password"} 
+                      placeholder="••••••••" 
+                      className="h-11 border-slate-200 bg-slate-50/30 pr-10 focus-visible:bg-white transition-all"
+                      disabled={isLoading}
+                      {...form.register("password")}
+                    />
+                    <button 
+                      type="button"
+                      onClick={() => setShowPassword(!showPassword)}
+                      className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 transition-colors"
+                    >
+                      {showPassword ? <EyeOff className="size-4" /> : <Eye className="size-4" />}
+                    </button>
+                  </div>
+                  {form.formState.errors.password && (
+                    <p className="text-xs font-medium text-destructive mt-1">
+                      {form.formState.errors.password.message}
+                    </p>
+                  )}
+                </div>
+
+                <div className="flex items-center space-x-2">
+                  <Checkbox 
+                    id="remember" 
+                    className="border-slate-300"
+                    onCheckedChange={(checked) => form.setValue("rememberMe", checked as boolean)}
+                  />
+                  <Label htmlFor="remember" className="text-xs font-medium text-slate-500 cursor-pointer">
+                    Ingat saya di perangkat ini
+                  </Label>
                 </div>
               </div>
 
-              <div className="flex items-center space-x-2">
-                <Checkbox id="remember" className="border-slate-300" />
-                <Label htmlFor="remember" className="text-xs font-medium text-slate-500 cursor-pointer">
-                  Ingat saya di perangkat ini
-                </Label>
-              </div>
-            </div>
-
-            <Button className="w-full h-11 font-bold text-sm bg-primary hover:bg-primary/90 text-primary-foreground shadow-lg shadow-primary/20 transition-all">
-              Masuk
-            </Button>
+              <Button 
+                type="submit"
+                className="w-full h-11 font-bold text-sm bg-primary hover:bg-primary/90 text-primary-foreground shadow-lg shadow-primary/20 transition-all"
+                disabled={isLoading}
+              >
+                {isLoading ? (
+                  <>
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                    Memproses...
+                  </>
+                ) : (
+                  "Masuk"
+                )}
+              </Button>
+            </form>
 
             <div className="relative">
               <div className="absolute inset-0 flex items-center">
@@ -121,7 +206,11 @@ export default function LoginPage() {
               </div>
             </div>
 
-            <Button variant="outline" className="w-full h-11 border-slate-200 bg-background hover:bg-slate-50 text-slate-700 font-semibold gap-2">
+            <Button 
+              variant="outline" 
+              className="w-full h-11 border-slate-200 bg-background hover:bg-slate-50 text-slate-700 font-semibold gap-2"
+              disabled={isLoading}
+            >
               <ShieldCheck className="size-4 text-primary" />
               Masuk via SSO Pemerintah
             </Button>

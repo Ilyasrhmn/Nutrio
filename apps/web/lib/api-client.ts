@@ -1,4 +1,5 @@
 import axios, { AxiosError, InternalAxiosRequestConfig, AxiosResponse } from 'axios';
+import Cookies from 'js-cookie';
 
 // --- Tipe Data ---
 interface ApiErrorResponse {
@@ -51,17 +52,19 @@ const processQueue = (error: any, token: string | null = null) => {
   failedQueue = [];
 };
 
-// --- Helper Storage ---
+// --- Helper Storage (Cookies for Middleware Support) ---
 export const TokenStorage = {
-  getAccessToken: () => (typeof window !== 'undefined' ? localStorage.getItem('accessToken') : null),
-  getRefreshToken: () => (typeof window !== 'undefined' ? localStorage.getItem('refreshToken') : null),
+  getAccessToken: () => Cookies.get('accessToken'),
+  getRefreshToken: () => Cookies.get('refreshToken'),
   setTokens: (accessToken: string, refreshToken: string) => {
-    if (typeof window !== 'undefined') {
-      localStorage.setItem('accessToken', accessToken);
-      localStorage.setItem('refreshToken', refreshToken);
-    }
+    // Set cookies with reasonable expiry (e.g., 7 days for refresh token)
+    Cookies.set('accessToken', accessToken, { expires: 1 / 96 }); // ~15 mins
+    Cookies.set('refreshToken', refreshToken, { expires: 7 }); // 7 days
   },
   clearTokens: () => {
+    Cookies.remove('accessToken');
+    Cookies.remove('refreshToken');
+    // Clear localStorage if any legacy data exists
     if (typeof window !== 'undefined') {
       localStorage.removeItem('accessToken');
       localStorage.removeItem('refreshToken');

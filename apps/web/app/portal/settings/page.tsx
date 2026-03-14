@@ -50,10 +50,6 @@ export default function SettingsPage() {
             <Bell className="size-4 text-muted-foreground" />
             <span className="absolute top-2 right-2.5 size-2 bg-destructive rounded-full border-2 border-card"></span>
           </Button>
-          <Button variant="outline" className="gap-2 h-10 border-border text-destructive hover:bg-destructive/5 font-bold px-4">
-            <LogOut className="size-4" />
-            Keluar
-          </Button>
         </div>
       </div>
 

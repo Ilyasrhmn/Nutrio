@@ -1,6 +1,9 @@
 {
   "extends": "@workspace/typescript-config/nestjs.json",
   "compilerOptions": {
+    "module": "CommonJS",
+    "moduleResolution": "Node",
+    "moduleDetection": "auto",
     "outDir": "./dist",
     "rootDir": "./src",
     "baseUrl": "./",

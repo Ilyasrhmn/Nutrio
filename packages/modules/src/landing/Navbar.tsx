@@ -1,5 +1,6 @@
 import { ShieldCheck } from "lucide-react";
 import { Button } from "@workspace/ui/components/button";
+import Link from "next/link";
 
 export function Navbar() {
   return (
@@ -40,11 +41,11 @@ export function Navbar() {
           >
             Lihat Demo
           </a>
-          <a href="#hero">
-            <Button className="bg-gradient-to-r from-indigo-600 to-violet-600 text-white rounded-full hover:shadow-[0_4px_14px_0_rgba(79,70,229,0.3)] hover:-translate-y-0.5 transition-all text-sm h-9 px-4 sm:px-6">
+          <Link href="/login">
+            <Button className="bg-gradient-to-r from-indigo-600 to-violet-600 text-white rounded-full hover:shadow-[0_4px_14px_0_rgba(79,70,229,0.3)] hover:-translate-y-0.5 transition-all text-sm h-9 px-4 sm:px-6 font-bold">
               Login
             </Button>
-          </a>
+          </Link>
         </div>
       </div>
     </nav>
