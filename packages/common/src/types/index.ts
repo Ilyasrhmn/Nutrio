@@ -1,4 +1,16 @@
 /**
+ * User roles defined in the database schema
+ */
+export enum UserRole {
+  VENDOR = 'vendor',
+  INSPECTOR = 'inspector',
+  ADMIN_BGN = 'admin_bgn',
+  COORDINATOR_SPPG = 'coordinator_sppg',
+  DINKES = 'dinkes',
+  PUBLIC = 'public',
+}
+
+/**
  * Standard API response wrapper
  */
 export interface ApiResponse<T> {

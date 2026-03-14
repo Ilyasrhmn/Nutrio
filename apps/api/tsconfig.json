@@ -3,8 +3,19 @@
   "compilerOptions": {
     "outDir": "./dist",
     "rootDir": "./src",
-    "baseUrl": "./"
+    "baseUrl": "./",
+    "strictPropertyInitialization": false,
+    "experimentalDecorators": true,
+    "emitDecoratorMetadata": true
   },
   "include": ["src/**/*.ts"],
-  "exclude": ["node_modules", "dist", "test"]
+  "exclude": ["node_modules", "dist", "test"],
+  "ts-node": {
+    "compilerOptions": {
+      "target": "ES2021",
+      "strictPropertyInitialization": false,
+      "experimentalDecorators": true,
+      "emitDecoratorMetadata": true
+    }
+  }
 }
