@@ -1,57 +1,127 @@
-import { AbilityBuilder, PureAbility, AbilityClass, ExtractSubjectType, InferSubjects } from '@casl/ability';
+import {
+  AbilityBuilder,
+  PureAbility,
+  AbilityClass,
+  ExtractSubjectType,
+} from '@casl/ability';
+import { AppAction, AppSubject, UserRole } from '@workspace/common';
 
-export type Action = 'manage' | 'create' | 'read' | 'update' | 'delete' | 'view';
-export type Subject = 'Dashboard' | 'Map' | 'Funds' | 'Menu' | 'LiveExecution' | 'Logistics' | 'Checkpoints' | 'Audit' | 'Reports' | 'Marketplace' | 'Settings' | 'all';
-
-export type AppAbility = PureAbility<[Action, Subject]>;
+export type { AppAction, AppSubject };
+export type AppAbility = PureAbility<[AppAction, AppSubject]>;
 export const AppAbility = PureAbility as AbilityClass<AppAbility>;
 
-export const defineAbilitiesFor = (role: string) => {
-  const { can, cannot, build } = new AbilityBuilder(AppAbility);
+/**
+ * Define abilities based on user role
+ * This mirrors the backend CaslAbilityFactory logic
+ */
+export const defineAbilitiesFor = (role: UserRole | string): AppAbility => {
+  const { can, cannot, build } = new AbilityBuilder<AppAbility>(AppAbility);
 
-  if (role === 'admin' || role === 'admin_bgn') {
-    can('manage', 'all');
-  } else if (role === 'vendor') {
-    can('view', 'Dashboard');
-    can('view', 'Map');
-    can('view', 'Funds');
-    can('view', 'Menu');
-    can('view', 'LiveExecution');
-    can('view', 'Logistics');
-    can('view', 'Checkpoints');
-    can('view', 'Marketplace');
-    can('view', 'Settings');
-    cannot('view', 'Audit');
-    cannot('view', 'Reports');
-  } else if (role === 'supplier') {
-    can('view', 'Dashboard');
-    can('view', 'Marketplace');
-    can('view', 'Settings');
-    cannot('view', 'Funds');
-    cannot('view', 'Menu');
-    cannot('view', 'LiveExecution');
-    cannot('view', 'Logistics');
-    cannot('view', 'Checkpoints');
-    cannot('view', 'Audit');
-    cannot('view', 'Reports');
-  } else if (role === 'school' || role === 'public') {
-    can('view', 'Dashboard');
-    can('view', 'Map');
-    can('view', 'LiveExecution');
-    cannot('view', 'Funds');
-    cannot('view', 'Menu');
-    cannot('view', 'Marketplace');
-  } else if (role === 'parent') {
-    can('view', 'Dashboard');
-    can('view', 'Reports');
-    cannot('view', 'Funds');
-    cannot('view', 'Marketplace');
-  } else {
-    // Default or guest permissions
-    can('view', 'Dashboard');
+  switch (role) {
+    case UserRole.ADMIN_BGN:
+      defineAdminAbilities(can);
+      break;
+    case UserRole.VENDOR:
+      defineVendorAbilities(can, cannot);
+      break;
+    case UserRole.INSPECTOR:
+      defineInspectorAbilities(can, cannot);
+      break;
+    case UserRole.COORDINATOR_SPPG:
+      defineCoordinatorAbilities(can, cannot);
+      break;
+    case UserRole.DINKES:
+      defineDinkesAbilities(can, cannot);
+      break;
+    case UserRole.PUBLIC:
+    default:
+      definePublicAbilities(can, cannot);
+      break;
   }
 
   return build({
-    detectSubjectType: (item) => item as ExtractSubjectType<Subject>,
+    detectSubjectType: (item) => item as ExtractSubjectType<AppSubject>,
   });
 };
+
+function defineAdminAbilities(can: AbilityBuilder<AppAbility>['can']): void {
+  can('manage', 'all');
+}
+
+function defineVendorAbilities(
+  can: AbilityBuilder<AppAbility>['can'],
+  cannot: AbilityBuilder<AppAbility>['cannot'],
+): void {
+  can('read', 'Dashboard');
+  can('read', 'Map');
+  can('read', 'Funds');
+  can('read', 'Menu');
+  can('read', 'LiveExecution');
+  can('read', 'Logistics');
+  can('read', 'Checkpoints');
+  can('read', 'Marketplace');
+  can('read', 'Settings');
+  cannot('read', 'Audit');
+  cannot('read', 'Reports');
+}
+
+function defineInspectorAbilities(
+  can: AbilityBuilder<AppAbility>['can'],
+  cannot: AbilityBuilder<AppAbility>['cannot'],
+): void {
+  can('read', 'Dashboard');
+  can('read', 'Map');
+  can('read', 'LiveExecution');
+  can('read', 'Logistics');
+  can('read', 'Checkpoints');
+  can('read', 'Audit');
+  can('read', 'Reports');
+  cannot('read', 'Funds');
+  cannot('read', 'Menu');
+  cannot('read', 'Marketplace');
+}
+
+function defineCoordinatorAbilities(
+  can: AbilityBuilder<AppAbility>['can'],
+  cannot: AbilityBuilder<AppAbility>['cannot'],
+): void {
+  can('read', 'Dashboard');
+  can('read', 'Map');
+  can('read', 'LiveExecution');
+  can('read', 'Logistics');
+  can('read', 'Checkpoints');
+  can('read', 'Audit');
+  can('read', 'Reports');
+  can('read', 'Settings');
+  cannot('read', 'Funds');
+  cannot('read', 'Menu');
+  cannot('read', 'Marketplace');
+}
+
+function defineDinkesAbilities(
+  can: AbilityBuilder<AppAbility>['can'],
+  cannot: AbilityBuilder<AppAbility>['cannot'],
+): void {
+  can('read', 'Dashboard');
+  can('read', 'Map');
+  can('read', 'LiveExecution');
+  can('read', 'Audit');
+  can('read', 'Reports');
+  cannot('read', 'Funds');
+  cannot('read', 'Menu');
+  cannot('read', 'Marketplace');
+}
+
+function definePublicAbilities(
+  can: AbilityBuilder<AppAbility>['can'],
+  cannot: AbilityBuilder<AppAbility>['cannot'],
+): void {
+  can('read', 'Dashboard');
+  can('read', 'Map');
+  can('read', 'LiveExecution');
+  cannot('read', 'Funds');
+  cannot('read', 'Menu');
+  cannot('read', 'Marketplace');
+  cannot('read', 'Audit');
+  cannot('read', 'Reports');
+}

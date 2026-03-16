@@ -6,8 +6,9 @@ import Cookies from "js-cookie"
 import { createContext, useContext, useState, useEffect } from "react"
 import { createContextualCan } from "@casl/react"
 import { defineAbilitiesFor, AppAbility } from "@/lib/casl"
+import { UserRole } from "@workspace/common"
 
-export type Role = "vendor" | "supplier" | "school" | "parent" | "admin" | "admin_bgn" | "public"
+export type Role = UserRole
 
 interface User {
   email: string
@@ -32,12 +33,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const router = useRouter()
 
   // Initialize with guest abilities
-  const [ability, setAbility] = useState<AppAbility>(defineAbilitiesFor('guest'))
+  const [ability, setAbility] = useState<AppAbility>(defineAbilitiesFor(UserRole.PUBLIC))
 
   useEffect(() => {
     const savedUser = localStorage.getItem("vendorTrack_user")
     const token = Cookies.get("accessToken")
-    
+
     if (savedUser && token) {
       const parsedUser = JSON.parse(savedUser)
       setUser(parsedUser)
@@ -58,7 +59,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const logout = () => {
     setUser(null)
-    setAbility(defineAbilitiesFor('guest'))
+    setAbility(defineAbilitiesFor(UserRole.PUBLIC))
     localStorage.removeItem("vendorTrack_user")
     Cookies.remove("accessToken")
     router.push("/login")

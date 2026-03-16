@@ -1,9 +1,8 @@
 import { Controller, Get, UseGuards } from "@nestjs/common";
 import { AppService } from "./app.service";
 import { JwtAuthGuard } from "./modules/auth/guards/jwt-auth.guard";
-import { RolesGuard } from "./modules/auth/guards/roles.guard";
-import { Roles } from "./modules/auth/decorators/roles.decorator";
-import { UserRole } from "@workspace/common";
+import { PoliciesGuard } from "./modules/auth/guards/policies.guard";
+import { CheckPolicies } from "./modules/auth/decorators/check-policies.decorator";
 
 @Controller()
 export class AppController {
@@ -15,14 +14,15 @@ export class AppController {
   }
 
   @Get('profile')
-  @UseGuards(JwtAuthGuard)
+  @UseGuards(JwtAuthGuard, PoliciesGuard)
+  @CheckPolicies(['read', 'Dashboard'])
   getProfile() {
     return { message: 'This is a protected route' };
   }
 
   @Get('admin-only')
-  @UseGuards(JwtAuthGuard, RolesGuard)
-  @Roles(UserRole.ADMIN_BGN)
+  @UseGuards(JwtAuthGuard, PoliciesGuard)
+  @CheckPolicies(['manage', 'all'])
   getAdminData() {
     return { message: 'This is an admin-only route' };
   }

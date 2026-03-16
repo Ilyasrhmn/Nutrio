@@ -24,7 +24,7 @@ import { Button } from "@workspace/ui/components/button"
 import { Avatar, AvatarFallback, AvatarImage } from "@workspace/ui/components/avatar"
 import { cn } from "@workspace/ui/lib/utils"
 import { useAuth } from "@/hooks/use-auth"
-import { Subject } from "@/lib/casl"
+import { AppSubject } from "@/lib/casl"
 
 export default function PortalLayout({
   children,
@@ -34,7 +34,7 @@ export default function PortalLayout({
   const pathname = usePathname()
   const { user, logout, ability } = useAuth()
 
-  const navItems: { name: string; icon: any; href: string; subject: Subject }[] = [
+  const navItems: { name: string; icon: any; href: string; subject: AppSubject }[] = [
     { name: "Dashboard", icon: LayoutDashboard, href: "/portal", subject: "Dashboard" },
     { name: "Peta Sebaran", icon: MapIcon, href: "/portal/map", subject: "Map" },
     { name: "Pencairan Dana", icon: Wallet, href: "/portal/funds", subject: "Funds" },
