@@ -101,6 +101,7 @@ export default function RegisterGatewayPage() {
                       <SelectItem value="supplier" className="py-3">Supplier Bahan Baku</SelectItem>
                       <SelectItem value="school" className="py-3">Pihak Sekolah / Guru</SelectItem>
                       <SelectItem value="parent" className="py-3">Orang Tua / Wali Murid</SelectItem>
+                      <SelectItem value="admin" className="py-3">Admin MBG</SelectItem>
                     </SelectContent>
                   </Select>
                 )}
