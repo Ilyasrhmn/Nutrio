@@ -54,8 +54,13 @@ export class AuthService {
       roleLegacy: registerDto.role, // Keep for backward compatibility
     });
 
-    const { passwordHash: _, ...result } = user;
-    return result;
+    // Transform response to not include role object
+    const { passwordHash: _, role, ...result } = user;
+    return {
+      ...result,
+      // Return role as string for frontend compatibility
+      role: registerDto.role,
+    };
   }
 
   async login(loginDto: LoginDto, ipAddress?: string, userAgent?: string) {
@@ -72,9 +77,14 @@ export class AuthService {
     const tokens = await this.generateTokens(user);
     await this.storeRefreshToken(user.id, tokens.refreshToken, ipAddress, userAgent);
 
-    const { passwordHash: _, ...userWithoutPassword } = user;
+    // Transform user data for frontend
+    const { passwordHash: _, role, ...userWithoutPassword } = user;
     return {
-      user: userWithoutPassword,
+      user: {
+        ...userWithoutPassword,
+        // Return role as string enum for backward compatibility with frontend
+        role: role?.name?.toUpperCase() || user.roleLegacy || 'PUBLIC',
+      },
       ...tokens,
     };
   }
