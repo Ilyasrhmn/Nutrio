@@ -144,6 +144,17 @@ export default class UserSeed {
           continue;
         }
 
+        // Get role_id from roles table
+        const roleRecord = await queryRunner.manager.findOne('roles', {
+          where: { name: userData.role.toLowerCase() },
+        }) as { id: string; name: string } | null;
+
+        if (!roleRecord) {
+          console.error(`❌ Role not found in database: ${userData.role}`);
+          console.error('   Please run role seeder first!');
+          continue;
+        }
+
         // Hash password
         const salt = await bcrypt.genSalt(10);
         const passwordHash = await bcrypt.hash(userData.password, salt);
@@ -153,7 +164,8 @@ export default class UserSeed {
           email: userData.email,
           passwordHash: passwordHash,
           fullName: userData.fullName,
-          role: userData.role,
+          roleId: roleRecord.id, // Use roleId instead of role enum
+          roleLegacy: userData.role, // Keep legacy for backward compat
           phone: userData.phone,
           isActive: userData.isActive,
           isEmailVerified: true,
