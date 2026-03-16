@@ -14,7 +14,8 @@ import {
   BookOpen, 
   Lock,
   Globe,
-  Loader2
+  Loader2,
+  ArrowRight
 } from "lucide-react"
 
 import { Button } from "@workspace/ui/components/button"
@@ -30,7 +31,7 @@ import {
   CardFooter 
 } from "@workspace/ui/components/card"
 import { useToast } from "@workspace/ui/hooks/use-toast"
-import { api, TokenStorage, ApiException } from "@/lib/api-client"
+import { useAuth, Role } from "@/hooks/use-auth"
 
 const loginSchema = z.object({
   email: z.string().email("Email tidak valid"),
@@ -45,6 +46,7 @@ export default function LoginPage() {
   const [isLoading, setIsLoading] = React.useState(false)
   const router = useRouter()
   const { toast } = useToast()
+  const { login } = useAuth()
 
   const form = useForm<LoginFormValues>({
     resolver: zodResolver(loginSchema),
@@ -58,27 +60,41 @@ export default function LoginPage() {
   async function onSubmit(data: LoginFormValues) {
     setIsLoading(true)
     try {
-      const response = await api.post("/auth/login", {
-        email: data.email,
-        password: data.password,
-      })
+      // Dummy role mapping based on email for hackathon mode
+      let role: Role = "vendor"
+      let fullName = "Mitra SPPG"
 
-      TokenStorage.setTokens(response.accessToken, response.refreshToken)
-      
-      toast({
-        title: "Login Berhasil",
-        description: `Selamat datang kembali, ${response.user.fullName}!`,
-      })
+      if (data.email.includes("admin")) {
+        role = "admin_bgn"
+        fullName = "Administrator BGN"
+      } else if (data.email.includes("supplier")) {
+        role = "supplier"
+        fullName = "PT Tani Makmur"
+      } else if (data.email.includes("school")) {
+        role = "public"
+        fullName = "Kepala Sekolah SDN 01"
+      } else if (data.email.includes("parent")) {
+        role = "parent"
+        fullName = "Wali Murid MBG"
+      }
 
-      router.push("/portal")
+      // Simulate API call
+      setTimeout(() => {
+        login(data.email, role, fullName)
+        
+        toast({
+          title: "Login Berhasil",
+          description: `Selamat datang kembali, ${fullName}!`,
+        })
+        setIsLoading(false)
+      }, 1000)
+
     } catch (error) {
-      const message = error instanceof ApiException ? error.message : "Terjadi kesalahan saat login"
       toast({
         variant: "destructive",
         title: "Login Gagal",
-        description: message,
+        description: "Terjadi kesalahan saat login",
       })
-    } finally {
       setIsLoading(false)
     }
   }
@@ -88,7 +104,7 @@ export default function LoginPage() {
       {/* Top Navbar */}
       <nav className="w-full border-b border-border bg-background px-6 h-16 flex items-center justify-between">
         <div className="flex items-center gap-2">
-          <div className="size-8 bg-primary rounded-lg flex items-center justify-center text-primary-foreground">
+          <div className="size-8 bg-primary rounded-lg flex items-center justify-center text-primary-foreground shadow-lg shadow-primary/20">
             <ShieldCheck className="size-5" />
           </div>
           <span className="font-bold text-xl text-foreground">VendorTrack</span>
@@ -125,11 +141,11 @@ export default function LoginPage() {
             <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
               <div className="space-y-4">
                 <div className="space-y-2">
-                  <Label htmlFor="email" className="text-slate-700 font-semibold">Email atau NIK</Label>
+                  <Label htmlFor="email" className="text-slate-700 font-semibold text-sm">Email atau NIK</Label>
                   <Input 
                     id="email" 
-                    placeholder="Masukkan email atau NIK terdaftar" 
-                    className="h-11 border-slate-200 bg-slate-50/30 focus-visible:bg-white transition-all"
+                    placeholder="Masukkan email terdaftar" 
+                    className="h-11 border-slate-200 bg-slate-50/30 focus-visible:bg-white transition-all rounded-xl"
                     disabled={isLoading}
                     {...form.register("email")}
                   />
@@ -142,7 +158,7 @@ export default function LoginPage() {
                 
                 <div className="space-y-2">
                   <div className="flex items-center justify-between">
-                    <Label htmlFor="password" className="text-slate-700 font-semibold">Kata Sandi</Label>
+                    <Label htmlFor="password" className="text-slate-700 font-semibold text-sm">Kata Sandi</Label>
                     <Link href="#" className="text-xs font-bold text-primary hover:underline">Lupa sandi?</Link>
                   </div>
                   <div className="relative">
@@ -150,7 +166,7 @@ export default function LoginPage() {
                       id="password" 
                       type={showPassword ? "text" : "password"} 
                       placeholder="••••••••" 
-                      className="h-11 border-slate-200 bg-slate-50/30 pr-10 focus-visible:bg-white transition-all"
+                      className="h-11 border-slate-200 bg-slate-50/30 pr-10 focus-visible:bg-white transition-all rounded-xl"
                       disabled={isLoading}
                       {...form.register("password")}
                     />
@@ -169,10 +185,9 @@ export default function LoginPage() {
                   )}
                 </div>
 
-                <div className="flex items-center space-x-2">
+                <div className="flex items-center space-x-2 pl-1">
                   <Checkbox 
                     id="remember" 
-                    className="border-slate-300"
                     onCheckedChange={(checked) => form.setValue("rememberMe", checked as boolean)}
                   />
                   <Label htmlFor="remember" className="text-xs font-medium text-slate-500 cursor-pointer">
@@ -183,7 +198,7 @@ export default function LoginPage() {
 
               <Button 
                 type="submit"
-                className="w-full h-11 font-bold text-sm bg-primary hover:bg-primary/90 text-primary-foreground shadow-lg shadow-primary/20 transition-all"
+                className="w-full h-12 font-bold text-sm bg-primary hover:bg-primary/90 text-primary-foreground shadow-lg shadow-primary/20 transition-all rounded-xl"
                 disabled={isLoading}
               >
                 {isLoading ? (
@@ -202,13 +217,13 @@ export default function LoginPage() {
                 <span className="w-full border-t border-slate-100" />
               </div>
               <div className="relative flex justify-center text-[10px] uppercase font-bold tracking-widest text-slate-400">
-                <span className="bg-card px-3">PILIHAN MASUK LAINNYA</span>
+                <span className="bg-card px-3">ATAU</span>
               </div>
             </div>
 
             <Button 
               variant="outline" 
-              className="w-full h-11 border-slate-200 bg-background hover:bg-slate-50 text-slate-700 font-semibold gap-2"
+              className="w-full h-11 border-slate-200 bg-background hover:bg-slate-50 text-slate-700 font-semibold gap-2 rounded-xl"
               disabled={isLoading}
             >
               <ShieldCheck className="size-4 text-primary" />
@@ -217,7 +232,7 @@ export default function LoginPage() {
 
             <div className="text-center pt-2">
               <p className="text-sm text-slate-500 font-medium">
-                Belum terdaftar di sistem MBG?{" "}
+                Belum terdaftar?{" "}
                 <Link href="/register" className="text-primary font-bold hover:underline">
                   Daftar sekarang
                 </Link>
