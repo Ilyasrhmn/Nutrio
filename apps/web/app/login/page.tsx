@@ -32,6 +32,7 @@ import {
 } from "@workspace/ui/components/card"
 import { useToast } from "@workspace/ui/hooks/use-toast"
 import { useAuth, Role } from "@/hooks/use-auth"
+import { UserRole } from "@workspace/common"
 
 const loginSchema = z.object({
   email: z.string().email("Email tidak valid"),
@@ -61,20 +62,20 @@ export default function LoginPage() {
     setIsLoading(true)
     try {
       // Dummy role mapping based on email for hackathon mode
-      let role: Role = "vendor"
+      let role: Role = UserRole.VENDOR
       let fullName = "Mitra SPPG"
 
       if (data.email.includes("admin")) {
-        role = "admin_bgn"
+        role = UserRole.ADMIN_BGN
         fullName = "Administrator BGN"
       } else if (data.email.includes("supplier")) {
-        role = "supplier"
+        role = UserRole.INSPECTOR
         fullName = "PT Tani Makmur"
       } else if (data.email.includes("school")) {
-        role = "public"
+        role = UserRole.PUBLIC
         fullName = "Kepala Sekolah SDN 01"
       } else if (data.email.includes("parent")) {
-        role = "parent"
+        role = UserRole.PUBLIC
         fullName = "Wali Murid MBG"
       }
 

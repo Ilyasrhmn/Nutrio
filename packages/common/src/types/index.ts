@@ -64,3 +64,5 @@ export interface BaseEntity {
  * Ethereum address type (branded string for type-safety)
  */
 export type Address = `0x${string}`;
+
+export * from './casl';

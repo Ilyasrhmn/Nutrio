@@ -7,6 +7,8 @@ import { AuthService } from './auth.service';
 import { RefreshToken } from './entities/refresh-token.entity';
 import { UsersModule } from '../users/users.module';
 import { JwtStrategy } from './strategies/jwt.strategy';
+import { CaslAbilityFactory } from './casl-ability.factory';
+import { PoliciesGuard } from './guards/policies.guard';
 
 @Module({
   imports: [
@@ -16,7 +18,7 @@ import { JwtStrategy } from './strategies/jwt.strategy';
     TypeOrmModule.forFeature([RefreshToken]),
   ],
   controllers: [AuthController],
-  providers: [AuthService, JwtStrategy],
-  exports: [AuthService],
+  providers: [AuthService, JwtStrategy, CaslAbilityFactory, PoliciesGuard],
+  exports: [AuthService, CaslAbilityFactory, PoliciesGuard],
 })
 export class AuthModule {}
