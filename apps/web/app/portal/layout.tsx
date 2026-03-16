@@ -51,8 +51,9 @@ export default function PortalLayout({
       icon: UtensilsCrossed, 
       subject: "Menu",
       children: [
-        { name: "Jadwal & Target Distribusi", icon: CalendarDays, href: "/portal/operasional/jadwal" },
-        { name: "Kalkulasi Bahan (Auto-Scale)", icon: Scale, href: "/portal/operasional/kalkulasi-bahan" },
+        { name: "Kalender Perencanaan", icon: CalendarDays, href: "/portal/operasional/jadwal" },
+        { name: "Penyusunan Menu & Nutrisi", icon: Utensils, href: "/portal/menu" },
+        { name: "Kalkulasi Logistik & Bahan", icon: Scale, href: "/portal/operasional/kalkulasi-bahan" },
         { name: "Stock Opname Harian", icon: ClipboardList, href: "/portal/operasional/stock-opname" },
         { name: "Lembar Kerja Dapur (SOP)", icon: CookingPot, href: "/portal/operasional/kitchen-sop" },
       ]
@@ -81,7 +82,7 @@ export default function PortalLayout({
 
         <nav className="flex-1 px-4 py-4 space-y-1 overflow-y-auto text-muted-foreground custom-scrollbar">
           {navItems.map((item) => {
-            if (ability.cannot('view', item.subject)) return null;
+            if (ability.cannot('read', item.subject)) return null;
             
             if (item.children) {
               return (
@@ -151,7 +152,7 @@ export default function PortalLayout({
         <div className="px-4 py-4 border-t border-border">
           <p className="px-3 mb-2 text-[10px] font-bold text-muted-foreground uppercase tracking-widest opacity-50">System</p>
           <div className="space-y-1">
-            {ability.can('view', 'Settings') && (
+            {ability.can('read', 'Settings') && (
               <Link href="/portal/settings">
                 <Button 
                   variant="ghost" 
