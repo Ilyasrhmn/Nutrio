@@ -78,6 +78,7 @@ export interface MenuItem {
  */
 export interface MenuTree extends Omit<MenuItem, "children"> {
   children: MenuTree[];
+  assignedRoles?: Array<{ id: string; name: string }>;
 }
 
 /**

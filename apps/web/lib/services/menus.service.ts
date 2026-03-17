@@ -77,4 +77,11 @@ export const menusService = {
   async removeRole(menuId: string, roleId: string): Promise<void> {
     return api.delete<void>(`/menus/${menuId}/roles/${roleId}`);
   },
+
+  /**
+   * Atomic reorder (swap) of two menu items
+   */
+  async reorder(id: string, targetId: string): Promise<void> {
+    return api.patch<void>(`/menus/${id}/reorder`, { targetId });
+  },
 };

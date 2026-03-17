@@ -9,6 +9,7 @@ import {
   HttpCode,
   HttpStatus,
   ParseUUIDPipe,
+  Patch,
   UseGuards,
 } from '@nestjs/common';
 import { MenusService } from './menus.service';
@@ -105,5 +106,14 @@ export class MenusController {
     @Param('roleId', ParseUUIDPipe) roleId: string,
   ) {
     return this.menusService.removeRoles(id, [roleId]);
+  }
+
+  @UseGuards(JwtAuthGuard, AdminGuard)
+  @Patch(':id/reorder')
+  async reorder(
+    @Param('id', ParseUUIDPipe) id: string,
+    @Body('targetId', ParseUUIDPipe) targetId: string,
+  ) {
+    return this.menusService.swapOrders(id, targetId);
   }
 }

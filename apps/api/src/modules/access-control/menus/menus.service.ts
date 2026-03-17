@@ -18,10 +18,11 @@ export class MenusService {
   ) {}
 
   /**
-   * Get full menu tree structure
+   * Get full menu tree structure with role assignments
    */
   async findAllTree() {
     const menus = await this.menuRepository.find({
+      relations: ['roleMenus', 'roleMenus.role'],
       order: { order: 'ASC' },
     });
 
@@ -70,7 +71,20 @@ export class MenusService {
     return menus
       .filter((menu) => menu.parentId === parentId)
       .map((menu) => ({
-        ...menu,
+        id: menu.id,
+        name: menu.name,
+        path: menu.path,
+        icon: menu.icon,
+        order: menu.order,
+        parentId: menu.parentId,
+        requiredPermission: menu.requiredPermission,
+        metadata: menu.metadata,
+        createdAt: menu.createdAt,
+        updatedAt: menu.updatedAt,
+        assignedRoles: (menu as any).roleMenus?.map((rm: any) => ({
+          id: rm.role.id,
+          name: rm.role.name,
+        })) || [],
         children: this.buildMenuTree(menus, menu.id),
       }));
   }
@@ -280,7 +294,54 @@ export class MenusService {
   }
 
   /**
-   * Assign roles to a menu
+   * Atomic swap of orders between two menu items
+   */
+  async swapOrders(id1: string, id2: string) {
+    return this.menuRepository.manager.transaction(async (manager) => {
+      const menu1 = await manager.findOne(Menu, { where: { id: id1 } });
+      const menu2 = await manager.findOne(Menu, { where: { id: id2 } });
+
+      if (!menu1 || !menu2) {
+        throw new NotFoundException('One or both menus not found');
+      }
+
+      // If they have the same order, and we are swapping, we must ensure they end up different.
+      // Usually they should have different orders to move relative to each other.
+      // If they are same, we'll increment one and decrement other? 
+      // No, let's just swap. If they were both 0, they both stay 0? 
+      // That's bad. Let's force them to be different if they were same.
+      
+      let order1 = menu1.order;
+      let order2 = menu2.order;
+
+      if (order1 === order2) {
+        // Find if it's moving up or down? 
+        // Actually, just swap them and add a tiny offset if they were same.
+        // But better is to just swap the values.
+        // If they were same, we can't swap.
+        // Let's check which one comes first in the list normally.
+      }
+
+      menu1.order = order2;
+      menu2.order = order1;
+
+      // Handle the "same order" edge case by forcing a gap if needed, 
+      // but swapping should be enough if they were already different.
+      // If they were both 0, let's make them 0 and 1 (or -1 and 0).
+      if (menu1.order === menu2.order) {
+        menu1.order -= 1; 
+      }
+
+      await manager.save(menu1);
+      await manager.save(menu2);
+
+      await this.invalidateAllMenuCaches();
+      return { success: true };
+    });
+  }
+
+  /**
+   * Assign roles to a menu (synchronizes the assignments)
    */
   async assignRoles(menuId: string, roleIds: string[]) {
     const menu = await this.menuRepository.findOne({ where: { id: menuId } });
@@ -288,7 +349,13 @@ export class MenusService {
       throw new NotFoundException(`Menu with ID \"${menuId}\" not found`);
     }
 
-    // Validate roles exist
+    // Get current assignments to know what to invalidate
+    const currentAssignments = await this.roleMenuRepository.find({
+      where: { menuId },
+    });
+    const oldRoleIds = currentAssignments.map((a) => a.roleId);
+
+    // Validate new roles exist
     for (const roleId of roleIds) {
       const role = await this.roleRepository.findOne({ where: { id: roleId } });
       if (!role) {
@@ -296,15 +363,20 @@ export class MenusService {
       }
     }
 
-    const assignments = roleIds.map((roleId) => ({
-      menuId,
-      roleId,
-    }));
+    // Replace all assignments for this menu
+    await this.roleMenuRepository.delete({ menuId });
 
-    await this.roleMenuRepository.save(assignments);
+    if (roleIds.length > 0) {
+      const assignments = roleIds.map((roleId) => ({
+        menuId,
+        roleId,
+      }));
+      await this.roleMenuRepository.save(assignments);
+    }
 
-    // Invalidate cache for each role assigned
-    for (const roleId of roleIds) {
+    // Invalidate cache for all affected roles (old and new)
+    const allAffectedRoleIds = Array.from(new Set([...oldRoleIds, ...roleIds]));
+    for (const roleId of allAffectedRoleIds) {
       await this.cacheService.invalidateUserMenu(roleId);
     }
 

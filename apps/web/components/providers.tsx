@@ -3,6 +3,7 @@
 import * as React from "react"
 import { ThemeProvider as NextThemesProvider } from "next-themes"
 import { AuthProvider } from "@/hooks/use-auth"
+import { MenuProvider } from "@/hooks/use-menu-context"
 
 export function Providers({ children }: { children: React.ReactNode }) {
   return (
@@ -15,7 +16,9 @@ export function Providers({ children }: { children: React.ReactNode }) {
       enableColorScheme={false}
     >
       <AuthProvider>
-        {children}
+        <MenuProvider>
+          {children}
+        </MenuProvider>
       </AuthProvider>
     </NextThemesProvider>
   )
