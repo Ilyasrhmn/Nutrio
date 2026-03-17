@@ -2,7 +2,7 @@
 
 import * as React from "react";
 import Link from "next/link";
-import { usePathname, useRouter } from "next/navigation";
+import { usePathname } from "next/navigation";
 import {
   LayoutDashboard,
   Map as MapIcon,
@@ -23,6 +23,11 @@ import {
   ChevronDown,
   Folder,
   Circle,
+  CalendarDays,
+  Scale,
+  ClipboardList,
+  CookingPot,
+  UtensilsCrossed,
 } from "lucide-react";
 import { Button } from "@workspace/ui/components/button";
 import {
@@ -34,6 +39,7 @@ import { cn } from "@workspace/ui/lib/utils";
 import { useAuth } from "@/hooks/use-auth";
 import { useUserMenu } from "@/hooks/use-user-menu";
 import { MenuTree } from "@workspace/common";
+import { AppSubject } from "@/lib/casl";
 
 const ICON_MAP: Record<string, any> = {
   LayoutDashboard,
@@ -49,6 +55,11 @@ const ICON_MAP: Record<string, any> = {
   ShieldCheck,
   Settings,
   Folder,
+  CalendarDays,
+  Scale,
+  ClipboardList,
+  CookingPot,
+  UtensilsCrossed,
 };
 
 export default function PortalLayout({
@@ -57,7 +68,7 @@ export default function PortalLayout({
   children: React.ReactNode;
 }) {
   const pathname = usePathname();
-  const { user, logout } = useAuth();
+  const { user, logout, ability } = useAuth();
   const { menus, loading } = useUserMenu();
   const [expanded, setExpanded] = React.useState<Record<string, boolean>>({});
 
@@ -85,28 +96,28 @@ export default function PortalLayout({
           <Button
             variant="ghost"
             className={cn(
-              "w-full !justify-start gap-3 h-10 px-3 transition-colors",
+              "w-full !justify-start gap-3 h-10 px-3 transition-all rounded-lg",
               pathname === item.path
-                ? "text-primary bg-primary/10 font-semibold"
+                ? "text-primary bg-primary/10 font-bold shadow-sm"
                 : "text-muted-foreground hover:text-primary hover:bg-primary/5",
               level > 0 && "pl-8",
             )}
           >
             <Icon className={cn("size-4 shrink-0", level > 0 && "size-2.5")} />
-            <span className="flex-1 truncate text-left">{item.name}</span>
+            <span className="flex-1 truncate text-left text-xs">{item.name}</span>
             {hasChildren && (
               <div onClick={(e) => toggleExpand(item.id, e)}>
                 {isExpanded ? (
-                  <ChevronDown className="size-4 shrink-0 opacity-50" />
+                  <ChevronDown className="size-3 shrink-0 opacity-50" />
                 ) : (
-                  <ChevronRight className="size-4 shrink-0 opacity-50" />
+                  <ChevronRight className="size-3 shrink-0 opacity-50" />
                 )}
               </div>
             )}
           </Button>
         </Link>
         {hasChildren && isExpanded && (
-          <div className="space-y-1">
+          <div className="space-y-1 animate-in slide-in-from-top-1 duration-200">
             {item.children.map((child) => renderMenuItem(child, level + 1))}
           </div>
         )}
@@ -119,14 +130,14 @@ export default function PortalLayout({
       {/* Sidebar */}
       <aside className="fixed inset-y-0 left-0 w-64 border-r border-border bg-card flex flex-col z-20">
         <div className="p-6 flex items-center gap-3">
-          <div className="size-10 bg-primary rounded-xl flex items-center justify-center text-primary-foreground">
+          <div className="size-10 bg-primary rounded-xl flex items-center justify-center text-primary-foreground shadow-lg shadow-primary/20">
             <ShieldCheck className="size-6" />
           </div>
           <div>
-            <h1 className="font-bold text-foreground leading-tight">
+            <h1 className="font-bold text-foreground leading-tight tracking-tight">
               VendorTrack
             </h1>
-            <p className="text-[10px] font-medium text-muted-foreground uppercase tracking-wider">
+            <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest opacity-70">
               MBG Monitoring
             </p>
           </div>
@@ -148,27 +159,29 @@ export default function PortalLayout({
         </nav>
 
         <div className="px-4 py-4 border-t border-border">
-          <p className="px-3 mb-2 text-[10px] font-semibold text-muted-foreground uppercase tracking-wider">
+          <p className="px-3 mb-2 text-[10px] font-bold text-muted-foreground uppercase tracking-widest opacity-50">
             System
           </p>
           <div className="space-y-1">
-            <Link href="/portal/settings">
-              <Button
-                variant="ghost"
-                className={cn(
-                  "w-full !justify-start gap-3 h-10 px-3 transition-colors",
-                  pathname === "/portal/settings"
-                    ? "text-primary bg-primary/10 font-semibold"
-                    : "text-muted-foreground hover:text-primary hover:bg-primary/5",
-                )}
-              >
-                <Settings className="size-4" />
-                Pengaturan
-              </Button>
-            </Link>
+            {ability.can("read", "Settings") && (
+              <Link href="/portal/settings">
+                <Button
+                  variant="ghost"
+                  className={cn(
+                    "w-full !justify-start gap-3 h-10 px-3 transition-colors text-xs",
+                    pathname === "/portal/settings"
+                      ? "text-primary bg-primary/10 font-bold"
+                      : "text-muted-foreground hover:text-primary hover:bg-primary/5",
+                  )}
+                >
+                  <Settings className="size-4" />
+                  Pengaturan
+                </Button>
+              </Link>
+            )}
             <Button
               variant="ghost"
-              className="w-full !justify-start gap-3 text-muted-foreground hover:text-primary hover:bg-primary/5 h-10 px-3 transition-colors"
+              className="w-full !justify-start gap-3 text-muted-foreground hover:text-primary hover:bg-primary/5 h-10 px-3 text-xs"
             >
               <HelpCircle className="size-4" />
               Help Center
@@ -178,7 +191,7 @@ export default function PortalLayout({
             <Button
               variant="ghost"
               onClick={logout}
-              className="w-full !justify-start gap-3 h-10 px-3 text-destructive hover:bg-destructive/5 hover:text-destructive transition-colors"
+              className="w-full !justify-start gap-3 h-10 px-3 text-destructive hover:bg-destructive/5 hover:text-destructive transition-all text-xs font-medium"
             >
               <LogOut className="size-4" />
               Keluar (Log Out)
@@ -187,10 +200,10 @@ export default function PortalLayout({
         </div>
 
         <div className="p-4 border-t border-border">
-          <div className="p-3 bg-muted rounded-2xl flex items-center gap-3">
+          <div className="p-3 bg-muted/50 rounded-2xl flex items-center gap-3 border border-border/50">
             <Avatar className="size-10 border-2 border-background shadow-sm">
               <AvatarImage src="" />
-              <AvatarFallback className="bg-primary/10 text-primary font-semibold text-xs">
+              <AvatarFallback className="bg-primary/10 text-primary font-bold text-xs">
                 {user?.fullName
                   ?.split(" ")
                   .map((n) => n[0])
@@ -198,10 +211,10 @@ export default function PortalLayout({
               </AvatarFallback>
             </Avatar>
             <div className="flex-1 min-w-0">
-              <p className="text-sm font-semibold text-foreground truncate">
+              <p className="text-[12px] font-bold text-foreground truncate">
                 {user?.fullName || "Admin BGN"}
               </p>
-              <p className="text-[11px] font-medium text-muted-foreground truncate uppercase">
+              <p className="text-[9px] font-black text-muted-foreground truncate uppercase tracking-tighter opacity-70">
                 {user?.role || "Superuser"}
               </p>
             </div>
