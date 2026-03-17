@@ -28,12 +28,12 @@ build
 dist
 
 # Foundry
-cache/
-broadcast/
+apps/contracts/cache/
+apps/contracts/broadcast/
 
 # Debug
 npm-debug.log*
-
 # Misc
 .DS_Store
 *.pem
+
