@@ -19,7 +19,7 @@ export const defineAbilitiesFor = (role: UserRole | string): AppAbility => {
 
   switch (role) {
     case UserRole.ADMIN_BGN:
-      defineAdminAbilities(can);
+      defineAdminAbilities(can, cannot);
       break;
     case UserRole.VENDOR:
       defineVendorAbilities(can, cannot);
@@ -47,8 +47,43 @@ export const defineAbilitiesFor = (role: UserRole | string): AppAbility => {
   });
 };
 
-function defineAdminAbilities(can: AbilityBuilder<AppAbility>['can']): void {
+function defineAdminAbilities(
+  can: AbilityBuilder<AppAbility>['can'],
+  cannot: AbilityBuilder<AppAbility>['cannot']
+): void {
   can('manage', 'all');
+  // Admin only manages macro stuff, cannot access specific vendor operations
+  // as they are strictly for Vendor role
+  // @ts-ignore
+  cannot('read', 'MonitoringKepatuhan');
+  // @ts-ignore
+  cannot('read', 'Operasional');
+}
+
+function defineVendorAbilities(
+  can: AbilityBuilder<AppAbility>['can'],
+  cannot: AbilityBuilder<AppAbility>['cannot']
+): void {
+  can('read', 'Dashboard');
+  can('read', 'Funds');
+  can('read', 'Marketplace');
+  can('read', 'Logistics');
+  can('read', 'Reports');
+  can('read', 'MonitoringKepatuhan'); // New Parent
+  can('read', 'Live');
+  can('read', 'Checkpoints');
+  can('read', 'SOP');
+  can('read', 'Incidents');
+  can('read', 'Audit');
+  can('read', 'Operasional'); // New Parent
+  can('read', 'Menu');
+  can('read', 'OperasionalJadwal');
+  can('read', 'OperasionalKalkulasi');
+  can('read', 'OperasionalKitchen');
+  can('read', 'OperasionalStock');
+  can('read', 'Settings');
+  cannot('read', 'Map');
+  cannot('read', 'MenuAdmin');
 }
 
 function defineSupplierAbilities(
@@ -60,6 +95,7 @@ function defineSupplierAbilities(
   can('read', 'SupplierShop');
   can('read', 'SupplierProducts');
   can('read', 'SupplierChat');
+  can('read', 'Reports'); // New access for supplier reports
   can('read', 'Settings');
   cannot('read', 'Map');
   cannot('read', 'Funds');
@@ -68,25 +104,8 @@ function defineSupplierAbilities(
   cannot('read', 'Logistics');
   cannot('read', 'Checkpoints');
   cannot('read', 'Audit');
-  cannot('read', 'Reports');
-}
-
-function defineVendorAbilities(
-  can: AbilityBuilder<AppAbility>['can'],
-  cannot: AbilityBuilder<AppAbility>['cannot'],
-): void {
-  can('read', 'Dashboard');
-  can('read', 'Map');
-  can('read', 'Funds');
-  can('read', 'Menu');
-  can('read', 'LiveExecution');
-  can('read', 'Logistics');
-  can('read', 'Checkpoints');
-  can('read', 'Marketplace');
-  can('read', 'Settings');
-  can('read', 'Monitoring');
-  cannot('read', 'Audit');
-  cannot('read', 'Reports');
+  cannot('read', 'MonitoringKepatuhan');
+  cannot('read', 'Operasional');
 }
 
 function defineInspectorAbilities(
