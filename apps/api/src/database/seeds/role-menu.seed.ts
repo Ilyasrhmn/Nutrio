@@ -13,7 +13,9 @@ export default class RoleMenuSeed {
     try {
       console.log('🌱 Starting role-menu assignment seeding...');
 
-      // Define menu access for each role
+      // Clear existing assignments to avoid duplicates and ensure strict role separation
+      await queryRunner.manager.query('DELETE FROM "role_menus"');
+
       const assignments: RoleMenuAssignment[] = [
         {
           roleName: 'admin_bgn',
@@ -21,21 +23,9 @@ export default class RoleMenuSeed {
             '/portal',
             '/portal/map',
             '/portal/funds',
-            '/portal/incidents',
-            '/portal/menu',
             '/portal/marketplace',
-            '/portal/live',
             '/portal/logistics',
-            '/portal/checkpoints',
-            '/portal/operasional',
-            '/portal/operasional/jadwal',
-            '/portal/operasional/kalkulasi-bahan',
-            '/portal/operasional/kitchen-sop',
-            '/portal/operasional/stock-opname',
-            '/portal/sop',
-            '/portal/audit',
             '/portal/reports',
-            '/portal/settings',
             '/portal/admin',
             '/portal/admin/roles',
             '/portal/admin/permissions',
@@ -46,72 +36,22 @@ export default class RoleMenuSeed {
           roleName: 'vendor',
           menuPaths: [
             '/portal',
-            '/portal/map',
             '/portal/funds',
-            '/portal/menu',
-            '/portal/live',
-            '/portal/logistics',
-            '/portal/checkpoints',
             '/portal/marketplace',
-            '/portal/settings',
+            '/portal/logistics',
+            '/portal/reports',
+            '/portal/monitoring',
+            '/portal/live',
+            '/portal/checkpoints',
             '/portal/sop',
             '/portal/incidents',
-          ],
-        },
-        {
-          roleName: 'inspector',
-          menuPaths: [
-            '/portal',
-            '/portal/map',
-            '/portal/live',
-            '/portal/logistics',
-            '/portal/checkpoints',
             '/portal/audit',
-            '/portal/reports',
-            '/portal/incidents',
             '/portal/operasional',
+            '/portal/menu',
             '/portal/operasional/jadwal',
             '/portal/operasional/kalkulasi-bahan',
             '/portal/operasional/kitchen-sop',
             '/portal/operasional/stock-opname',
-          ],
-        },
-        {
-          roleName: 'coordinator_sppg',
-          menuPaths: [
-            '/portal',
-            '/portal/map',
-            '/portal/live',
-            '/portal/logistics',
-            '/portal/checkpoints',
-            '/portal/audit',
-            '/portal/reports',
-            '/portal/settings',
-            '/portal/incidents',
-            '/portal/operasional',
-            '/portal/operasional/jadwal',
-            '/portal/operasional/kalkulasi-bahan',
-            '/portal/operasional/kitchen-sop',
-            '/portal/operasional/stock-opname',
-          ],
-        },
-        {
-          roleName: 'dinkes',
-          menuPaths: [
-            '/portal',
-            '/portal/map',
-            '/portal/live',
-            '/portal/audit',
-            '/portal/reports',
-            '/portal/incidents',
-          ],
-        },
-        {
-          roleName: 'public',
-          menuPaths: [
-            '/portal',
-            '/portal/map',
-            '/portal/live',
           ],
         },
         {
@@ -122,7 +62,15 @@ export default class RoleMenuSeed {
             '/portal/supplier/shop',
             '/portal/supplier/products',
             '/portal/supplier/chat',
-            '/portal/settings',
+            '/portal/reports',
+          ],
+        },
+        {
+          roleName: 'public',
+          menuPaths: [
+            '/portal',
+            '/portal/map',
+            '/portal/live',
           ],
         },
       ];
@@ -136,39 +84,26 @@ export default class RoleMenuSeed {
         });
 
         if (!role) {
-          console.warn(`⚠️  Role not found: ${assignment.roleName}, skipping...`);
+          console.warn(`⚠️  Role not found: ${assignment.roleName}`);
           continue;
         }
 
-        for (const menuPath of assignment.menuPaths) {
+        for (const path of assignment.menuPaths) {
           // Find menu
           const menu: any = await queryRunner.manager.findOne('menus', {
-            where: { path: menuPath },
+            where: { path },
           });
 
           if (!menu) {
-            console.warn(`⚠️  Menu not found: ${menuPath}, skipping...`);
+            console.warn(`⚠️  Menu not found: ${path}`);
             continue;
           }
 
-          // Check if assignment already exists using raw query
-          const existingAssignment = await queryRunner.manager.query(
-            `SELECT * FROM role_menus WHERE role_id = $1 AND menu_id = $2 LIMIT 1`,
-            [role.id, menu.id]
-          );
-
-          if (existingAssignment && existingAssignment.length > 0) {
-            continue;
-          }
-
-          // Create assignment using raw query
-          await queryRunner.manager.query(
-            `INSERT INTO role_menus (role_id, menu_id, created_at) 
-             VALUES ($1, $2, NOW())
-             ON CONFLICT (role_id, menu_id) DO NOTHING`,
-            [role.id, menu.id]
-          );
-
+          // Assign menu to role
+          await queryRunner.manager.save('role_menus', {
+            roleId: role.id,
+            menuId: menu.id,
+          });
           created++;
         }
 
