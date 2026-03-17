@@ -8,6 +8,7 @@ export enum UserRole {
   COORDINATOR_SPPG = 'coordinator_sppg',
   DINKES = 'dinkes',
   PUBLIC = 'public',
+  SUPPLIER = 'supplier',
 }
 
 /**

@@ -30,6 +30,8 @@ import {
   UtensilsCrossed,
   AlertCircle,
   BookOpen,
+  Package,
+  MessageSquare,
 } from "lucide-react";
 import { Button } from "@workspace/ui/components/button";
 import {
@@ -65,6 +67,8 @@ const ICON_MAP: Record<string, any> = {
   UtensilsCrossed,
   AlertCircle,
   BookOpen,
+  Package,
+  MessageSquare,
 };
 
 export default function PortalLayout({

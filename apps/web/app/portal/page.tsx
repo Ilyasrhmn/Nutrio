@@ -1,8 +1,9 @@
+"use client"
+
 import * as React from "react"
 import { 
   Search, 
   Bell, 
-  FileDown, 
   TrendingUp, 
   Users, 
   CheckCircle, 
@@ -12,7 +13,13 @@ import {
   Filter,
   ShieldCheck,
   AlertTriangle,
-  ChevronRight
+  ChevronRight,
+  Store,
+  Package,
+  MessageSquare,
+  ArrowUpRight,
+  Eye,
+  ShoppingCart
 } from "lucide-react"
 import { Button } from "@workspace/ui/components/button"
 import { Input } from "@workspace/ui/components/input"
@@ -26,8 +33,153 @@ import {
   TableHeader, 
   TableRow 
 } from "@workspace/ui/components/table"
+import { useAuth } from "@/hooks/use-auth"
+import { UserRole } from "@workspace/common"
 
 export default function DashboardPage() {
+  const { user } = useAuth()
+  const isSupplier = user?.role === UserRole.SUPPLIER
+
+  if (isSupplier) {
+    return <SupplierDashboard />
+  }
+
+  return <AdminDashboard />
+}
+
+function SupplierDashboard() {
+  return (
+    <div className="p-8 space-y-8 animate-in fade-in duration-500">
+      {/* Header */}
+      <div className="flex items-center justify-between">
+        <div>
+          <h2 className="text-2xl font-black text-slate-900 tracking-tight">Dashboard Supplier</h2>
+          <p className="text-muted-foreground font-medium text-sm">Selamat datang kembali, PT Tani Makmur Sejahtera.</p>
+        </div>
+        <div className="flex items-center gap-3">
+          <Badge className="bg-emerald-500 text-white border-none font-bold px-3 py-1">Verified Supplier</Badge>
+          <Button variant="outline" size="icon" className="rounded-full relative">
+            <Bell className="size-4" />
+            <span className="absolute top-2 right-2 size-2 bg-destructive rounded-full border-2 border-white"></span>
+          </Button>
+        </div>
+      </div>
+
+      {/* Metrics */}
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+        {[
+          { label: "View Profil", value: "1,240", change: "+12%", icon: Eye, color: "blue" },
+          { label: "Chat Masuk", value: "24", change: "+5", icon: MessageSquare, color: "primary" },
+          { label: "Produk Aktif", value: "12", change: "Stabil", icon: Package, color: "amber" },
+          { label: "Total Pesanan", value: "86", change: "+8%", icon: ShoppingCart, color: "emerald" },
+        ].map((stat, i) => (
+          <Card key={i} className="border-border shadow-sm hover:shadow-md transition-shadow rounded-2xl">
+            <CardContent className="p-6">
+              <div className="flex items-start justify-between mb-4">
+                <div className={`size-10 bg-${stat.color}-500/10 rounded-xl flex items-center justify-center text-${stat.color}-600`}>
+                  <stat.icon className="size-5" />
+                </div>
+                <Badge variant="outline" className="text-[10px] font-bold border-none bg-slate-50">{stat.change}</Badge>
+              </div>
+              <div className="space-y-1">
+                <h3 className="text-2xl font-black text-slate-900">{stat.value}</h3>
+                <p className="text-xs font-bold text-muted-foreground uppercase tracking-widest">{stat.label}</p>
+              </div>
+            </CardContent>
+          </Card>
+        ))}
+      </div>
+
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        {/* Recent Inquiries */}
+        <Card className="lg:col-span-2 border-border shadow-sm rounded-3xl overflow-hidden">
+          <CardHeader className="flex flex-row items-center justify-between border-b border-slate-50 bg-slate-50/30">
+            <div>
+              <CardTitle className="text-lg font-bold">Permintaan Penawaran Terbaru</CardTitle>
+              <CardDescription>Vendor yang tertarik dengan produk Anda.</CardDescription>
+            </div>
+            <Button variant="ghost" size="sm" className="text-xs font-bold text-primary">Lihat Semua</Button>
+          </CardHeader>
+          <CardContent className="p-0">
+            <Table>
+              <TableHeader>
+                <TableRow className="bg-slate-50/50 hover:bg-slate-50/50 border-none">
+                  <TableHead className="font-black text-[10px] uppercase pl-6 text-slate-400">Vendor</TableHead>
+                  <TableHead className="font-black text-[10px] uppercase text-slate-400">Produk</TableHead>
+                  <TableHead className="font-black text-[10px] uppercase text-slate-400">Kuantitas</TableHead>
+                  <TableHead className="font-black text-[10px] uppercase pr-6 text-right text-slate-400">Action</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {[
+                  { name: "Catering Ibu Budi", product: "Daging Ayam", qty: "200 kg", time: "2m ago" },
+                  { name: "Dapur Nusantara", product: "Beras Rojolele", qty: "500 kg", time: "15m ago" },
+                  { name: "Mitra SPPG Tebet", product: "Telur Grade A", qty: "50 kg", time: "1h ago" },
+                ].map((row, i) => (
+                  <TableRow key={i} className="group border-slate-50">
+                    <TableCell className="font-bold text-slate-900 pl-6">{row.name}</TableCell>
+                    <TableCell className="text-slate-600 font-medium">{row.product}</TableCell>
+                    <TableCell className="font-black text-slate-900">{row.qty}</TableCell>
+                    <TableCell className="text-right pr-6">
+                      <Button variant="ghost" size="sm" className="rounded-full text-primary hover:bg-primary/5 font-bold text-[11px]">
+                        Balas Chat
+                      </Button>
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </CardContent>
+        </Card>
+
+        {/* Shop Performance Summary */}
+        <div className="space-y-6">
+          <Card className="border-border shadow-sm rounded-3xl bg-slate-900 text-white overflow-hidden relative group">
+            <div className="absolute top-0 right-0 p-8 opacity-10 group-hover:scale-110 transition-transform">
+              <Store className="size-24" />
+            </div>
+            <CardContent className="p-8 space-y-6 relative z-10">
+              <div className="space-y-2">
+                <p className="text-xs font-black text-primary uppercase tracking-[0.2em]">Kesehatan Toko</p>
+                <h3 className="text-3xl font-black">Sempurna</h3>
+              </div>
+              <div className="space-y-4">
+                <div className="flex justify-between items-end">
+                  <span className="text-xs font-bold text-slate-400 uppercase tracking-widest">Respons Chat</span>
+                  <span className="text-sm font-black text-primary">98%</span>
+                </div>
+                <div className="h-1.5 w-full bg-white/10 rounded-full overflow-hidden">
+                  <div className="h-full bg-primary w-[98%]" />
+                </div>
+              </div>
+              <Button className="w-full rounded-full font-bold bg-white text-slate-900 hover:bg-white/90 gap-2">
+                Buka Etalase <ArrowUpRight className="size-4" />
+              </Button>
+            </CardContent>
+          </Card>
+
+          <Card className="border-border shadow-sm rounded-3xl">
+            <CardHeader className="pb-2">
+              <CardTitle className="text-sm font-bold uppercase tracking-widest text-slate-400">Tips BGN</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="flex gap-3">
+                <div className="size-8 bg-amber-50 rounded-lg flex items-center justify-center text-amber-600 shrink-0">
+                  <AlertTriangle className="size-4" />
+                </div>
+                <p className="text-xs font-medium leading-relaxed text-slate-600">
+                  Foto produk <span className="font-bold text-slate-900">Beras Rojolele</span> sudah berumur 6 bulan. Update foto riil terbaru untuk mempertahankan badge verifikasi.
+                </p>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+      </div>
+    </div>
+  )
+}
+
+function AdminDashboard() {
   return (
     <div className="p-8 space-y-8 bg-background">
       {/* Top Header */}
@@ -46,7 +198,7 @@ export default function DashboardPage() {
             <span className="absolute top-2 right-2.5 size-2 bg-destructive rounded-full border-2 border-card"></span>
           </Button>
           <Button className="gap-2 px-5 bg-primary text-primary-foreground hover:bg-primary/90">
-            <FileDown className="size-4" />
+            {/* <FileDown className="size-4" /> */}
             Export Laporan PDF
           </Button>
         </div>
