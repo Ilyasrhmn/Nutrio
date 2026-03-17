@@ -22,6 +22,16 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
     if (!user || !user.isActive) {
       throw new UnauthorizedException();
     }
+    
+    // Debug logging
+    console.log('JwtStrategy validate - User loaded:', {
+      userId: user.id,
+      email: user.email,
+      roleId: user.roleId,
+      roleName: user.role?.name,
+      roleLegacy: user.roleLegacy
+    });
+    
     return user;
   }
 }

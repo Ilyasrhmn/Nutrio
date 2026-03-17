@@ -30,7 +30,7 @@ export class PoliciesGuard implements CanActivate {
       throw new ForbiddenException('User role not found in request context');
     }
 
-    const ability = this.caslAbilityFactory.createForUser(user.role as UserRole);
+    const ability = await this.caslAbilityFactory.createForUser(user.role as UserRole);
 
     const hasPermission = policyHandlers.every((handler) =>
       this.evaluatePolicy(handler, ability),

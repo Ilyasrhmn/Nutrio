@@ -82,8 +82,8 @@ export class AuthService {
     return {
       user: {
         ...userWithoutPassword,
-        // Return role as string enum for backward compatibility with frontend
-        role: role?.name?.toUpperCase() || user.roleLegacy || 'PUBLIC',
+        // Return role name from database (lowercase)
+        role: role?.name || user.roleLegacy || 'public',
       },
       ...tokens,
     };
@@ -127,8 +127,9 @@ export class AuthService {
     try {
       const roleRecord = await this.rolesService.findOne(user.roleId);
       roleName = roleRecord?.name || null;
-      // Convert role name to enum (admin_bgn -> ADMIN_BGN)
-      roleEnum = roleName ? (roleName.toUpperCase() as UserRole) : null;
+      // Map database role name to UserRole enum
+      // Database stores lowercase (admin_bgn), enum values are also lowercase
+      roleEnum = roleName as UserRole;
     } catch (e) {
       console.warn(`Could not find role record for roleId ${user.roleId}`);
     }
