@@ -14,16 +14,14 @@ import {
   ShieldAlert,
   Search,
   CheckCircle2,
-  Plus,
-  ArrowUpRight
+  Plus
 } from 'lucide-react';
 import { 
   Card, 
   CardContent, 
   CardDescription, 
   CardHeader, 
-  CardTitle,
-  CardFooter
+  CardTitle
 } from '@workspace/ui/components/card';
 import { Button } from '@workspace/ui/components/button';
 import { Badge } from '@workspace/ui/components/badge';
@@ -110,7 +108,7 @@ export default function AdminDashboard() {
     }
   ];
 
-  const chartOptions: any = {
+  const chartOptions: import("apexcharts").ApexOptions = {
     chart: {
       type: 'radialBar',
       sparkline: { enabled: true }
@@ -179,7 +177,7 @@ export default function AdminDashboard() {
 
       <div className="grid gap-6 lg:grid-cols-7">
         {/* System Health & Insights */}
-        <Card className="lg:col-span-4 bg-gradient-to-br from-background via-background to-primary/5 border-primary/10 shadow-lg relative overflow-hidden">
+        <Card className="lg:col-span-4 bg-linear-to-br from-background via-background to-primary/5 border-primary/10 shadow-lg relative overflow-hidden">
           <div className="absolute -top-12 -right-12 size-64 bg-primary/5 rounded-full blur-3xl" />
           <CardHeader>
             <div className="flex items-center justify-between">
@@ -328,7 +326,7 @@ export default function AdminDashboard() {
             </CardContent>
           </Card>
 
-          <Card className="border-primary/5 bg-gradient-to-br from-primary to-primary/80 text-white shadow-xl shadow-primary/20 p-6 relative overflow-hidden group">
+          <Card className="border-primary/5 bg-linear-to-br from-primary to-primary/80 text-white shadow-xl shadow-primary/20 p-6 relative overflow-hidden group">
             <div className="absolute top-0 right-0 p-12 opacity-10 group-hover:scale-150 transition-transform duration-700 pointer-events-none">
               <ShieldCheck className="size-48" />
             </div>
@@ -381,7 +379,7 @@ export default function AdminDashboard() {
               }
             ].map((item) => (
               <div key={item.step} className="relative space-y-3 group/item">
-                <span className="text-6xl font-black text-primary/[0.04] absolute -top-8 -left-4 group-hover/item:text-primary/[0.08] transition-colors pointer-events-none">
+                <span className="text-6xl font-black text-primary/4 absolute -top-8 -left-4 group-hover/item:text-primary/8 transition-colors pointer-events-none">
                   {item.step}
                 </span>
                 <div className="flex items-center gap-3 relative">
