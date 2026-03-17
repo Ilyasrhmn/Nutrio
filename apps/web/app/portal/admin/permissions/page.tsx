@@ -17,6 +17,8 @@ import {
   SelectValue,
 } from '@workspace/ui/components/select';
 import { Badge } from '@workspace/ui/components/badge';
+import { useToast } from '@workspace/ui/hooks/use-toast';
+import { ConfirmModal } from '@workspace/ui/components/confirm-modal';
 
 export default function PermissionsPage() {
   const [permissions, setPermissions] = useState<Record<string, DatabasePermission[]>>({});
@@ -24,6 +26,9 @@ export default function PermissionsPage() {
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const [expandedSubjects, setExpandedSubjects] = useState<string[]>([]);
+  const [permissionToDelete, setPermissionToDelete] = useState<DatabasePermission | null>(null);
+  const [deleting, setDeleting] = useState(false);
+  const { toast } = useToast();
 
   useEffect(() => {
     loadPermissions();
@@ -44,15 +49,31 @@ export default function PermissionsPage() {
   }
 
   async function handleDelete(permission: DatabasePermission) {
-    if (!confirm(`Delete permission "${permission.action}:${permission.subject}"?`)) {
-      return;
-    }
+    setPermissionToDelete(permission);
+  }
 
+  async function confirmDelete() {
+    if (!permissionToDelete) return;
+
+    setDeleting(true);
     try {
-      await permissionsService.delete(permission.id);
+      await permissionsService.delete(permissionToDelete.id);
       await loadPermissions();
-    } catch (error: any) {
-      alert(`Failed to delete: ${error.response?.data?.message || error.message}`);
+      toast({
+        title: "Permission Deleted",
+        description: `Permission "${permissionToDelete.action}:${permissionToDelete.subject}" has been removed.`,
+        variant: "success",
+      });
+    } catch (error: unknown) {
+      const message = error instanceof Error ? error.message : "Unknown error";
+      toast({
+        title: "Delete Failed",
+        description: message,
+        variant: "destructive",
+      });
+    } finally {
+      setDeleting(false);
+      setPermissionToDelete(null);
     }
   }
 
@@ -176,6 +197,18 @@ export default function PermissionsPage() {
           onSuccess={loadPermissions}
         />
       )}
+
+      {/* Confirmation Modal */}
+      <ConfirmModal
+        isOpen={!!permissionToDelete}
+        onClose={() => setPermissionToDelete(null)}
+        onConfirm={confirmDelete}
+        title="Delete Permission"
+        description={`Are you sure you want to delete the permission "${permissionToDelete?.action}:${permissionToDelete?.subject}"? This cannot be undone.`}
+        confirmText="Delete Permission"
+        variant="destructive"
+        loading={deleting}
+      />
     </div>
   );
 }
@@ -205,8 +238,9 @@ function CreatePermissionModal({
       await permissionsService.create({ action, subject, description });
       onSuccess();
       onClose();
-    } catch (err: any) {
-      setError(err.response?.data?.message || 'Failed to create permission');
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : 'Failed to create permission';
+      setError(message);
     } finally {
       setSaving(false);
     }

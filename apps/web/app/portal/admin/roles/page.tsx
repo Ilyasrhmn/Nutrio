@@ -20,6 +20,8 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@work
 import { Plus, Edit, Trash2, Shield, Search } from 'lucide-react';
 import { Checkbox } from '@workspace/ui/components/checkbox';
 import { Label } from '@workspace/ui/components/label';
+import { useToast } from '@workspace/ui/hooks/use-toast';
+import { ConfirmModal } from '@workspace/ui/components/confirm-modal';
 
 export default function RolesPage() {
   const [roles, setRoles] = useState<RoleWithPermissions[]>([]);
@@ -27,7 +29,10 @@ export default function RolesPage() {
   const [loading, setLoading] = useState(true);
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [selectedRole, setSelectedRole] = useState<RoleWithPermissions | null>(null);
+  const [roleToDelete, setRoleToDelete] = useState<RoleWithPermissions | null>(null);
+  const [deleting, setDeleting] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
+  const { toast } = useToast();
 
   useEffect(() => {
     loadData();
@@ -50,15 +55,31 @@ export default function RolesPage() {
   }
 
   async function handleDelete(role: RoleWithPermissions) {
-    if (!confirm(`Delete role "${role.name}"? This cannot be undone.`)) {
-      return;
-    }
+    setRoleToDelete(role);
+  }
 
+  async function confirmDelete() {
+    if (!roleToDelete) return;
+
+    setDeleting(true);
     try {
-      await rolesService.delete(role.id);
+      await rolesService.delete(roleToDelete.id);
       await loadData();
-    } catch (error: any) {
-      alert(`Failed to delete role: ${error.response?.data?.message || error.message}`);
+      toast({
+        title: "Role Deleted",
+        description: `Role "${roleToDelete.name}" has been removed.`,
+        variant: "success",
+      });
+    } catch (error: unknown) {
+      const message = error instanceof Error ? error.message : 'Unknown error';
+      toast({
+        title: "Load Failed",
+        description: message,
+        variant: "destructive",
+      });
+    } finally {
+      setDeleting(false);
+      setRoleToDelete(null);
     }
   }
 
@@ -225,6 +246,18 @@ export default function RolesPage() {
           }}
         />
       )}
+
+      {/* Confirmation Modal */}
+      <ConfirmModal
+        isOpen={!!roleToDelete}
+        onClose={() => setRoleToDelete(null)}
+        onConfirm={confirmDelete}
+        title="Delete Role"
+        description={`Are you sure you want to delete the "${roleToDelete?.name}" role? This will remove it for all assigned users.`}
+        confirmText="Delete Role"
+        variant="destructive"
+        loading={deleting}
+      />
     </div>
   );
 }
@@ -245,8 +278,9 @@ function CreateRoleModal({ onClose, onSuccess }: { onClose: () => void; onSucces
       await rolesService.create({ name, description });
       onSuccess();
       onClose();
-    } catch (err: any) {
-      setError(err.response?.data?.message || 'Failed to create role');
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : 'Failed to create role';
+      setError(message);
     } finally {
       setSaving(false);
     }
@@ -321,7 +355,7 @@ function EditRoleModal({
   const [name, setName] = useState(role.name);
   const [description, setDescription] = useState(role.description || '');
   const [selectedPermissions, setSelectedPermissions] = useState<string[]>(
-    role.permissions?.map((p: any) => typeof p === 'string' ? p : p.id) || []
+    role.permissions?.map((p) => typeof p === 'string' ? p : p.id) || []
   );
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState('');
@@ -336,8 +370,9 @@ function EditRoleModal({
       await rolesService.addPermissions(role.id, selectedPermissions);
       onSuccess();
       onClose();
-    } catch (err: any) {
-      setError(err.response?.data?.message || 'Failed to update role');
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : 'Failed to update role';
+      setError(message);
     } finally {
       setSaving(false);
     }

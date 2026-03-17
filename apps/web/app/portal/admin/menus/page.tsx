@@ -101,6 +101,7 @@ import { useUserMenu } from "@/hooks/use-user-menu";
 import { Badge } from "@workspace/ui/components/badge";
 import { LucideIcon } from "lucide-react";
 import { useCallback, useEffect, useState } from "react";
+import { ConfirmModal } from "@workspace/ui/components/confirm-modal";
 
 // Icon mapping for preview
 const ICON_MAP: Record<string, LucideIcon> = {
@@ -192,6 +193,8 @@ export default function MenusPage() {
   const [roleMenuToManage, setRoleMenuToManage] = useState<MenuTree | null>(
     null,
   );
+  const [menuToDelete, setMenuToDelete] = useState<MenuTree | null>(null);
+  const [deleting, setDeleting] = useState(false);
   const { toast } = useToast();
   const { refresh: refreshSidebar } = useUserMenu();
 
@@ -213,7 +216,7 @@ export default function MenusPage() {
 
   const handleSuccess = () => {
     loadData();
-    refreshSidebar(); // Mutate sidebar state
+    refreshSidebar();
   };
 
   async function handleMove(menuId: string, targetId: string) {
@@ -236,12 +239,9 @@ export default function MenusPage() {
     const oldSourceOrder = sourceMenu.order;
     const oldTargetOrder = targetMenu.order;
 
-    // Determine new orders (swapping)
-    // If orders were same, force them to be different
     const newSourceOrder = oldTargetOrder;
     const newTargetOrder = oldSourceOrder === oldTargetOrder ? oldTargetOrder + 1 : oldSourceOrder;
 
-    // Optimistically update local state
     const updateLocalState = (items: MenuTree[]): MenuTree[] => {
       return items
         .map((item) => {
@@ -259,13 +259,11 @@ export default function MenusPage() {
 
     try {
       await menusService.reorder(menuId, targetId);
-
       toast({
         title: "Order Updated",
         description: "Menu sequence has been updated.",
         variant: "success",
       });
-      
       const freshData = await menusService.getTree();
       setMenus(freshData);
       refreshSidebar();
@@ -289,17 +287,18 @@ export default function MenusPage() {
       });
       return;
     }
+    setMenuToDelete(menu);
+  }
 
-    if (!confirm(`Delete menu item "${menu.name}"?`)) {
-      return;
-    }
-
+  async function confirmDelete() {
+    if (!menuToDelete) return;
+    setDeleting(true);
     try {
-      await menusService.delete(menu.id);
+      await menusService.delete(menuToDelete.id);
       handleSuccess();
       toast({
-        title: "Success",
-        description: "Menu deleted successfully",
+        title: "Menu Deleted",
+        description: `Menu "${menuToDelete.name}" has been removed.`,
         variant: "success",
       });
     } catch (error: unknown) {
@@ -309,6 +308,9 @@ export default function MenusPage() {
         description: message,
         variant: "destructive",
       });
+    } finally {
+      setDeleting(false);
+      setMenuToDelete(null);
     }
   }
 
@@ -322,7 +324,6 @@ export default function MenusPage() {
 
   return (
     <div className="space-y-6">
-      {/* Header */}
       <div className="flex flex-col gap-4 sm:flex-row sm:justify-between sm:items-center">
         <div>
           <h2 className="text-xl md:text-2xl font-bold tracking-tight">
@@ -342,7 +343,6 @@ export default function MenusPage() {
         </Button>
       </div>
 
-      {/* Menu Tree */}
       <Card>
         <CardContent className="p-6">
           {menus.length === 0 ? (
@@ -369,7 +369,6 @@ export default function MenusPage() {
         </CardContent>
       </Card>
 
-      {/* Create Modal */}
       {showCreateModal && (
         <CreateMenuModal
           menus={menus}
@@ -378,7 +377,6 @@ export default function MenusPage() {
         />
       )}
 
-      {/* Edit Modal */}
       {selectedMenu && (
         <EditMenuModal
           menu={selectedMenu}
@@ -388,7 +386,6 @@ export default function MenusPage() {
         />
       )}
 
-      {/* Manage Roles & Permissions Modal */}
       {roleMenuToManage && (
         <ManageRolesModal
           menu={roleMenuToManage}
@@ -396,6 +393,17 @@ export default function MenusPage() {
           onSuccess={handleSuccess}
         />
       )}
+
+      <ConfirmModal
+        isOpen={!!menuToDelete}
+        onClose={() => setMenuToDelete(null)}
+        onConfirm={confirmDelete}
+        title="Delete Menu Item"
+        description={`Are you sure you want to delete "${menuToDelete?.name}"? This action cannot be undone and will remove the menu for all users.`}
+        confirmText="Delete Menu"
+        variant="destructive"
+        loading={deleting}
+      />
     </div>
   );
 }
@@ -746,10 +754,11 @@ function CreateMenuModal({
       });
       onSuccess();
       onClose();
-    } catch (err: any) {
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : "Failed to create menu";
       toast({
         title: "Create Failed",
-        description: err.response?.data?.message || "Failed to create menu",
+        description: message,
         variant: "destructive",
       });
     } finally {
@@ -887,10 +896,11 @@ function EditMenuModal({
       });
       onSuccess();
       onClose();
-    } catch (err: any) {
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : "Failed to update menu";
       toast({
         title: "Update Failed",
-        description: err.response?.data?.message || "Failed to update menu",
+        description: message,
         variant: "destructive",
       });
     } finally {
