@@ -7,6 +7,8 @@ import { HealthModule } from "./modules/health/health.module";
 import { AppDataSource } from "./config/data-source";
 import { UsersModule } from "./modules/users/users.module";
 import { AuthModule } from "./modules/auth/auth.module";
+import { AccessControlModule } from "./modules/access-control/access-control.module";
+import { CacheModule } from "./modules/cache/cache.module";
 
 @Module({
   imports: [
@@ -17,6 +19,8 @@ import { AuthModule } from "./modules/auth/auth.module";
     HealthModule,
     UsersModule,
     AuthModule,
+    AccessControlModule,
+    CacheModule,
   ],
   controllers: [AppController],
   providers: [AppService],

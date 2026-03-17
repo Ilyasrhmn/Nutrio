@@ -11,6 +11,13 @@ import { LoginDto } from './dto/login.dto';
 import { RefreshToken } from './entities/refresh-token.entity';
 import { UserRole } from '@workspace/common';
 import { User } from '../users/entities/user.entity';
+import { RolesService } from '../access-control/roles/roles.service';
+import { CaslAbilityFactory } from './casl-ability.factory';
+
+interface DatabasePermission {
+  action: string;
+  subject: string;
+}
 
 @Injectable()
 export class AuthService {
@@ -18,6 +25,8 @@ export class AuthService {
     private readonly usersService: UsersService,
     private readonly jwtService: JwtService,
     private readonly configService: ConfigService,
+    private readonly rolesService: RolesService,
+    private readonly abilityFactory: CaslAbilityFactory,
     @InjectRepository(RefreshToken)
     private readonly refreshTokenRepository: Repository<RefreshToken>,
   ) {}
@@ -31,15 +40,27 @@ export class AuthService {
     const salt = await bcrypt.genSalt();
     const passwordHash = await bcrypt.hash(registerDto.password, salt);
 
+    // Get roleId from roles table based on enum value
+    const roleRecord = await this.rolesService.findByName(registerDto.role.toLowerCase());
+    if (!roleRecord) {
+      throw new ConflictException(`Role "${registerDto.role}" not found in database`);
+    }
+
     const user = await this.usersService.create({
       email: registerDto.email,
       passwordHash,
       fullName: registerDto.fullName,
-      role: registerDto.role,
+      roleId: roleRecord.id,
+      roleLegacy: registerDto.role, // Keep for backward compatibility
     });
 
-    const { passwordHash: _, ...result } = user;
-    return result;
+    // Transform response to not include role object
+    const { passwordHash: _, role, ...result } = user;
+    return {
+      ...result,
+      // Return role as string for frontend compatibility
+      role: registerDto.role,
+    };
   }
 
   async login(loginDto: LoginDto, ipAddress?: string, userAgent?: string) {
@@ -56,9 +77,14 @@ export class AuthService {
     const tokens = await this.generateTokens(user);
     await this.storeRefreshToken(user.id, tokens.refreshToken, ipAddress, userAgent);
 
-    const { passwordHash: _, ...userWithoutPassword } = user;
+    // Transform user data for frontend
+    const { passwordHash: _, role, ...userWithoutPassword } = user;
     return {
-      user: userWithoutPassword,
+      user: {
+        ...userWithoutPassword,
+        // Return role name from database (lowercase)
+        role: role?.name || user.roleLegacy || 'public',
+      },
       ...tokens,
     };
   }
@@ -94,8 +120,44 @@ export class AuthService {
   }
 
   private async generateTokens(user: User) {
-    const payload = { sub: user.id, email: user.email, role: user.role };
+    // Get role name from roleId
+    let roleName: string | null = null;
+    let roleEnum: UserRole | null = null;
     
+    try {
+      const roleRecord = await this.rolesService.findOne(user.roleId);
+      roleName = roleRecord?.name || null;
+      // Map database role name to UserRole enum
+      // Database stores lowercase (admin_bgn), enum values are also lowercase
+      roleEnum = roleName as UserRole;
+    } catch (e) {
+      console.warn(`Could not find role record for roleId ${user.roleId}`);
+    }
+
+    // Get user permissions from database
+    let permissions: DatabasePermission[] = [];
+    try {
+      const userPermissions = await this.rolesService.getRolePermissions(user.roleId);
+      permissions = userPermissions.map(p => ({ action: p.action, subject: p.subject }));
+      
+      // Cache permissions for this role
+      if (roleEnum) {
+        await this.abilityFactory.cachePermissions(roleEnum, permissions);
+      }
+    } catch (e) {
+      // If permissions not found, use empty array (will fallback to hardcoded in ability factory)
+      console.warn(`Could not load permissions for roleId ${user.roleId}:`, e);
+    }
+
+    const permissionStrings = permissions.map(p => `${p.action}:${p.subject}`);
+    const payload = { 
+      sub: user.id, 
+      email: user.email, 
+      role: roleEnum || roleName, // Use enum if available, fallback to name
+      roleId: user.roleId,
+      permissions: permissionStrings,
+    };
+
     const accessToken = this.jwtService.sign(payload, {
       secret: this.configService.get<string>('JWT_ACCESS_SECRET') || 'access-secret',
       expiresIn: '15m',
@@ -106,7 +168,7 @@ export class AuthService {
       expiresIn: '7d',
     });
 
-    return { accessToken, refreshToken };
+    return { accessToken, refreshToken, permissions: permissionStrings };
   }
 
   private async storeRefreshToken(userId: string, token: string, ipAddress?: string, userAgent?: string) {

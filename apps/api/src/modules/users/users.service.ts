@@ -11,11 +11,17 @@ export class UsersService {
   ) {}
 
   async findByEmail(email: string): Promise<User | null> {
-    return this.userRepository.findOne({ where: { email } });
+    return this.userRepository.findOne({ 
+      where: { email },
+      relations: ['role']
+    });
   }
 
   async findById(id: string): Promise<User | null> {
-    return this.userRepository.findOne({ where: { id } });
+    return this.userRepository.findOne({ 
+      where: { id },
+      relations: ['role']
+    });
   }
 
   async create(userData: Partial<User>): Promise<User> {
@@ -24,7 +30,9 @@ export class UsersService {
   }
 
   async update(id: string, userData: Partial<User>): Promise<User | null> {
-    await this.userRepository.update(id, userData);
+    // Remove relation objects before update to avoid TypeORM errors
+    const { role, ...updateData } = userData;
+    await this.userRepository.update(id, updateData);
     return this.findById(id);
   }
 }

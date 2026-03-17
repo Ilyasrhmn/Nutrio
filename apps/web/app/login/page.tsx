@@ -61,41 +61,24 @@ export default function LoginPage() {
   async function onSubmit(data: LoginFormValues) {
     setIsLoading(true)
     try {
-      // Dummy role mapping based on email for hackathon mode
-      let role: Role = UserRole.VENDOR
-      let fullName = "Mitra SPPG"
-
-      if (data.email.includes("admin")) {
-        role = UserRole.ADMIN_BGN
-        fullName = "Administrator BGN"
-      } else if (data.email.includes("supplier")) {
-        role = UserRole.INSPECTOR
-        fullName = "PT Tani Makmur"
-      } else if (data.email.includes("school")) {
-        role = UserRole.PUBLIC
-        fullName = "Kepala Sekolah SDN 01"
-      } else if (data.email.includes("parent")) {
-        role = UserRole.PUBLIC
-        fullName = "Wali Murid MBG"
-      }
-
-      // Simulate API call
-      setTimeout(() => {
-        login(data.email, role, fullName)
-        
-        toast({
-          title: "Login Berhasil",
-          description: `Selamat datang kembali, ${fullName}!`,
-        })
-        setIsLoading(false)
-      }, 1000)
-
-    } catch (error) {
+      // Call actual login API
+      await login({
+        email: data.email,
+        password: data.password,
+      })
+      
+      toast({
+        title: "Login Berhasil",
+        description: `Selamat datang kembali!`,
+      })
+    } catch (error: any) {
+      console.error('Login error:', error)
       toast({
         variant: "destructive",
         title: "Login Gagal",
-        description: "Terjadi kesalahan saat login",
+        description: error?.message || "Email atau password salah",
       })
+    } finally {
       setIsLoading(false)
     }
   }
