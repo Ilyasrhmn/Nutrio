@@ -195,6 +195,7 @@ export default function MenusPage() {
   );
   const [menuToDelete, setMenuToDelete] = useState<MenuTree | null>(null);
   const [deleting, setDeleting] = useState(false);
+  const [searchQuery, setSearchQuery] = useState("");
   const { toast } = useToast();
   const { refresh: refreshSidebar } = useUserMenu();
 
@@ -314,6 +315,28 @@ export default function MenusPage() {
     }
   }
 
+  // Recursive search filtering
+  const filterMenus = (items: MenuTree[]): MenuTree[] => {
+    return items
+      .map((item) => {
+        const matches =
+          item.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+          item.path.toLowerCase().includes(searchQuery.toLowerCase());
+
+        const filteredChildren = item.children
+          ? filterMenus(item.children)
+          : [];
+
+        if (matches || filteredChildren.length > 0) {
+          return { ...item, children: filteredChildren };
+        }
+        return null;
+      })
+      .filter((item): item is MenuTree => item !== null);
+  };
+
+  const filteredMenus = searchQuery ? filterMenus(menus) : menus;
+
   if (loading && menus.length === 0) {
     return (
       <div className="flex items-center justify-center h-64">
@@ -325,22 +348,33 @@ export default function MenusPage() {
   return (
     <div className="space-y-6">
       <div className="flex flex-col gap-4 sm:flex-row sm:justify-between sm:items-center">
-        <div>
+        <div className="flex-1 min-w-0">
           <h2 className="text-xl md:text-2xl font-bold tracking-tight">
             Menus Management
           </h2>
-          <p className="text-sm text-muted-foreground">
+          <p className="text-sm text-muted-foreground truncate">
             Configure sidebar navigation, role-based visibility, and detailed
             permissions
           </p>
         </div>
-        <Button
-          onClick={() => setShowCreateModal(true)}
-          className="gap-2 w-full sm:w-auto"
-        >
-          <Plus className="size-4" />
-          New Menu Item
-        </Button>
+        <div className="flex flex-col sm:flex-row gap-3 w-full sm:w-auto">
+          <div className="relative w-full sm:w-64 md:w-80">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 size-4 text-muted-foreground" />
+            <Input
+              placeholder="Search menus (name or path)..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="pl-9 h-10"
+            />
+          </div>
+          <Button
+            onClick={() => setShowCreateModal(true)}
+            className="gap-2 w-full sm:w-auto"
+          >
+            <Plus className="size-4" />
+            New Menu Item
+          </Button>
+        </div>
       </div>
 
       <Card>
@@ -358,11 +392,12 @@ export default function MenusPage() {
                 <div className="text-right">Actions</div>
               </div>
               <MenuTreeList
-                menus={menus}
+                menus={filteredMenus}
                 onEdit={setSelectedMenu}
                 onDelete={handleDelete}
                 onManageRoles={setRoleMenuToManage}
                 onMove={handleMove}
+                isSearchActive={!!searchQuery}
               />
             </div>
           )}
@@ -416,6 +451,7 @@ function MenuTreeList({
   onManageRoles,
   onMove,
   level = 0,
+  isSearchActive = false,
 }: {
   menus: MenuTree[];
   onEdit: (menu: MenuTree) => void;
@@ -423,13 +459,17 @@ function MenuTreeList({
   onManageRoles: (menu: MenuTree) => void;
   onMove: (menuId: string, targetId: string) => void;
   level?: number;
+  isSearchActive?: boolean;
 }) {
-  const [expanded, setExpanded] = useState<Record<string, boolean>>(
-    Object.fromEntries(menus.map((m) => [m.id, true])),
-  );
+  const [toggled, setToggled] = useState<Record<string, boolean>>({});
+
+  function isExpanded(id: string) {
+    if (isSearchActive) return true;
+    return toggled[id] ?? true; // Default to true
+  }
 
   function toggleExpand(id: string) {
-    setExpanded((prev) => ({ ...prev, [id]: !prev[id] }));
+    setToggled((prev) => ({ ...prev, [id]: !isExpanded(id) }));
   }
 
   return (
@@ -462,7 +502,7 @@ function MenuTreeList({
                       className="size-6 p-0"
                       onClick={() => toggleExpand(menu.id)}
                     >
-                      {expanded[menu.id] ? (
+                      {isExpanded(menu.id) ? (
                         <ChevronDown className="size-4" />
                       ) : (
                         <ChevronRight className="size-4" />
@@ -618,7 +658,7 @@ function MenuTreeList({
                 </Button>
               </div>
             </div>
-            {hasChildren && expanded[menu.id] && (
+            {hasChildren && isExpanded(menu.id) && (
               <MenuTreeList
                 menus={menu.children}
                 onEdit={onEdit}
@@ -626,6 +666,7 @@ function MenuTreeList({
                 onManageRoles={onManageRoles}
                 onMove={onMove}
                 level={level + 1}
+                isSearchActive={isSearchActive}
               />
             )}
           </div>
