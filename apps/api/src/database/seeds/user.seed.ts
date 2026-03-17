@@ -127,6 +127,16 @@ export default class UserSeed {
           phone: '+62-814-5678-9012',
           isActive: true,
         },
+
+        // Supplier - Penyedia Bahan Baku
+        {
+          email: 'supplier@bgn.go.id',
+          password: 'Supplier123!',
+          fullName: 'PT Tani Makmur Sejahtera',
+          role: UserRole.SUPPLIER,
+          phone: '+62-815-6789-0123',
+          isActive: true,
+        },
       ];
 
       let created = 0;

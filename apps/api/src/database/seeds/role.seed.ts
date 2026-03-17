@@ -41,6 +41,10 @@ export default class RoleEnumMappingSeed {
           name: 'public',
           description: 'Publik - Akses dasar untuk masyarakat umum',
         },
+        {
+          name: 'supplier',
+          description: 'Supplier Bahan Baku - Mengelola etalase, produk, dan berkomunikasi dengan vendor',
+        },
       ];
 
       let created = 0;

@@ -33,6 +33,9 @@ export const defineAbilitiesFor = (role: UserRole | string): AppAbility => {
     case UserRole.DINKES:
       defineDinkesAbilities(can, cannot);
       break;
+    case UserRole.SUPPLIER:
+      defineSupplierAbilities(can, cannot);
+      break;
     case UserRole.PUBLIC:
     default:
       definePublicAbilities(can, cannot);
@@ -46,6 +49,26 @@ export const defineAbilitiesFor = (role: UserRole | string): AppAbility => {
 
 function defineAdminAbilities(can: AbilityBuilder<AppAbility>['can']): void {
   can('manage', 'all');
+}
+
+function defineSupplierAbilities(
+  can: AbilityBuilder<AppAbility>['can'],
+  cannot: AbilityBuilder<AppAbility>['cannot'],
+): void {
+  can('read', 'Dashboard');
+  can('read', 'Marketplace');
+  can('read', 'SupplierShop');
+  can('read', 'SupplierProducts');
+  can('read', 'SupplierChat');
+  can('read', 'Settings');
+  cannot('read', 'Map');
+  cannot('read', 'Funds');
+  cannot('read', 'Menu');
+  cannot('read', 'LiveExecution');
+  cannot('read', 'Logistics');
+  cannot('read', 'Checkpoints');
+  cannot('read', 'Audit');
+  cannot('read', 'Reports');
 }
 
 function defineVendorAbilities(
