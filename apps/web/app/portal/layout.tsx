@@ -28,6 +28,8 @@ import {
   ClipboardList,
   CookingPot,
   UtensilsCrossed,
+  AlertCircle,
+  BookOpen,
 } from "lucide-react";
 import { Button } from "@workspace/ui/components/button";
 import {
@@ -60,6 +62,8 @@ const ICON_MAP: Record<string, any> = {
   ClipboardList,
   CookingPot,
   UtensilsCrossed,
+  AlertCircle,
+  BookOpen,
 };
 
 export default function PortalLayout({
@@ -90,7 +94,7 @@ export default function PortalLayout({
     return (
       <div key={item.id} className="space-y-1">
         <Link
-          href={item.path}
+          href={item.path || "#"}
           onClick={(e) => hasChildren && toggleExpand(item.id, e)}
         >
           <Button
@@ -101,9 +105,16 @@ export default function PortalLayout({
                 ? "text-primary bg-primary/10 font-bold shadow-sm"
                 : "text-muted-foreground hover:text-primary hover:bg-primary/5",
               level > 0 && "pl-8",
+              hasChildren && isActive && "text-primary bg-primary/5 font-bold"
             )}
           >
-            <Icon className={cn("size-4 shrink-0", level > 0 && "size-2.5")} />
+            <div className="relative">
+              <Icon className={cn("size-4 shrink-0", level > 0 && "size-2.5")} />
+              {/* Optional: Add badge for specific items if needed */}
+              {item.name.includes("Monitoring") && (
+                <div className="absolute -top-1 -right-1 size-2 bg-emerald-500 rounded-full border-2 border-card" />
+              )}
+            </div>
             <span className="flex-1 truncate text-left text-xs">{item.name}</span>
             {hasChildren && (
               <div onClick={(e) => toggleExpand(item.id, e)}>

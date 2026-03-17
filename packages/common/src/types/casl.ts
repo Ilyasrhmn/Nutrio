@@ -1,23 +1,30 @@
-import { PaginatedResult } from './index';
+import { PaginatedResult } from "./index";
 
-export type AppAction = 'manage' | 'create' | 'read' | 'update' | 'delete' | 'view';
+export type AppAction =
+  | "manage"
+  | "create"
+  | "read"
+  | "update"
+  | "delete"
+  | "view";
 
 export type AppSubject =
-  | 'Dashboard'
-  | 'Map'
-  | 'Funds'
-  | 'Menu'
-  | 'LiveExecution'
-  | 'Logistics'
-  | 'Checkpoints'
-  | 'Audit'
-  | 'Reports'
-  | 'Marketplace'
-  | 'Settings'
-  | 'Role'
-  | 'Permission'
-  | 'User'
-  | 'all';
+  | "Dashboard"
+  | "Map"
+  | "Funds"
+  | "Menu"
+  | "LiveExecution"
+  | "Logistics"
+  | "Checkpoints"
+  | "Audit"
+  | "Reports"
+  | "Marketplace"
+  | "Settings"
+  | "Role"
+  | "Permission"
+  | "User"
+  | "Monitoring"
+  | "all";
 
 export type Permission = {
   action: AppAction;
@@ -69,7 +76,7 @@ export interface MenuItem {
 /**
  * Menu tree structure (recursive)
  */
-export interface MenuTree extends Omit<MenuItem, 'children'> {
+export interface MenuTree extends Omit<MenuItem, "children"> {
   children: MenuTree[];
 }
 
