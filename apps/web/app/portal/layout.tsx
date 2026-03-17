@@ -37,6 +37,7 @@ import {
   AvatarFallback,
   AvatarImage,
 } from "@workspace/ui/components/avatar";
+import { ScrollArea } from "@workspace/ui/components/scroll-area";
 import { cn } from "@workspace/ui/lib/utils";
 import { useAuth } from "@/hooks/use-auth";
 import { useUserMenu } from "@/hooks/use-user-menu";
@@ -154,20 +155,22 @@ export default function PortalLayout({
           </div>
         </div>
 
-        <nav className="flex-1 px-4 py-4 space-y-1 overflow-y-auto text-muted-foreground custom-scrollbar">
-          {loading ? (
-            <div className="space-y-2 p-2">
-              {[1, 2, 3, 4, 5, 6].map((i) => (
-                <div
-                  key={i}
-                  className="h-10 w-full bg-muted animate-pulse rounded-lg"
-                />
-              ))}
-            </div>
-          ) : (
-            menus.map((item) => renderMenuItem(item))
-          )}
-        </nav>
+        <ScrollArea className="flex-1 w-full">
+          <nav className="px-4 py-4 space-y-1 text-muted-foreground w-full">
+            {loading ? (
+              <div className="space-y-2 p-2">
+                {[1, 2, 3, 4, 5, 6].map((i) => (
+                  <div
+                    key={i}
+                    className="h-10 w-full bg-muted animate-pulse rounded-lg"
+                  />
+                ))}
+              </div>
+            ) : (
+              menus.map((item) => renderMenuItem(item))
+            )}
+          </nav>
+        </ScrollArea>
 
         <div className="px-4 py-4 border-t border-border">
           <p className="px-3 mb-2 text-[10px] font-bold text-muted-foreground uppercase tracking-widest opacity-50">

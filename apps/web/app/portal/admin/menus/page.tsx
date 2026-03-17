@@ -1,26 +1,36 @@
-'use client';
-
-import { useEffect, useState } from 'react';
-import { menusService } from '@/lib/services/menus.service';
-import { rolesService } from '@/lib/services/roles.service';
-import { MenuTree, RoleWithPermissions } from '@workspace/common';
-import { Button } from '@workspace/ui/components/button';
-import { Input } from '@workspace/ui/components/input';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@workspace/ui/components/card';
-import { Label } from '@workspace/ui/components/label';
+"use client";
+import { menusService } from "@/lib/services/menus.service";
+import { MenuTree } from "@workspace/common";
+import { Button } from "@workspace/ui/components/button";
+import { Input } from "@workspace/ui/components/input";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@workspace/ui/components/card";
+import { Label } from "@workspace/ui/components/label";
+import { cn } from "@workspace/ui/lib/utils";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from '@workspace/ui/components/select';
-import { 
-  Plus, 
-  Edit, 
-  Trash2, 
-  Menu as MenuIcon, 
-  ChevronRight, 
+} from "@workspace/ui/components/select";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@workspace/ui/components/popover";
+import { ScrollArea } from "@workspace/ui/components/scroll-area";
+import {
+  Plus,
+  Edit,
+  Trash2,
+  Menu as MenuIcon,
+  ChevronRight,
   ChevronDown,
   LayoutDashboard,
   Map as MapIcon,
@@ -34,10 +44,51 @@ import {
   FileBarChart,
   ShieldCheck,
   Settings,
-  Folder
-} from 'lucide-react';
-import { Checkbox } from '@workspace/ui/components/checkbox';
-import { Badge } from '@workspace/ui/components/badge';
+  Folder,
+  Search,
+  CalendarDays,
+  Scale,
+  ClipboardList,
+  CookingPot,
+  UtensilsCrossed,
+  AlertCircle,
+  BookOpen,
+  Bell,
+  User,
+  LogOut,
+  Users,
+  Briefcase,
+  Building,
+  CreditCard,
+  Package,
+  ShoppingCart,
+  Zap,
+  Star,
+  Home,
+  Info,
+  LifeBuoy,
+  MessageSquare,
+  BarChart3,
+  Calendar,
+  Lock,
+  Globe,
+  Database,
+  Layers,
+  Link as LinkIcon,
+  Mail,
+  MoreHorizontal,
+  Share2,
+  Trash,
+  UserPlus,
+  Video,
+  Eye,
+  Activity,
+  Award,
+} from "lucide-react";
+import { useToast } from "@workspace/ui/hooks/use-toast";
+import { useUserMenu } from "@/hooks/use-user-menu";
+import { Badge } from "@workspace/ui/components/badge";
+import { useEffect, useState } from "react";
 
 // Icon mapping for preview
 const ICON_MAP: Record<string, any> = {
@@ -53,15 +104,54 @@ const ICON_MAP: Record<string, any> = {
   FileBarChart,
   ShieldCheck,
   Settings,
-  Folder
+  Folder,
+  CalendarDays,
+  Scale,
+  ClipboardList,
+  CookingPot,
+  UtensilsCrossed,
+  AlertCircle,
+  BookOpen,
+  Bell,
+  User,
+  LogOut,
+  Users,
+  Briefcase,
+  Building,
+  CreditCard,
+  Package,
+  ShoppingCart,
+  Zap,
+  Star,
+  Home,
+  Info,
+  LifeBuoy,
+  MessageSquare,
+  BarChart3,
+  Calendar,
+  Lock,
+  Globe,
+  Database,
+  Layers,
+  Link: LinkIcon,
+  Mail,
+  MoreHorizontal,
+  Share2,
+  Trash,
+  UserPlus,
+  Video,
+  Eye,
+  Activity,
+  Award,
 };
 
 export default function MenusPage() {
   const [menus, setMenus] = useState<MenuTree[]>([]);
-  const [roles, setRoles] = useState<RoleWithPermissions[]>([]);
   const [loading, setLoading] = useState(true);
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [selectedMenu, setSelectedMenu] = useState<MenuTree | null>(null);
+  const { toast } = useToast();
+  const { refresh: refreshSidebar } = useUserMenu();
 
   useEffect(() => {
     loadData();
@@ -70,22 +160,27 @@ export default function MenusPage() {
   async function loadData() {
     try {
       setLoading(true);
-      const [menusData, rolesData] = await Promise.all([
-        menusService.getTree(),
-        rolesService.getAll(1, 100),
-      ]);
+      const menusData = await menusService.getTree();
       setMenus(menusData);
-      setRoles(rolesData.items);
     } catch (error) {
-      console.error('Failed to load data:', error);
+      console.error("Failed to load data:", error);
     } finally {
       setLoading(false);
     }
   }
 
+  const handleSuccess = () => {
+    loadData();
+    refreshSidebar(); // Mutate sidebar state
+  };
+
   async function handleDelete(menu: MenuTree) {
     if (menu.children && menu.children.length > 0) {
-      alert(`Cannot delete menu "${menu.name}" because it has children. Delete children first.`);
+      toast({
+        title: "Action Restricted",
+        description: `Cannot delete menu "${menu.name}" because it has children. Delete children first.`,
+        variant: "destructive",
+      });
       return;
     }
 
@@ -95,9 +190,14 @@ export default function MenusPage() {
 
     try {
       await menusService.delete(menu.id);
-      await loadData();
+      handleSuccess();
+      toast({ title: "Success", description: "Menu deleted successfully" });
     } catch (error: any) {
-      alert(`Failed to delete: ${error.response?.data?.message || error.message}`);
+      toast({
+        title: "Delete Failed",
+        description: error.response?.data?.message || error.message,
+        variant: "destructive",
+      });
     }
   }
 
@@ -114,10 +214,17 @@ export default function MenusPage() {
       {/* Header */}
       <div className="flex flex-col gap-4 sm:flex-row sm:justify-between sm:items-center">
         <div>
-          <h2 className="text-xl md:text-2xl font-bold tracking-tight">Menus</h2>
-          <p className="text-sm text-muted-foreground">Configure sidebar navigation and role-based visibility</p>
+          <h2 className="text-xl md:text-2xl font-bold tracking-tight">
+            Menus
+          </h2>
+          <p className="text-sm text-muted-foreground">
+            Configure sidebar navigation and role-based visibility
+          </p>
         </div>
-        <Button onClick={() => setShowCreateModal(true)} className="gap-2 w-full sm:w-auto">
+        <Button
+          onClick={() => setShowCreateModal(true)}
+          className="gap-2 w-full sm:w-auto"
+        >
           <Plus className="size-4" />
           New Menu Item
         </Button>
@@ -148,7 +255,7 @@ export default function MenusPage() {
         <CreateMenuModal
           menus={menus}
           onClose={() => setShowCreateModal(false)}
-          onSuccess={loadData}
+          onSuccess={handleSuccess}
         />
       )}
 
@@ -157,12 +264,8 @@ export default function MenusPage() {
         <EditMenuModal
           menu={selectedMenu}
           menus={menus}
-          roles={roles}
           onClose={() => setSelectedMenu(null)}
-          onSuccess={() => {
-            setSelectedMenu(null);
-            loadData();
-          }}
+          onSuccess={handleSuccess}
         />
       )}
     </div>
@@ -182,11 +285,11 @@ function MenuTreeList({
   level?: number;
 }) {
   const [expanded, setExpanded] = useState<Record<string, boolean>>(
-    Object.fromEntries(menus.map(m => [m.id, true]))
+    Object.fromEntries(menus.map((m) => [m.id, true])),
   );
 
   function toggleExpand(id: string) {
-    setExpanded(prev => ({ ...prev, [id]: !prev[id] }));
+    setExpanded((prev) => ({ ...prev, [id]: !prev[id] }));
   }
 
   return (
@@ -194,8 +297,15 @@ function MenuTreeList({
       {menus.map((menu) => {
         const Icon = ICON_MAP[menu.icon] || Folder;
         const hasChildren = menu.children && menu.children.length > 0;
-        const indentClass = level === 0 ? '' : level === 1 ? 'ml-3 md:ml-6' : level === 2 ? 'ml-6 md:ml-12' : 'ml-9 md:ml-18';
-        
+        const indentClass =
+          level === 0
+            ? ""
+            : level === 1
+              ? "ml-3 md:ml-6"
+              : level === 2
+                ? "ml-6 md:ml-12"
+                : "ml-9 md:ml-18";
+
         return (
           <div key={menu.id} className="space-y-1">
             <div
@@ -204,10 +314,10 @@ function MenuTreeList({
               <div className="flex items-center gap-3 flex-1 min-w-0">
                 <div className="flex items-center gap-1">
                   {hasChildren ? (
-                    <Button 
-                      variant="ghost" 
-                      size="icon" 
-                      className="size-6 p-0" 
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      className="size-6 p-0"
                       onClick={() => toggleExpand(menu.id)}
                     >
                       {expanded[menu.id] ? (
@@ -227,12 +337,17 @@ function MenuTreeList({
                   <div className="font-medium flex items-center gap-2">
                     {menu.name}
                     {menu.requiredPermission && (
-                      <Badge variant="outline" className="text-[10px] py-0 h-4 font-normal">
+                      <Badge
+                        variant="outline"
+                        className="text-[10px] py-0 h-4 font-normal"
+                      >
                         {menu.requiredPermission}
                       </Badge>
                     )}
                   </div>
-                  <div className="text-xs text-muted-foreground truncate">{menu.path}</div>
+                  <div className="text-xs text-muted-foreground truncate">
+                    {menu.path}
+                  </div>
                 </div>
               </div>
               <div className="flex items-center gap-1 opacity-100 md:opacity-0 md:group-hover:opacity-100 transition-opacity">
@@ -269,6 +384,94 @@ function MenuTreeList({
   );
 }
 
+// Icon Picker Component
+function IconPicker({
+  value,
+  onChange,
+}: {
+  value: string;
+  onChange: (val: string) => void;
+}) {
+  const [search, setSearch] = useState("");
+  const [open, setOpen] = useState(false);
+
+  const filteredIcons = Object.keys(ICON_MAP).filter((key) =>
+    key.toLowerCase().includes(search.toLowerCase()),
+  );
+
+  const SelectedIcon = ICON_MAP[value] || Folder;
+
+  return (
+    <Popover open={open} onOpenChange={setOpen}>
+      <PopoverTrigger asChild>
+        <Button
+          variant="outline"
+          className="w-full justify-start gap-3 h-10 px-3"
+          type="button"
+        >
+          <div className="size-6 rounded bg-primary/10 flex items-center justify-center text-primary shrink-0">
+            <SelectedIcon className="size-4" />
+          </div>
+          <span className="flex-1 text-left truncate">{value}</span>
+          <ChevronDown className="size-4 opacity-50 shrink-0" />
+        </Button>
+      </PopoverTrigger>
+      <PopoverContent className="w-72 p-0" align="start">
+        <div className="p-3 border-b">
+          <div className="relative">
+            <Search className="absolute left-2 top-1/2 -translate-y-1/2 size-4 text-muted-foreground" />
+            <Input
+              placeholder="Search icons..."
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              className="pl-8 h-8 text-xs"
+            />
+          </div>
+        </div>
+        <ScrollArea className="h-64">
+          <div className="grid grid-cols-4 p-2 gap-1">
+            {filteredIcons.length === 0 ? (
+              <div className="col-span-4 py-8 text-center text-xs text-muted-foreground">
+                No icons found.
+              </div>
+            ) : (
+              filteredIcons.map((key) => {
+                const Icon = ICON_MAP[key];
+                const isSelected = value === key;
+                return (
+                  <Button
+                    key={key}
+                    type="button"
+                    variant={isSelected ? "default" : "ghost"}
+                    className={cn(
+                      "size-12 p-0 flex flex-col items-center justify-center group",
+                      isSelected && "bg-primary text-primary-foreground",
+                    )}
+                    onClick={() => {
+                      onChange(key);
+                      setOpen(false);
+                      setSearch("");
+                    }}
+                    title={key}
+                  >
+                    <Icon
+                      className={cn(
+                        "size-6",
+                        !isSelected &&
+                          "text-muted-foreground group-hover:text-primary",
+                      )}
+                    />
+                  </Button>
+                );
+              })
+            )}
+          </div>
+        </ScrollArea>
+      </PopoverContent>
+    </Popover>
+  );
+}
+
 // Create Menu Modal
 function CreateMenuModal({
   menus,
@@ -279,12 +482,13 @@ function CreateMenuModal({
   onClose: () => void;
   onSuccess: () => void;
 }) {
-  const [name, setName] = useState('');
-  const [path, setPath] = useState('');
-  const [icon, setIcon] = useState('Folder');
+  const [name, setName] = useState("");
+  const [path, setPath] = useState("");
+  const [icon, setIcon] = useState("Folder");
   const [order, setOrder] = useState(0);
   const [parentId, setParentId] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
+  const { toast } = useToast();
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -292,21 +496,26 @@ function CreateMenuModal({
 
     try {
       await menusService.create({ name, path, icon, order, parentId });
+      toast({ title: "Success", description: "Menu created successfully" });
       onSuccess();
       onClose();
     } catch (err: any) {
-      alert('Failed to create menu');
+      toast({
+        title: "Create Failed",
+        description: err.response?.data?.message || "Failed to create menu",
+        variant: "destructive",
+      });
     } finally {
       setSaving(false);
     }
   }
 
   // Flatten menus for parent selector
-  const flatMenus: { id: string, name: string }[] = [];
-  function flatten(items: MenuTree[], prefix = '') {
-    items.forEach(item => {
+  const flatMenus: { id: string; name: string }[] = [];
+  function flatten(items: MenuTree[], prefix = "") {
+    items.forEach((item) => {
       flatMenus.push({ id: item.id, name: prefix + item.name });
-      if (item.children) flatten(item.children, prefix + '— ');
+      if (item.children) flatten(item.children, prefix + "Ã¢â‚¬â€ ");
     });
   }
   flatten(menus);
@@ -316,7 +525,9 @@ function CreateMenuModal({
       <Card className="w-full max-w-md shadow-2xl">
         <CardHeader>
           <CardTitle>Create Menu Item</CardTitle>
-          <CardDescription>Add a new item to the sidebar navigation.</CardDescription>
+          <CardDescription>
+            Add a new item to the sidebar navigation.
+          </CardDescription>
         </CardHeader>
         <CardContent>
           <form onSubmit={handleSubmit} className="space-y-4">
@@ -343,32 +554,28 @@ function CreateMenuModal({
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-2">
                 <Label htmlFor="menu-icon">Icon</Label>
-                <Select value={icon} onValueChange={setIcon}>
-                  <SelectTrigger id="menu-icon">
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {Object.keys(ICON_MAP).map(key => (
-                      <SelectItem key={key} value={key}>{key}</SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
+                <IconPicker value={icon} onChange={setIcon} />
               </div>
               <div className="space-y-2">
                 <Label htmlFor="menu-order">Order</Label>
                 <Input
                   id="menu-order"
-                  type="number"
-                  value={order}
-                  onChange={(e) => setOrder(Number(e.target.value))}
+                  type="text"
+                  value={order.toString()}
+                  onChange={(e) => {
+                    const val = e.target.value.replace(/\\D/g, "");
+                    setOrder(val === "" ? 0 : parseInt(val, 10));
+                  }}
                 />
               </div>
             </div>
             <div className="space-y-2">
               <Label htmlFor="menu-parent">Parent Menu (optional)</Label>
-              <Select 
-                value={parentId || 'none'} 
-                onValueChange={(val) => setParentId(val === 'none' ? null : val)}
+              <Select
+                value={parentId || "none"}
+                onValueChange={(val: string) =>
+                  setParentId(val === "none" ? null : val)
+                }
               >
                 <SelectTrigger id="menu-parent">
                   <SelectValue />
@@ -384,18 +591,11 @@ function CreateMenuModal({
               </Select>
             </div>
             <div className="flex justify-end gap-3 pt-4">
-              <Button
-                type="button"
-                variant="outline"
-                onClick={onClose}
-              >
+              <Button type="button" variant="outline" onClick={onClose}>
                 Cancel
               </Button>
-              <Button
-                type="submit"
-                disabled={saving}
-              >
-                {saving ? 'Creating...' : 'Create Item'}
+              <Button type="submit" disabled={saving}>
+                {saving ? "Creating..." : "Create Item"}
               </Button>
             </div>
           </form>
@@ -409,13 +609,11 @@ function CreateMenuModal({
 function EditMenuModal({
   menu,
   menus,
-  roles,
   onClose,
   onSuccess,
 }: {
   menu: MenuTree;
   menus: MenuTree[];
-  roles: RoleWithPermissions[];
   onClose: () => void;
   onSuccess: () => void;
 }) {
@@ -423,22 +621,43 @@ function EditMenuModal({
   const [path, setPath] = useState(menu.path);
   const [icon, setIcon] = useState(menu.icon);
   const [order, setOrder] = useState(menu.order);
+  const [parentId, setParentId] = useState<string | null>(
+    menu.parentId || null,
+  );
   const [saving, setSaving] = useState(false);
+  const { toast } = useToast();
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     setSaving(true);
 
     try {
-      await menusService.update(menu.id, { name, path, icon, order });
+      await menusService.update(menu.id, { name, path, icon, order, parentId });
+      toast({ title: "Success", description: "Menu updated successfully" });
       onSuccess();
       onClose();
     } catch (err: any) {
-      alert('Failed to update menu');
+      toast({
+        title: "Update Failed",
+        description: err.response?.data?.message || "Failed to update menu",
+        variant: "destructive",
+      });
     } finally {
       setSaving(false);
     }
   }
+
+  // Flatten menus for parent selector
+  const flatMenus: { id: string; name: string }[] = [];
+  function flatten(items: MenuTree[], prefix = "") {
+    items.forEach((item) => {
+      if (item.id !== menu.id) {
+        flatMenus.push({ id: item.id, name: prefix + item.name });
+        if (item.children) flatten(item.children, prefix + "Ã¢â‚¬â€ ");
+      }
+    });
+  }
+  flatten(menus);
 
   return (
     <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-50 p-4 backdrop-blur-sm">
@@ -470,40 +689,48 @@ function EditMenuModal({
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-2">
                 <Label htmlFor="edit-menu-icon">Icon</Label>
-                <Select value={icon} onValueChange={setIcon}>
-                  <SelectTrigger id="edit-menu-icon">
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {Object.keys(ICON_MAP).map(key => (
-                      <SelectItem key={key} value={key}>{key}</SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
+                <IconPicker value={icon} onChange={setIcon} />
               </div>
               <div className="space-y-2">
                 <Label htmlFor="edit-menu-order">Order</Label>
                 <Input
                   id="edit-menu-order"
-                  type="number"
-                  value={order}
-                  onChange={(e) => setOrder(Number(e.target.value))}
+                  type="text"
+                  value={order.toString()}
+                  onChange={(e) => {
+                    const val = e.target.value.replace(/\\D/g, "");
+                    setOrder(val === "" ? 0 : parseInt(val, 10));
+                  }}
                 />
               </div>
             </div>
-            <div className="flex justify-end gap-3 pt-4">
-              <Button
-                type="button"
-                variant="outline"
-                onClick={onClose}
+            <div className="space-y-2">
+              <Label htmlFor="edit-menu-parent">Parent Menu (optional)</Label>
+              <Select
+                value={parentId || "none"}
+                onValueChange={(val: string) =>
+                  setParentId(val === "none" ? null : val)
+                }
               >
+                <SelectTrigger id="edit-menu-parent">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="none">No parent (top level)</SelectItem>
+                  {flatMenus.map((m) => (
+                    <SelectItem key={m.id} value={m.id}>
+                      {m.name}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="flex justify-end gap-3 pt-4">
+              <Button type="button" variant="outline" onClick={onClose}>
                 Cancel
               </Button>
-              <Button
-                type="submit"
-                disabled={saving}
-              >
-                {saving ? 'Saving...' : 'Save Changes'}
+              <Button type="submit" disabled={saving}>
+                {saving ? "Saving..." : "Save Changes"}
               </Button>
             </div>
           </form>

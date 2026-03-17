@@ -25,17 +25,30 @@ export default class PermissionSeed {
         // Funds permissions
         { action: 'read', subject: 'Funds', description: 'Can view funds information' },
         
+        // Incidents permissions
+        { action: 'read', subject: 'Incidents', description: 'Can view incidents' },
+        
         // Menu permissions
         { action: 'read', subject: 'Menu', description: 'Can view menu planning' },
         
-        // LiveExecution permissions
-        { action: 'read', subject: 'LiveExecution', description: 'Can view live monitoring' },
+        // Live permissions
+        { action: 'read', subject: 'Live', description: 'Can view live monitoring' },
         
         // Logistics permissions
         { action: 'read', subject: 'Logistics', description: 'Can view logistics information' },
         
         // Checkpoints permissions
         { action: 'read', subject: 'Checkpoints', description: 'Can view checkpoints' },
+        
+        // Operasional permissions
+        { action: 'read', subject: 'Operasional', description: 'Can view operasional section' },
+        { action: 'read', subject: 'OperasionalJadwal', description: 'Can view operasional schedules' },
+        { action: 'read', subject: 'OperasionalKalkulasi', description: 'Can view operasional material calculation' },
+        { action: 'read', subject: 'OperasionalKitchen', description: 'Can view operasional kitchen SOP' },
+        { action: 'read', subject: 'OperasionalStock', description: 'Can view operasional stock opname' },
+        
+        // SOP permissions
+        { action: 'read', subject: 'SOP', description: 'Can view SOP documents' },
         
         // Audit permissions
         { action: 'read', subject: 'Audit', description: 'Can view audit logs' },
@@ -70,7 +83,7 @@ export default class PermissionSeed {
         { action: 'delete', subject: 'MenuAdmin', description: 'Can delete admin menus' },
         { action: 'manage', subject: 'MenuAdmin', description: 'Full access to menu management' },
 
-        // Additional granular permissions
+        // Additional granular permissions for CRUD operations
         { action: 'create', subject: 'Dashboard', description: 'Can create dashboard content' },
         { action: 'update', subject: 'Dashboard', description: 'Can update dashboard content' },
         { action: 'delete', subject: 'Dashboard', description: 'Can delete dashboard content' },
@@ -82,12 +95,16 @@ export default class PermissionSeed {
         { action: 'update', subject: 'Funds', description: 'Can update fund records' },
         { action: 'delete', subject: 'Funds', description: 'Can delete fund records' },
         
+        { action: 'create', subject: 'Incidents', description: 'Can create incidents' },
+        { action: 'update', subject: 'Incidents', description: 'Can update incidents' },
+        { action: 'delete', subject: 'Incidents', description: 'Can delete incidents' },
+        
         { action: 'create', subject: 'Menu', description: 'Can create menu items' },
         { action: 'update', subject: 'Menu', description: 'Can update menu items' },
         { action: 'delete', subject: 'Menu', description: 'Can delete menu items' },
         
-        { action: 'create', subject: 'LiveExecution', description: 'Can create execution records' },
-        { action: 'update', subject: 'LiveExecution', description: 'Can update execution records' },
+        { action: 'create', subject: 'Live', description: 'Can create live monitoring records' },
+        { action: 'update', subject: 'Live', description: 'Can update live monitoring records' },
         
         { action: 'create', subject: 'Logistics', description: 'Can create logistics records' },
         { action: 'update', subject: 'Logistics', description: 'Can update logistics records' },
@@ -96,6 +113,17 @@ export default class PermissionSeed {
         { action: 'create', subject: 'Checkpoints', description: 'Can create checkpoint records' },
         { action: 'update', subject: 'Checkpoints', description: 'Can update checkpoint records' },
         
+        { action: 'create', subject: 'OperasionalJadwal', description: 'Can manage schedules' },
+        { action: 'update', subject: 'OperasionalJadwal', description: 'Can update schedules' },
+        
+        { action: 'create', subject: 'OperasionalKalkulasi', description: 'Can manage calculations' },
+        { action: 'create', subject: 'OperasionalKitchen', description: 'Can manage kitchen SOP' },
+        { action: 'create', subject: 'OperasionalStock', description: 'Can manage stock opname' },
+
+        { action: 'create', subject: 'SOP', description: 'Can create SOPs' },
+        { action: 'update', subject: 'SOP', description: 'Can update SOPs' },
+        { action: 'delete', subject: 'SOP', description: 'Can delete SOPs' },
+
         { action: 'create', subject: 'Audit', description: 'Can create audit entries' },
         { action: 'update', subject: 'Audit', description: 'Can update audit entries' },
         

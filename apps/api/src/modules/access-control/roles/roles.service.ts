@@ -36,21 +36,26 @@ export class RolesService {
       .take(limit)
       .getManyAndCount();
 
-    // Get permission count for each role
-    const rolesWithCount = await Promise.all(
+    // Get permissions for each role
+    const rolesWithPermissions = await Promise.all(
       roles.map(async (role) => {
-        const permissionCount = await this.rolePermissionRepository.count({
+        const rolePermissions = await this.rolePermissionRepository.find({
           where: { roleId: role.id },
+          relations: ['permission'],
         });
+        
+        const permissions = rolePermissions.map(rp => rp.permission);
+        
         return {
           ...role,
-          permissionCount,
+          permissionCount: permissions.length,
+          permissions,
         };
       }),
     );
 
     return {
-      items: rolesWithCount,
+      items: rolesWithPermissions,
       total,
       page,
       limit,

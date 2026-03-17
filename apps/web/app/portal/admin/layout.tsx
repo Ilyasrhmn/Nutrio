@@ -120,13 +120,18 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
           <Tabs value={activeTab} className="w-full">
             <TabsList className="grid w-full max-w-md grid-cols-4">
               {navItems.map((item) => (
-                <Link key={item.value} href={item.href} passHref legacyBehavior>
-                  <TabsTrigger value={item.value} className="gap-2">
+                <TabsTrigger 
+                  key={item.value} 
+                  value={item.value} 
+                  className="p-0"
+                  asChild
+                >
+                  <Link href={item.href} className="flex items-center justify-center gap-2 w-full h-full py-1.5 px-3">
                     {item.icon && <item.icon className="size-4" />}
                     <span className="hidden lg:inline">{item.label}</span>
                     <span className="lg:hidden">{item.value === 'permissions' ? 'Perms' : item.label}</span>
-                  </TabsTrigger>
-                </Link>
+                  </Link>
+                </TabsTrigger>
               ))}
             </TabsList>
           </Tabs>

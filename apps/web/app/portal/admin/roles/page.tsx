@@ -321,7 +321,7 @@ function EditRoleModal({
   const [name, setName] = useState(role.name);
   const [description, setDescription] = useState(role.description || '');
   const [selectedPermissions, setSelectedPermissions] = useState<string[]>(
-    role.permissions?.map((p) => p.id) || []
+    role.permissions?.map((p: any) => typeof p === 'string' ? p : p.id) || []
   );
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState('');

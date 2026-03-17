@@ -19,7 +19,6 @@ export default class MenuSeed {
       console.log('🌱 Starting menu seeding...');
 
       const menus: SeedMenu[] = [
-        // Main Dashboard
         {
           name: 'Dashboard',
           path: '/portal',
@@ -28,8 +27,6 @@ export default class MenuSeed {
           requiredPermission: 'read:Dashboard',
           metadata: { i18n: { en: 'Dashboard', id: 'Dasbor' } },
         },
-        
-        // Map
         {
           name: 'Map',
           path: '/portal/map',
@@ -38,8 +35,6 @@ export default class MenuSeed {
           requiredPermission: 'read:Map',
           metadata: { i18n: { en: 'Map', id: 'Peta' } },
         },
-        
-        // Funds
         {
           name: 'Funds',
           path: '/portal/funds',
@@ -48,78 +43,143 @@ export default class MenuSeed {
           requiredPermission: 'read:Funds',
           metadata: { i18n: { en: 'Funds', id: 'Dana' } },
         },
-        
-        // Menu Planning
+        {
+          name: 'Incidents',
+          path: '/portal/incidents',
+          icon: 'AlertTriangle',
+          order: 4,
+          requiredPermission: 'read:Incidents',
+          metadata: { i18n: { en: 'Incidents', id: 'Insiden' } },
+        },
         {
           name: 'Menu Planning',
           path: '/portal/menu',
           icon: 'Utensils',
-          order: 4,
+          order: 5,
           requiredPermission: 'read:Menu',
           metadata: { i18n: { en: 'Menu Planning', id: 'Perencanaan Menu' } },
         },
-        
-        // Marketplace
         {
           name: 'Marketplace',
           path: '/portal/marketplace',
           icon: 'Store',
-          order: 5,
+          order: 6,
           requiredPermission: 'read:Marketplace',
           metadata: { i18n: { en: 'Marketplace', id: 'E-Katalog' } },
         },
-        
-        // Live Monitoring
         {
           name: 'Live Monitoring',
           path: '/portal/live',
           icon: 'Camera',
-          order: 6,
-          requiredPermission: 'read:LiveExecution',
+          order: 7,
+          requiredPermission: 'read:Live',
           metadata: { i18n: { en: 'Live Monitoring', id: 'Monitoring Langsung' } },
         },
-        
-        // Logistics
         {
           name: 'Logistics',
           path: '/portal/logistics',
           icon: 'Truck',
-          order: 7,
+          order: 8,
           requiredPermission: 'read:Logistics',
           metadata: { i18n: { en: 'Logistics', id: 'Logistik' } },
         },
-        
-        // Checkpoints
         {
           name: 'Checkpoints',
           path: '/portal/checkpoints',
           icon: 'ClipboardCheck',
-          order: 8,
+          order: 9,
           requiredPermission: 'read:Checkpoints',
           metadata: { i18n: { en: 'Checkpoints', id: 'Pos Pemeriksaan' } },
         },
         
-        // Audit
+        // Operasional Parent
         {
-          name: 'Audit',
-          path: '/portal/audit',
-          icon: 'History',
-          order: 9,
-          requiredPermission: 'read:Audit',
-          metadata: { i18n: { en: 'Audit', id: 'Audit Trail' } },
+          name: 'Operations',
+          path: '/portal/operasional',
+          icon: 'Settings',
+          order: 10,
+          parentPath: null,
+          requiredPermission: 'read:Operasional',
+          metadata: { i18n: { en: 'Operations', id: 'Operasional' } },
         },
-        
+        {
+          name: 'Schedules',
+          path: '/portal/operasional/jadwal',
+          icon: 'CalendarDays',
+          order: 11,
+          parentPath: '/portal/operasional',
+          requiredPermission: 'read:OperasionalJadwal',
+          metadata: { i18n: { en: 'Schedules', id: 'Jadwal' } },
+        },
+        {
+          name: 'Material Calc.',
+          path: '/portal/operasional/kalkulasi-bahan',
+          icon: 'Calculator',
+          order: 12,
+          parentPath: '/portal/operasional',
+          requiredPermission: 'read:OperasionalKalkulasi',
+          metadata: { i18n: { en: 'Material Calculation', id: 'Kalkulasi Bahan' } },
+        },
+        {
+          name: 'Kitchen SOP',
+          path: '/portal/operasional/kitchen-sop',
+          icon: 'ChefHat',
+          order: 13,
+          parentPath: '/portal/operasional',
+          requiredPermission: 'read:OperasionalKitchen',
+          metadata: { i18n: { en: 'Kitchen SOP', id: 'SOP Dapur' } },
+        },
+        {
+          name: 'Stock Opname',
+          path: '/portal/operasional/stock-opname',
+          icon: 'Boxes',
+          order: 14,
+          parentPath: '/portal/operasional',
+          requiredPermission: 'read:OperasionalStock',
+          metadata: { i18n: { en: 'Stock Opname', id: 'Stock Opname' } },
+        },
+
+        // SOP
+        {
+          name: 'SOP',
+          path: '/portal/sop',
+          icon: 'BookOpen',
+          order: 15,
+          requiredPermission: 'read:SOP',
+          metadata: { i18n: { en: 'SOP', id: 'SOP' } },
+        },
+
         // Reports
         {
           name: 'Reports',
           path: '/portal/reports',
           icon: 'FileBarChart',
-          order: 10,
+          order: 16,
           requiredPermission: 'read:Reports',
           metadata: { i18n: { en: 'Reports', id: 'Laporan' } },
         },
         
-        // Admin section (parent menu)
+        // Audit
+        {
+          name: 'Audit Trail',
+          path: '/portal/audit',
+          icon: 'History',
+          order: 17,
+          requiredPermission: 'read:Audit',
+          metadata: { i18n: { en: 'Audit Trail', id: 'Jejak Audit' } },
+        },
+        
+        // Settings
+        {
+          name: 'Settings',
+          path: '/portal/settings',
+          icon: 'Sliders',
+          order: 18,
+          requiredPermission: 'read:Settings',
+          metadata: { i18n: { en: 'Settings', id: 'Pengaturan' } },
+        },
+
+        // Admin section
         {
           name: 'Admin',
           path: '/portal/admin',
@@ -129,8 +189,6 @@ export default class MenuSeed {
           requiredPermission: 'manage:all',
           metadata: { i18n: { en: 'Admin', id: 'Administrasi' } },
         },
-        
-        // Admin - Roles
         {
           name: 'Roles',
           path: '/portal/admin/roles',
@@ -140,8 +198,6 @@ export default class MenuSeed {
           requiredPermission: 'manage:Role',
           metadata: { i18n: { en: 'Roles', id: 'Peran' } },
         },
-        
-        // Admin - Permissions
         {
           name: 'Permissions',
           path: '/portal/admin/permissions',
@@ -151,8 +207,6 @@ export default class MenuSeed {
           requiredPermission: 'manage:Permission',
           metadata: { i18n: { en: 'Permissions', id: 'Izin Akses' } },
         },
-        
-        // Admin - Menus
         {
           name: 'Menus',
           path: '/portal/admin/menus',

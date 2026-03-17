@@ -15,7 +15,8 @@
     "typeorm": "ts-node -O \"{\\\"module\\\":\\\"CommonJS\\\",\\\"target\\\":\\\"es2021\\\",\\\"experimentalDecorators\\\":true,\\\"emitDecoratorMetadata\\\":true}\" -r tsconfig-paths/register ./node_modules/typeorm/cli.js",
     "seed": "typeorm-extension seed:run -d src/config/data-source.ts",
     "seed:generate": "typeorm-extension seed:create --name",
-    "db:seed": "typeorm-extension seed:run -d src/config/data-source.ts"
+    "db:seed": "typeorm-extension seed:run -d src/config/data-source.ts",
+    "db:migrate": "pnpm run typeorm migration:run -d src/config/data-source.ts"
   },
   "dependencies": {
     "@casl/ability": "^6.8.0",

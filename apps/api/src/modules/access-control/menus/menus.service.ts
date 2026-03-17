@@ -3,6 +3,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository, Brackets, In } from 'typeorm';
 import { Menu, RoleMenu } from '../roles/entities/menu.entity';
 import { Role } from '../roles/entities/role.entity';
+import { CacheService } from '../../cache/cache.service';
 
 @Injectable()
 export class MenusService {
@@ -13,6 +14,7 @@ export class MenusService {
     private readonly roleMenuRepository: Repository<RoleMenu>,
     @InjectRepository(Role)
     private readonly roleRepository: Repository<Role>,
+    private readonly cacheService: CacheService,
   ) {}
 
   /**
@@ -30,6 +32,13 @@ export class MenusService {
    * Get menu tree for a specific user based on their role
    */
   async findUserMenu(roleId: string) {
+    // Try to get from cache first
+    const cacheKey = this.cacheService.getUserMenuKey(roleId);
+    const cachedMenu = await this.cacheService.get<any[]>(cacheKey);
+    if (cachedMenu) {
+      return cachedMenu;
+    }
+
     // Get all menu IDs assigned to this role
     const roleMenus = await this.roleMenuRepository.find({
       where: { roleId },
@@ -46,7 +55,12 @@ export class MenusService {
     const menus = await this.menuRepository.findByIds(menuIds);
     menus.sort((a, b) => a.order - b.order);
 
-    return this.buildMenuTree(menus, null);
+    const menuTree = this.buildMenuTree(menus, null);
+    
+    // Save to cache
+    await this.cacheService.set(cacheKey, menuTree);
+    
+    return menuTree;
   }
 
   /**
@@ -67,7 +81,7 @@ export class MenusService {
   async findOne(id: string) {
     const menu = await this.menuRepository.findOne({ where: { id } });
     if (!menu) {
-      throw new NotFoundException(`Menu with ID "${id}" not found`);
+      throw new NotFoundException(`Menu with ID \"${id}\" not found`);
     }
 
     // Get assigned roles
@@ -102,19 +116,14 @@ export class MenusService {
     // Check for duplicate path
     const existingMenu = await this.menuRepository.findOne({ where: { path } });
     if (existingMenu) {
-      throw new ConflictException(`Menu with path "${path}" already exists`);
+      throw new ConflictException(`Menu with path \"${path}\" already exists`);
     }
 
     // Validate parent if provided
     if (parentId) {
       const parent = await this.menuRepository.findOne({ where: { id: parentId } });
       if (!parent) {
-        throw new NotFoundException(`Parent menu with ID "${parentId}" not found`);
-      }
-
-      // Check for circular reference
-      if (await this.wouldCreateCircularReference(parentId, parentId)) {
-        throw new BadRequestException('Cannot create circular menu hierarchy');
+        throw new NotFoundException(`Parent menu with ID \"${parentId}\" not found`);
       }
     }
 
@@ -128,7 +137,12 @@ export class MenusService {
       metadata,
     });
 
-    return this.menuRepository.save(menu);
+    const savedMenu = await this.menuRepository.save(menu);
+    
+    // Invalidate all menu caches because a new item might affect anyone (though usually admin creates it)
+    await this.invalidateAllMenuCaches();
+    
+    return savedMenu;
   }
 
   /**
@@ -146,7 +160,7 @@ export class MenusService {
   ) {
     const menu = await this.menuRepository.findOne({ where: { id } });
     if (!menu) {
-      throw new NotFoundException(`Menu with ID "${id}" not found`);
+      throw new NotFoundException(`Menu with ID \"${id}\" not found`);
     }
 
     // Validate path if provided
@@ -158,7 +172,7 @@ export class MenusService {
       // Check for duplicate path (excluding current menu)
       const existingMenu = await this.menuRepository.findOne({ where: { path } });
       if (existingMenu && existingMenu.id !== id) {
-        throw new ConflictException(`Menu with path "${path}" already exists`);
+        throw new ConflictException(`Menu with path \"${path}\" already exists`);
       }
 
       menu.path = path;
@@ -181,7 +195,12 @@ export class MenusService {
       menu.parentId = parentId || null;
     }
 
-    return this.menuRepository.save(menu);
+    const updatedMenu = await this.menuRepository.save(menu);
+    
+    // Invalidate all menu caches
+    await this.invalidateAllMenuCaches();
+    
+    return updatedMenu;
   }
 
   /**
@@ -219,14 +238,14 @@ export class MenusService {
   async remove(id: string) {
     const menu = await this.menuRepository.findOne({ where: { id } });
     if (!menu) {
-      throw new NotFoundException(`Menu with ID "${id}" not found`);
+      throw new NotFoundException(`Menu with ID \"${id}\" not found`);
     }
 
     // Check for children
     const children = await this.menuRepository.find({ where: { parentId: id } });
     if (children.length > 0) {
       throw new BadRequestException(
-        `Cannot delete menu "${menu.name}" because it has ${children.length} child menu(s). Please reassign or delete child menus first.`,
+        `Cannot delete menu \"${menu.name}\" because it has ${children.length} child menu(s). Please reassign or delete child menus first.`,
       );
     }
 
@@ -235,6 +254,9 @@ export class MenusService {
 
     // Delete the menu
     await this.menuRepository.remove(menu);
+
+    // Invalidate all menu caches
+    await this.invalidateAllMenuCaches();
 
     return { success: true, message: 'Menu deleted successfully' };
   }
@@ -245,11 +267,16 @@ export class MenusService {
   async reorder(id: string, newOrder: number) {
     const menu = await this.menuRepository.findOne({ where: { id } });
     if (!menu) {
-      throw new NotFoundException(`Menu with ID "${id}" not found`);
+      throw new NotFoundException(`Menu with ID \"${id}\" not found`);
     }
 
     menu.order = newOrder;
-    return this.menuRepository.save(menu);
+    const saved = await this.menuRepository.save(menu);
+    
+    // Invalidate all menu caches
+    await this.invalidateAllMenuCaches();
+    
+    return saved;
   }
 
   /**
@@ -258,14 +285,14 @@ export class MenusService {
   async assignRoles(menuId: string, roleIds: string[]) {
     const menu = await this.menuRepository.findOne({ where: { id: menuId } });
     if (!menu) {
-      throw new NotFoundException(`Menu with ID "${menuId}" not found`);
+      throw new NotFoundException(`Menu with ID \"${menuId}\" not found`);
     }
 
     // Validate roles exist
     for (const roleId of roleIds) {
       const role = await this.roleRepository.findOne({ where: { id: roleId } });
       if (!role) {
-        throw new NotFoundException(`Role with ID "${roleId}" not found`);
+        throw new NotFoundException(`Role with ID \"${roleId}\" not found`);
       }
     }
 
@@ -276,6 +303,11 @@ export class MenusService {
 
     await this.roleMenuRepository.save(assignments);
 
+    // Invalidate cache for each role assigned
+    for (const roleId of roleIds) {
+      await this.cacheService.invalidateUserMenu(roleId);
+    }
+
     return this.findOne(menuId);
   }
 
@@ -285,7 +317,7 @@ export class MenusService {
   async removeRoles(menuId: string, roleIds: string[]) {
     const menu = await this.menuRepository.findOne({ where: { id: menuId } });
     if (!menu) {
-      throw new NotFoundException(`Menu with ID "${menuId}" not found`);
+      throw new NotFoundException(`Menu with ID \"${menuId}\" not found`);
     }
 
     await this.roleMenuRepository.delete({
@@ -293,6 +325,28 @@ export class MenusService {
       roleId: In(roleIds),
     });
 
+    // Invalidate cache for each role removed
+    for (const roleId of roleIds) {
+      await this.cacheService.invalidateUserMenu(roleId);
+    }
+
     return this.findOne(menuId);
+  }
+
+  /**
+   * Helper to invalidate all user menu caches
+   * Since we don't have pattern deletion in cache-manager v5,
+   * we'll have to invalidate role by role if needed, or just let it TTL.
+   * But usually we can get all role IDs.
+   */
+  private async invalidateAllMenuCaches() {
+    try {
+      const roles = await this.roleRepository.find();
+      for (const role of roles) {
+        await this.cacheService.invalidateUserMenu(role.id);
+      }
+    } catch (e) {
+      // Ignore if fails
+    }
   }
 }
