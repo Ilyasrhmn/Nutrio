@@ -25,7 +25,9 @@ import {
   Scale,
   ClipboardList,
   CookingPot,
-  UtensilsCrossed
+  UtensilsCrossed,
+  AlertCircle,
+  BookOpen
 } from "lucide-react"
 import { Button } from "@workspace/ui/components/button"
 import { Avatar, AvatarFallback, AvatarImage } from "@workspace/ui/components/avatar"
@@ -41,8 +43,9 @@ export default function PortalLayout({
   const pathname = usePathname()
   const { user, logout, ability } = useAuth()
   const [isOpsOpen, setIsOpsOpen] = React.useState(true)
+  const [isMonitoringOpen, setIsMonitoringOpen] = React.useState(true)
 
-  const navItems: { name: string; icon: any; href: string; subject: AppSubject }[] = [
+  const navItems: { name: string; icon: any; href: string; subject: AppSubject; children?: any[] }[] = [
     { name: "Dashboard", icon: LayoutDashboard, href: "/portal", subject: "Dashboard" },
     { name: "Peta Sebaran", icon: MapIcon, href: "/portal/map", subject: "Map" },
     { name: "Pencairan Dana", icon: Wallet, href: "/portal/funds", subject: "Funds" },
@@ -58,11 +61,20 @@ export default function PortalLayout({
         { name: "Lembar Kerja Dapur (SOP)", icon: CookingPot, href: "/portal/operasional/kitchen-sop" },
       ]
     },
+    { 
+      name: "Monitoring & Kepatuhan AI", 
+      icon: ShieldCheck, 
+      subject: "Monitoring",
+      children: [
+        { name: "Eksekusi Checkpoint (Live)", icon: Camera, href: "/portal/live" },
+        { name: "Skor & Performa Harian", icon: ClipboardCheck, href: "/portal/checkpoints" },
+        { name: "Arsip Validasi AI", icon: History, href: "/portal/audit" },
+        { name: "Pusat Kendali Insiden", icon: AlertCircle, href: "/portal/incidents" },
+        { name: "Buku Panduan & SOP", icon: BookOpen, href: "/portal/sop" },
+      ]
+    },
     { name: "Marketplace", icon: Store, href: "/portal/marketplace", subject: "Marketplace" },
-    { name: "Eksekusi Checkpoint", icon: Camera, href: "/portal/live", subject: "LiveExecution" },
     { name: "Logistik & Pengiriman", icon: Truck, href: "/portal/logistics", subject: "Logistics" },
-    { name: "Skor & Checkpoint", icon: ClipboardCheck, href: "/portal/checkpoints", subject: "Checkpoints" },
-    { name: "Audit Log", icon: History, href: "/portal/audit", subject: "Audit" },
     { name: "Laporan AI", icon: FileBarChart, href: "/portal/reports", subject: "Reports" },
   ]
 
@@ -85,24 +97,33 @@ export default function PortalLayout({
             if (ability.cannot('read', item.subject)) return null;
             
             if (item.children) {
+              const isOpen = item.subject === 'Menu' ? isOpsOpen : isMonitoringOpen
+              const setIsOpen = item.subject === 'Menu' ? setIsOpsOpen : setIsMonitoringOpen
+              const isGroupActive = item.children.some(child => pathname === child.href)
+
               return (
                 <div key={item.name} className="space-y-1">
                   <Button 
                     variant="ghost" 
-                    onClick={() => setIsOpsOpen(!isOpsOpen)}
+                    onClick={() => setIsOpen(!isOpen)}
                     className={cn(
                       "w-full justify-between gap-3 h-10 px-3 transition-all",
-                      pathname.includes('/operasional') ? "text-primary bg-primary/5 font-bold" : "text-muted-foreground hover:text-primary hover:bg-primary/5"
+                      isGroupActive ? "text-primary bg-primary/5 font-bold" : "text-muted-foreground hover:text-primary hover:bg-primary/5"
                     )}
                   >
                     <div className="flex items-center gap-3">
-                      <item.icon className="size-4" />
+                      <div className="relative">
+                        <item.icon className="size-4" />
+                        {item.subject === 'Monitoring' && (
+                          <div className="absolute -top-1 -right-1 size-2 bg-emerald-500 rounded-full border-2 border-card" />
+                        )}
+                      </div>
                       <span className="text-xs">{item.name}</span>
                     </div>
-                    {isOpsOpen ? <ChevronDown className="size-3" /> : <ChevronRight className="size-3" />}
+                    {isOpen ? <ChevronDown className="size-3" /> : <ChevronRight className="size-3" />}
                   </Button>
                   
-                  {isOpsOpen && (
+                  {isOpen && (
                     <div className="pl-4 space-y-1 animate-in slide-in-from-top-1 duration-200">
                       {item.children.map((child) => {
                         const isChildActive = pathname === child.href

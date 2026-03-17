@@ -61,6 +61,7 @@ function defineVendorAbilities(
   can('read', 'Checkpoints');
   can('read', 'Marketplace');
   can('read', 'Settings');
+  can('read', 'Monitoring');
   cannot('read', 'Audit');
   cannot('read', 'Reports');
 }
@@ -76,6 +77,7 @@ function defineInspectorAbilities(
   can('read', 'Checkpoints');
   can('read', 'Audit');
   can('read', 'Reports');
+  can('read', 'Monitoring');
   cannot('read', 'Funds');
   cannot('read', 'Menu');
   cannot('read', 'Marketplace');
@@ -93,6 +95,7 @@ function defineCoordinatorAbilities(
   can('read', 'Audit');
   can('read', 'Reports');
   can('read', 'Settings');
+  can('read', 'Monitoring');
   cannot('read', 'Funds');
   cannot('read', 'Menu');
   cannot('read', 'Marketplace');
@@ -107,6 +110,7 @@ function defineDinkesAbilities(
   can('read', 'LiveExecution');
   can('read', 'Audit');
   can('read', 'Reports');
+  can('read', 'Monitoring');
   cannot('read', 'Funds');
   cannot('read', 'Menu');
   cannot('read', 'Marketplace');
@@ -119,6 +123,7 @@ function definePublicAbilities(
   can('read', 'Dashboard');
   can('read', 'Map');
   can('read', 'LiveExecution');
+  can('read', 'Monitoring');
   cannot('read', 'Funds');
   cannot('read', 'Menu');
   cannot('read', 'Marketplace');

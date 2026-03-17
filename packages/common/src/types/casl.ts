@@ -12,6 +12,7 @@ export type AppSubject =
   | 'Reports'
   | 'Marketplace'
   | 'Settings'
+  | 'Monitoring'
   | 'all';
 
 export type Permission = {

@@ -13,7 +13,11 @@ import {
   ChevronRight,
   Target,
   ShieldCheck,
-  AlertCircle
+  AlertCircle,
+  Flame,
+  Lock,
+  Zap,
+  HelpCircle
 } from "lucide-react"
 
 import { Button } from "@workspace/ui/components/button"
@@ -33,6 +37,11 @@ import { Alert, AlertDescription, AlertTitle } from "@workspace/ui/components/al
 import { cn } from "@workspace/ui/lib/utils"
 
 export default function CheckpointsPage() {
+  const [dailyScore, setDailyScore] = React.useState(95)
+  const [streakDays, setStreakDays] = React.useState(4)
+  
+  const isKritis = dailyScore < 75
+
   const checkpoints = [
     {
       time: "02:00",
@@ -106,57 +115,100 @@ export default function CheckpointsPage() {
       <div className="space-y-6">
         <div className="flex items-center justify-between">
           <div className="space-y-1">
-            <h2 className="text-2xl font-bold text-foreground tracking-tight">Pemantauan Skor & Checkpoint AI</h2>
+            <h2 className="text-2xl font-bold text-foreground tracking-tight">Pemantauan Skor & Kepatuhan AI</h2>
             <p className="text-muted-foreground text-sm font-medium">Kalkulasi real-time kepatuhan SOP harian dan akumulasi pinalti vendor.</p>
           </div>
           <div className="flex items-center gap-3">
-             <Button variant="outline" className="rounded-full bg-card h-10 border-border gap-2 font-bold text-xs uppercase tracking-wider">
+             <div className="flex items-center gap-2 px-4 py-2 bg-orange-50 border border-orange-100 rounded-2xl shadow-sm" title="Rajin selama 4 hari berturut-turut! Capai 5 hari untuk bonus Gold.">
+               <Flame className="size-5 text-orange-500 animate-bounce" />
+               <div className="flex flex-col">
+                 <p className="text-[10px] font-black text-orange-400 uppercase leading-none">Streak Aktif</p>
+                 <p className="text-sm font-black text-orange-600 leading-tight">{streakDays} Hari</p>
+               </div>
+             </div>
+             <Button variant="outline" className="rounded-full bg-card h-12 border-border gap-2 font-bold text-xs uppercase tracking-wider">
                <Calendar className="size-4" />
                Riwayat Skor
              </Button>
           </div>
         </div>
 
-        {/* Warning Banner */}
-        <Alert variant="warning" className="border-amber-200 shadow-sm">
-          <AlertTriangle className="size-4" />
-          <AlertTitle className="text-xs font-black uppercase tracking-widest">PEMBERITAHUAN SISTEM</AlertTitle>
-          <AlertDescription className="font-medium text-amber-800">
-            Skor Operasional Harian akan direset setiap pukul 00:00. Poin pinalti yang terakumulasi mencapai 100 Poin akan memicu pencabutan lisensi SPPG otomatis (Blacklist).
-          </AlertDescription>
-        </Alert>
+        {/* Warning Banner / Status Lock */}
+        {isKritis ? (
+          <Alert variant="destructive" className="border-red-200 shadow-md bg-red-50/50">
+            <Lock className="size-4" />
+            <AlertTitle className="text-xs font-black uppercase tracking-widest">SISTEM TERKUNCI: SKOR RENDAH</AlertTitle>
+            <AlertDescription className="font-bold text-red-800">
+              Skor Anda berada di bawah 75. Tombol Pencairan Dana telah dibekukan otomatis. Hubungi Admin BGN untuk Manual Review.
+            </AlertDescription>
+          </Alert>
+        ) : (
+          <Alert className="border-amber-200 shadow-sm bg-amber-50/30">
+            <Zap className="size-4 text-amber-600" />
+            <AlertTitle className="text-xs font-black uppercase tracking-widest text-amber-900">INFORMASI SISTEM</AlertTitle>
+            <AlertDescription className="font-medium text-amber-800">
+              Skor Operasional Harian akan direset setiap pukul 00:00. Pertahankan skor di atas 75 untuk menjaga akses Smart Contract tetap aktif.
+            </AlertDescription>
+          </Alert>
+        )}
       </div>
 
       {/* Metric Cards Grid */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        <Card className="bg-card border-border shadow-sm">
-          <CardContent className="p-6 space-y-4">
+        <Card className={cn(
+          "bg-card border-border shadow-sm transition-all relative overflow-hidden",
+          isKritis ? "ring-2 ring-red-500 shadow-red-100" : ""
+        )}>
+          <CardContent className="p-6 space-y-4 relative z-10">
             <div className="flex items-center justify-between">
-              <p className="text-[10px] font-black text-muted-foreground uppercase tracking-widest">Skor Operasional Harian</p>
-              <Target className="size-5 text-primary" />
+              <div className="flex items-center gap-2">
+                <p className="text-[10px] font-black text-muted-foreground uppercase tracking-widest">Skor Operasional Harian</p>
+                <HelpCircle className="size-3 text-muted-foreground cursor-help" title="Skor awal 100. Berkurang jika telat: Ringan (-2), Sedang (-5), Parah (-10), Fatal (-50)." />
+              </div>
+              <Target className={cn("size-5", isKritis ? "text-red-500" : "text-primary")} />
             </div>
             <div className="space-y-3">
               <div className="flex items-baseline gap-1">
-                <h3 className="text-3xl font-black text-foreground">95</h3>
+                <h3 className={cn("text-4xl font-black tracking-tighter", isKritis ? "text-red-600" : "text-foreground")}>{dailyScore}</h3>
                 <span className="text-sm font-bold text-muted-foreground">/ 100</span>
               </div>
               <div className="space-y-1.5">
-                <Progress value={95} className="h-2" />
-                <p className="text-[10px] text-muted-foreground font-medium italic">Batas Kritis: 75/100 (Reset tengah malam)</p>
+                <Progress 
+                  value={dailyScore} 
+                  className="h-3" 
+                  style={{ backgroundColor: isKritis ? '#fee2e2' : undefined }}
+                />
+                <div className="flex justify-between items-center">
+                  <p className="text-[10px] text-muted-foreground font-bold italic uppercase tracking-tighter">Batas Kritis: 75</p>
+                  {isKritis && <Badge className="bg-red-600 text-[9px] h-4">STATUS: LOCK</Badge>}
+                </div>
               </div>
             </div>
           </CardContent>
+          {isKritis && <div className="absolute inset-0 bg-red-500/5 pointer-events-none" />}
         </Card>
 
         <Card className="bg-card border-border shadow-sm border-l-4 border-destructive/20">
           <CardContent className="p-6 space-y-4">
             <div className="flex items-center justify-between">
-              <p className="text-[10px] font-black text-muted-foreground uppercase tracking-widest">Akumulasi Pinalti (Buku Hitam)</p>
-              <TrendingDown className="size-5 text-destructive" />
+              <p className="text-[10px] font-black text-muted-foreground uppercase tracking-widest">Status Smart Contract</p>
+              <ShieldCheck className={cn("size-5", isKritis ? "text-red-500" : "text-emerald-500")} />
             </div>
-            <div className="space-y-1">
-              <h3 className="text-3xl font-black text-destructive tracking-tighter">12 Poin</h3>
-              <p className="text-[10px] text-muted-foreground font-medium italic">Akumulasi sejak 1 Jan 2026</p>
+            <div className="space-y-2">
+              <div className="flex items-center gap-2">
+                <h3 className={cn("text-2xl font-black", isKritis ? "text-red-600" : "text-foreground")}>
+                  {isKritis ? "MANUAL REVIEW" : "OTOMATIS (CAIR)"}
+                </h3>
+                <Badge className={cn(
+                  "font-bold uppercase text-[9px]",
+                  isKritis ? "bg-red-100 text-red-600" : "bg-emerald-50 text-emerald-600"
+                )}>
+                  {isKritis ? "LOCKED" : "ACTIVE"}
+                </Badge>
+              </div>
+              <p className="text-[10px] text-muted-foreground font-medium italic">
+                {isKritis ? "Dana dibekukan hingga review admin selesai." : "Pencairan dana otomatis diaktifkan."}
+              </p>
             </div>
           </CardContent>
         </Card>
@@ -164,15 +216,29 @@ export default function CheckpointsPage() {
         <Card className="bg-card border-border shadow-sm">
           <CardContent className="p-6 space-y-4">
             <div className="flex items-center justify-between">
-              <p className="text-[10px] font-black text-muted-foreground uppercase tracking-widest">Status Lisensi Vendor</p>
-              <ShieldCheck className="size-5 text-emerald-500" />
+              <p className="text-[10px] font-black text-muted-foreground uppercase tracking-widest">Progress Menuju Bonus Gold</p>
+              <Zap className="size-5 text-orange-500" />
             </div>
-            <div className="space-y-2">
+            <div className="space-y-3">
               <div className="flex items-center gap-2">
-                <h3 className="text-2xl font-black text-foreground">Aman (Aktif)</h3>
-                <Badge className="bg-emerald-50 text-emerald-600 border-emerald-100 font-bold uppercase text-[9px]">Verified</Badge>
+                <div className="flex -space-x-1">
+                  {[1, 2, 3, 4, 5].map((i) => (
+                    <div 
+                      key={i} 
+                      className={cn(
+                        "size-6 rounded-full border-2 border-card flex items-center justify-center text-[10px] font-black",
+                        i <= streakDays ? "bg-orange-500 text-white" : "bg-slate-100 text-slate-400"
+                      )}
+                    >
+                      {i <= streakDays ? <CheckCircle2 className="size-3" /> : i}
+                    </div>
+                  ))}
+                </div>
+                <p className="text-xs font-bold text-foreground">1 Hari Lagi!</p>
               </div>
-              <p className="text-[10px] text-muted-foreground font-medium italic">Tidak ada SP/Suspend aktif</p>
+              <p className="text-[10px] text-muted-foreground font-medium leading-tight">
+                Pertahankan skor {'>'}95 selama 5 hari berturut-turut untuk mendapatkan status <b>Vendor Gold</b> (+1% Margin Bonus).
+              </p>
             </div>
           </CardContent>
         </Card>
