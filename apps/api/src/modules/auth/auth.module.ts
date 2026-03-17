@@ -9,10 +9,14 @@ import { UsersModule } from '../users/users.module';
 import { JwtStrategy } from './strategies/jwt.strategy';
 import { CaslAbilityFactory } from './casl-ability.factory';
 import { PoliciesGuard } from './guards/policies.guard';
+import { RolesModule } from '../access-control/roles/roles.module';
+import { CacheModule } from '../cache/cache.module';
 
 @Module({
   imports: [
     UsersModule,
+    RolesModule,
+    CacheModule,
     PassportModule,
     JwtModule.register({}),
     TypeOrmModule.forFeature([RefreshToken]),

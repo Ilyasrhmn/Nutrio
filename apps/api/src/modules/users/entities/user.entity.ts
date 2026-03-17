@@ -1,6 +1,7 @@
 // @ts-nocheck
-import { Entity, Column, PrimaryGeneratedColumn, CreateDateColumn, UpdateDateColumn, DeleteDateColumn } from 'typeorm';
+import { Entity, Column, PrimaryGeneratedColumn, CreateDateColumn, UpdateDateColumn, DeleteDateColumn, ManyToOne, JoinColumn } from 'typeorm';
 import { UserRole } from '@workspace/common';
+import { Role } from '../../access-control/roles/entities/role.entity';
 
 @Entity('users')
 export class User {
@@ -13,12 +14,23 @@ export class User {
   @Column({ name: 'password_hash' })
   passwordHash!: string;
 
+  @Column({ name: 'role_id', type: 'uuid' })
+  roleId!: string;
+
+  @ManyToOne(() => Role, { eager: false })
+  @JoinColumn({ name: 'role_id' })
+  role!: Role;
+
+  // Legacy enum field for backward compatibility during migration
+  // This will be removed after full migration
   @Column({
     type: 'enum',
     enum: UserRole,
     default: UserRole.VENDOR,
+    nullable: true,
+    name: 'role_legacy'
   })
-  role!: UserRole;
+  roleLegacy?: UserRole;
 
   @Column({ name: 'full_name' })
   fullName!: string;
