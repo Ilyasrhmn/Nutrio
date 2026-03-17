@@ -67,6 +67,31 @@ export default class MenuSeed {
           requiredPermission: 'read:Marketplace',
           metadata: { i18n: { en: 'Marketplace', id: 'E-Katalog' } },
         },
+        // Supplier Portal Section
+        {
+          name: 'My Shop',
+          path: '/portal/supplier/shop',
+          icon: 'Store',
+          order: 61,
+          requiredPermission: 'read:SupplierShop',
+          metadata: { i18n: { en: 'My Shop', id: 'Toko Saya' } },
+        },
+        {
+          name: 'Product Catalog',
+          path: '/portal/supplier/products',
+          icon: 'Package',
+          order: 62,
+          requiredPermission: 'read:SupplierProducts',
+          metadata: { i18n: { en: 'Product Catalog', id: 'Katalog Produk' } },
+        },
+        {
+          name: 'Chat & Nego',
+          path: '/portal/supplier/chat',
+          icon: 'MessageSquare',
+          order: 63,
+          requiredPermission: 'read:SupplierChat',
+          metadata: { i18n: { en: 'Chat & Nego', id: 'Chat & Nego' } },
+        },
         {
           name: 'Live Monitoring',
           path: '/portal/live',

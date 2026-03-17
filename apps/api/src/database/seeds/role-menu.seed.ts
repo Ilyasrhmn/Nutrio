@@ -114,6 +114,17 @@ export default class RoleMenuSeed {
             '/portal/live',
           ],
         },
+        {
+          roleName: 'supplier',
+          menuPaths: [
+            '/portal',
+            '/portal/marketplace',
+            '/portal/supplier/shop',
+            '/portal/supplier/products',
+            '/portal/supplier/chat',
+            '/portal/settings',
+          ],
+        },
       ];
 
       let created = 0;
