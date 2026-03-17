@@ -2,13 +2,11 @@
 
 import * as React from "react";
 import {
-  AlertCircle,
   Camera,
   ShieldAlert,
   MapPin,
   Clock,
   CheckCircle2,
-  XCircle,
   Info,
   Navigation,
   Loader2,

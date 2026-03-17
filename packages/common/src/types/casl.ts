@@ -24,6 +24,9 @@ export type AppSubject =
   | "Permission"
   | "User"
   | "Monitoring"
+  | "SupplierShop"
+  | "SupplierProducts"
+  | "SupplierChat"
   | "all";
 
 export type Permission = {
