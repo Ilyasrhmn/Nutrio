@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { CheckCircle } from "lucide-react";
 import { Button } from "@workspace/ui/components/button";
 
@@ -28,12 +29,14 @@ export function Cta() {
           <Button className="bg-white text-indigo-900 rounded-full hover:bg-slate-50 transition-colors h-14 px-8 font-semibold text-base w-full sm:w-auto">
             Daftar Sekarang — Gratis
           </Button>
-          <Button
-            variant="outline"
-            className="rounded-full border-white/20 text-white bg-white/5 hover:bg-white/10 transition-colors h-14 px-8 font-semibold text-base w-full sm:w-auto"
-          >
-            Jadwalkan Demo
-          </Button>
+          <Link href="/demo-accounts" className="w-full sm:w-auto">
+            <Button
+              variant="outline"
+              className="rounded-full border-white/20 text-white bg-white/5 hover:bg-white/10 transition-colors h-14 px-8 font-semibold text-base w-full"
+            >
+              Mulai Demo
+            </Button>
+          </Link>
         </div>
 
         <div className="flex flex-wrap justify-center gap-x-8 gap-y-4 text-sm font-medium text-indigo-100/80">

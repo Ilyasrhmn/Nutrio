@@ -15,7 +15,8 @@ import {
   Lock,
   Globe,
   Loader2,
-  ArrowRight
+  ArrowRight,
+  Sparkles
 } from "lucide-react"
 
 import { Button } from "@workspace/ui/components/button"
@@ -122,6 +123,21 @@ export default function LoginPage() {
           </CardHeader>
 
           <CardContent className="space-y-6 px-10 pb-10">
+            {/* Demo Accounts CTA */}
+            <Link
+              href="/demo-accounts"
+              className="flex items-center gap-3 p-3.5 rounded-xl bg-primary/5 border border-primary/10 hover:bg-primary/10 transition-colors group"
+            >
+              <div className="size-8 bg-primary/10 rounded-lg flex items-center justify-center text-primary shrink-0">
+                <Sparkles className="size-4" />
+              </div>
+              <div className="flex-1 min-w-0">
+                <p className="text-xs font-black text-primary">Punya Akun Demo</p>
+                <p className="text-[10px] text-slate-500 font-medium">Jelajahi platform dengan akun demo — klik untuk lihat daftar.</p>
+              </div>
+              <ArrowRight className="size-4 text-primary/60 group-hover:translate-x-0.5 transition-transform shrink-0" />
+            </Link>
+
             <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
               <div className="space-y-4">
                 <div className="space-y-2">
@@ -214,11 +230,17 @@ export default function LoginPage() {
               Masuk via SSO Pemerintah
             </Button>
 
-            <div className="text-center pt-2">
+            <div className="text-center pt-2 space-y-2">
               <p className="text-sm text-slate-500 font-medium">
                 Belum terdaftar?{" "}
                 <Link href="/register" className="text-primary font-bold hover:underline">
                   Daftar sekarang
+                </Link>
+              </p>
+              <p className="text-xs text-slate-400 font-medium">
+                Untuk demo hackathon?{" "}
+                <Link href="/demo-accounts" className="text-primary font-bold hover:underline">
+                  Lihat akun demo →
                 </Link>
               </p>
             </div>
