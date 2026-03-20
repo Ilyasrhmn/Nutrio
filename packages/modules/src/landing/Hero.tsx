@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { ArrowRight } from "lucide-react";
 import { Button } from "@workspace/ui/components/button";
 
@@ -36,20 +37,22 @@ export function Hero() {
               Mulai Gratis
               <ArrowRight className="ml-2 h-4 w-4 group-hover:translate-x-1 transition-transform" />
             </Button>
-            <Button
-              variant="outline"
-              className="rounded-full h-12 px-8 font-medium border-slate-200 text-slate-700 hover:bg-slate-50 transition-all duration-200"
-            >
-              Lihat Demo
-            </Button>
+            <Link href="/demo-accounts">
+              <Button
+                variant="outline"
+                className="rounded-full h-12 px-8 font-medium border-slate-200 text-slate-700 hover:bg-slate-50 transition-all duration-200"
+              >
+                Lihat Demo
+              </Button>
+            </Link>
           </div>
 
           <div className="flex flex-wrap gap-3">
             <div className="px-4 py-2 bg-white rounded-lg border border-slate-200 shadow-sm text-sm font-medium text-slate-700">
-              25.000+ korban keracunan
+              1000+ korban keracunan
             </div>
             <div className="px-4 py-2 bg-white rounded-lg border border-slate-200 shadow-sm text-sm font-medium text-slate-700">
-              19.188 SPPG aktif
+              25.570 SPPG aktif
             </div>
             <div className="px-4 py-2 bg-white rounded-lg border border-slate-200 shadow-sm text-sm font-medium text-slate-700">
               80% karena SOP

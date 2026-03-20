@@ -23,7 +23,7 @@ export function Problem() {
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6 w-full mb-16">
           <div className="bg-slate-800/50 rounded-xl p-8 border border-slate-700/50 flex flex-col items-center justify-center">
             <span className="text-4xl font-extrabold bg-gradient-to-r from-indigo-400 to-violet-400 bg-clip-text text-transparent mb-2">
-              25.000+
+              16.109
             </span>
             <span className="text-sm font-medium text-slate-300 text-center">
               korban keracunan 2025
@@ -39,7 +39,7 @@ export function Problem() {
           </div>
           <div className="bg-slate-800/50 rounded-xl p-8 border border-slate-700/50 flex flex-col items-center justify-center">
             <span className="text-4xl font-extrabold bg-gradient-to-r from-indigo-400 to-violet-400 bg-clip-text text-transparent mb-2">
-              19.188
+              20.000+
             </span>
             <span className="text-sm font-medium text-slate-300 text-center">
               SPPG tanpa monitoring real-time
@@ -47,7 +47,7 @@ export function Problem() {
           </div>
           <div className="bg-slate-800/50 rounded-xl p-8 border border-slate-700/50 flex flex-col items-center justify-center">
             <span className="text-4xl font-extrabold bg-gradient-to-r from-indigo-400 to-violet-400 bg-clip-text text-transparent mb-2">
-              45+
+              1.030
             </span>
             <span className="text-sm font-medium text-slate-300 text-center">
               dapur ditutup reaktif setelah ada korban
