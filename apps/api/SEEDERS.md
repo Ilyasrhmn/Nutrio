@@ -1,6 +1,6 @@
 # Database Seeders
 
-Seeder untuk populate database dengan user-user berdasarkan role yang ada di sistem VendorTrack.
+Seeder untuk populate database dengan user-user berdasarkan role yang ada di sistem Nutrio.
 
 Menggunakan **typeorm-extension** untuk CLI yang lebih mirip Sequelize.
 

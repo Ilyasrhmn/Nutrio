@@ -57,7 +57,7 @@ export function DashboardPreview() {
                     <LayoutDashboard className="h-4 w-4 text-white" />
                   </div>
                   <span className="font-semibold text-slate-900 text-sm">
-                    VendorTrack Command Center
+                    Nutrio Command Center
                   </span>
                 </div>
                 <div className="flex gap-1.5">

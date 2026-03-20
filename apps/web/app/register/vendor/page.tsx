@@ -2,14 +2,14 @@
 
 import * as React from "react"
 import { useRouter } from "next/navigation"
-import { 
-  ShieldCheck, 
-  Sparkles, 
-  Video, 
-  MapPin, 
-  CreditCard, 
-  CheckCircle2, 
-  ChevronRight, 
+import {
+  ShieldCheck,
+  Sparkles,
+  Video,
+  MapPin,
+  CreditCard,
+  CheckCircle2,
+  ChevronRight,
   ArrowLeft,
   FileCheck,
   Zap,
@@ -67,8 +67,8 @@ export default function VendorOnboardingPage() {
   return (
     <div className="min-h-screen bg-[#F8FAFC] flex flex-col items-center justify-center p-6 font-sans">
       <div className="w-full max-w-[1000px] mb-4">
-        <Button 
-          variant="ghost" 
+        <Button
+          variant="ghost"
           onClick={() => router.push("/register")}
           className="gap-2 text-slate-500 hover:text-primary hover:bg-primary/5 font-bold"
         >
@@ -85,26 +85,26 @@ export default function VendorOnboardingPage() {
                 <ShieldCheck className="size-6" />
               </div>
               <div>
-                <h1 className="font-bold text-foreground leading-tight text-lg">VendorTrack</h1>
+                <h1 className="font-bold text-foreground leading-tight text-lg">Nutrio</h1>
                 <p className="text-[10px] font-black text-muted-foreground uppercase tracking-widest">MBG VENDOR HUB</p>
               </div>
             </div>
 
             <div className="space-y-8 relative">
               <div className="absolute left-[19px] top-2 bottom-2 w-0.5 bg-slate-100 -z-0" />
-              
+
               {steps.map((step) => {
                 const isActive = currentStep === step.id
                 const isCompleted = currentStep > step.id
-                
+
                 return (
                   <div key={step.id} className="relative z-10 flex items-start gap-4">
-                    <div 
+                    <div
                       className={cn(
                         "size-10 rounded-full flex items-center justify-center text-sm font-bold transition-all border-2",
-                        isActive ? "bg-primary border-primary text-primary-foreground shadow-lg shadow-primary/20 scale-110" : 
-                        isCompleted ? "bg-emerald-500 border-emerald-500 text-white" : 
-                        "bg-white border-slate-200 text-slate-400"
+                        isActive ? "bg-primary border-primary text-primary-foreground shadow-lg shadow-primary/20 scale-110" :
+                          isCompleted ? "bg-emerald-500 border-emerald-500 text-white" :
+                            "bg-white border-slate-200 text-slate-400"
                       )}
                     >
                       {isCompleted ? <CheckCircle2 className="size-5" /> : step.id}
@@ -270,11 +270,11 @@ export default function VendorOnboardingPage() {
                       Lokasi Dapur (Geotagging)
                     </h3>
                     <div className="relative h-48 w-full bg-slate-100 rounded-[32px] border border-slate-200 overflow-hidden flex items-center justify-center">
-                       <div className="absolute inset-0 bg-[url('https://images.unsplash.com/photo-1526778548025-fa2f459cd5c1?q=80&w=2000&auto=format&fit=crop')] bg-cover bg-center opacity-30 grayscale" />
-                       <Button className="relative z-10 rounded-full font-bold shadow-2xl gap-2 h-12 px-8 bg-white text-slate-900 hover:bg-slate-50 border-none">
-                         <MapPin className="size-5 text-primary" />
-                         Pin Lokasi Saat Ini (GPS)
-                       </Button>
+                      <div className="absolute inset-0 bg-[url('https://images.unsplash.com/photo-1526778548025-fa2f459cd5c1?q=80&w=2000&auto=format&fit=crop')] bg-cover bg-center opacity-30 grayscale" />
+                      <Button className="relative z-10 rounded-full font-bold shadow-2xl gap-2 h-12 px-8 bg-white text-slate-900 hover:bg-slate-50 border-none">
+                        <MapPin className="size-5 text-primary" />
+                        Pin Lokasi Saat Ini (GPS)
+                      </Button>
                     </div>
                   </div>
 
@@ -289,7 +289,7 @@ export default function VendorOnboardingPage() {
                         <CreditCard className="size-5" />
                         Hubungkan Rekening Bank
                       </Button>
-                      
+
                       <div className="p-5 bg-slate-50 border border-slate-200 rounded-[24px] flex flex-col md:flex-row md:items-center justify-between gap-4">
                         <div className="flex items-center gap-4">
                           <div className="size-12 bg-white rounded-xl border border-slate-100 flex items-center justify-center font-black text-blue-600 shadow-sm">BCA</div>
@@ -309,17 +309,17 @@ export default function VendorOnboardingPage() {
 
           {/* Footer Navigation */}
           <footer className="p-8 border-t border-slate-100 flex items-center justify-between bg-white/80 backdrop-blur-md">
-            <Button 
-              variant="outline" 
-              onClick={prevStep} 
+            <Button
+              variant="outline"
+              onClick={prevStep}
               disabled={currentStep === 1}
               className="rounded-2xl h-12 px-8 border-slate-200 font-bold text-slate-600 gap-2 disabled:opacity-20 transition-all"
             >
               <ArrowLeft className="size-4" />
               Kembali
             </Button>
-            
-            <Button 
+
+            <Button
               onClick={nextStep}
               className={cn(
                 "rounded-2xl h-12 px-10 font-black shadow-xl transition-all gap-2 active:scale-95",

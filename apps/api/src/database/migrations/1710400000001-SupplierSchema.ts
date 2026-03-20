@@ -6,12 +6,12 @@ export class SupplierSchema1710400000001 implements MigrationInterface {
     public async up(queryRunner: QueryRunner): Promise<void> {
         await queryRunner.query(`
 -- -----------------------------------------------------------------------------
--- ROLES ADDITION (vendortrack_admin)
+-- ROLES ADDITION (Nutrio_admin)
 -- -----------------------------------------------------------------------------
 DO $$
 BEGIN
-    IF NOT EXISTS (SELECT FROM pg_catalog.pg_roles WHERE rolname = 'vendortrack_admin') THEN
-        CREATE ROLE vendortrack_admin LOGIN PASSWORD 'REPLACE_IN_ENV';
+    IF NOT EXISTS (SELECT FROM pg_catalog.pg_roles WHERE rolname = 'Nutrio_admin') THEN
+        CREATE ROLE Nutrio_admin LOGIN PASSWORD 'REPLACE_IN_ENV';
     END IF;
 END
 $$;
@@ -562,27 +562,27 @@ ALTER TABLE supplier_contracts      ENABLE ROW LEVEL SECURITY;
 ALTER TABLE supplier_invoices       ENABLE ROW LEVEL SECURITY;
 ALTER TABLE supplier_reviews        ENABLE ROW LEVEL SECURITY;
 
-CREATE POLICY admin_supplier_all ON suppliers            FOR ALL TO vendortrack_admin USING (TRUE);
-CREATE POLICY admin_supdoc_all   ON supplier_documents   FOR ALL TO vendortrack_admin USING (TRUE);
-CREATE POLICY admin_prod_all     ON supplier_products    FOR ALL TO vendortrack_admin USING (TRUE);
-CREATE POLICY admin_po_all       ON purchase_orders      FOR ALL TO vendortrack_admin USING (TRUE);
-CREATE POLICY admin_poi_all      ON purchase_order_items FOR ALL TO vendortrack_admin USING (TRUE);
-CREATE POLICY admin_contract_all ON supplier_contracts   FOR ALL TO vendortrack_admin USING (TRUE);
-CREATE POLICY admin_invoice_all  ON supplier_invoices    FOR ALL TO vendortrack_admin USING (TRUE);
-CREATE POLICY admin_review_all   ON supplier_reviews     FOR ALL TO vendortrack_admin USING (TRUE);
+CREATE POLICY admin_supplier_all ON suppliers            FOR ALL TO Nutrio_admin USING (TRUE);
+CREATE POLICY admin_supdoc_all   ON supplier_documents   FOR ALL TO Nutrio_admin USING (TRUE);
+CREATE POLICY admin_prod_all     ON supplier_products    FOR ALL TO Nutrio_admin USING (TRUE);
+CREATE POLICY admin_po_all       ON purchase_orders      FOR ALL TO Nutrio_admin USING (TRUE);
+CREATE POLICY admin_poi_all      ON purchase_order_items FOR ALL TO Nutrio_admin USING (TRUE);
+CREATE POLICY admin_contract_all ON supplier_contracts   FOR ALL TO Nutrio_admin USING (TRUE);
+CREATE POLICY admin_invoice_all  ON supplier_invoices    FOR ALL TO Nutrio_admin USING (TRUE);
+CREATE POLICY admin_review_all   ON supplier_reviews     FOR ALL TO Nutrio_admin USING (TRUE);
 
 CREATE POLICY supplier_own ON suppliers
-    FOR ALL TO vendortrack_app
+    FOR ALL TO Nutrio_app
     USING (user_id = current_setting('app.current_user_id', TRUE)::UUID);
 
 CREATE POLICY supplier_own_products ON supplier_products
-    FOR ALL TO vendortrack_app
+    FOR ALL TO Nutrio_app
     USING (supplier_id IN (
         SELECT id FROM suppliers WHERE user_id = current_setting('app.current_user_id', TRUE)::UUID
     ));
 
 CREATE POLICY supplier_own_po ON purchase_orders
-    FOR SELECT TO vendortrack_app
+    FOR SELECT TO Nutrio_app
     USING (
         supplier_id IN (SELECT id FROM suppliers WHERE user_id = current_setting('app.current_user_id', TRUE)::UUID)
         OR
@@ -590,14 +590,14 @@ CREATE POLICY supplier_own_po ON purchase_orders
     );
 
 CREATE POLICY vendor_own_po ON purchase_orders
-    FOR ALL TO vendortrack_app
+    FOR ALL TO Nutrio_app
     USING (vendor_id IN (
         SELECT id FROM vendors WHERE user_id = current_setting('app.current_user_id', TRUE)::UUID
     ));
 
 GRANT SELECT ON suppliers, supplier_products, purchase_orders,
-                supplier_reviews, supplier_invoices TO vendortrack_readonly;
-REVOKE SELECT ON supplier_documents FROM vendortrack_readonly;
+                supplier_reviews, supplier_invoices TO Nutrio_readonly;
+REVOKE SELECT ON supplier_documents FROM Nutrio_readonly;
         `);
     }
 

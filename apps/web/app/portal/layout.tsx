@@ -13,6 +13,7 @@ import {
   Settings,
   HelpCircle,
   ShieldCheck,
+  Bot,
   User,
   LogOut,
   ClipboardCheck,
@@ -151,7 +152,7 @@ export default function PortalLayout({
           </div>
           <div>
             <h1 className="font-bold text-foreground leading-tight tracking-tight">
-              VendorTrack
+              Nutrio
             </h1>
             <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest opacity-70">
               MBG Monitoring
@@ -197,6 +198,18 @@ export default function PortalLayout({
                 </Button>
               </Link>
             )}
+            <Link href="/portal/asisten">
+              <Button
+                variant="ghost"
+                className={cn(
+                  "w-full !justify-start gap-3 h-10 px-3 transition-colors text-xs text-indigo-600 bg-indigo-50/50 hover:bg-indigo-100/50",
+                  pathname === "/portal/asisten" && "bg-indigo-100 font-bold shadow-sm"
+                )}
+              >
+                <Bot className="size-4 animate-pulse" />
+                Asisten AI (Juknis)
+              </Button>
+            </Link>
             <Button
               variant="ghost"
               className="w-full !justify-start gap-3 text-muted-foreground hover:text-primary hover:bg-primary/5 h-10 px-3 text-xs"

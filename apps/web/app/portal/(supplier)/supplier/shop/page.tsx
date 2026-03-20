@@ -143,7 +143,7 @@ export default function SupplierShopPage() {
             <CardContent className="p-6 pt-0 space-y-4">
               <div className="relative group aspect-square rounded-2xl overflow-hidden border border-border">
                 <img 
-                  src="https://images.unsplash.com/photo-1582408921715-18e7806367c1?q=80&w=400&auto=format&fit=crop" 
+                  src="https://images.unsplash.com/photo-1582140110399-ff82473c6ebc?fm=jpg&q=60&w=3000&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D" 
                   alt="Shop Front" 
                   className="object-cover w-full h-full group-hover:scale-105 transition-transform duration-500"
                 />

@@ -6,12 +6,12 @@ import { useRouter } from "next/navigation"
 import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import * as z from "zod"
-import { 
-  ShieldCheck, 
-  Eye, 
-  EyeOff, 
-  HelpCircle, 
-  BookOpen, 
+import {
+  ShieldCheck,
+  Eye,
+  EyeOff,
+  HelpCircle,
+  BookOpen,
   Lock,
   Globe,
   Loader2,
@@ -22,13 +22,13 @@ import { Button } from "@workspace/ui/components/button"
 import { Input } from "@workspace/ui/components/input"
 import { Label } from "@workspace/ui/components/label"
 import { Checkbox } from "@workspace/ui/components/checkbox"
-import { 
-  Card, 
-  CardHeader, 
-  CardTitle, 
-  CardDescription, 
-  CardContent, 
-  CardFooter 
+import {
+  Card,
+  CardHeader,
+  CardTitle,
+  CardDescription,
+  CardContent,
+  CardFooter
 } from "@workspace/ui/components/card"
 import { useToast } from "@workspace/ui/hooks/use-toast"
 import { useAuth, Role } from "@/hooks/use-auth"
@@ -66,7 +66,7 @@ export default function LoginPage() {
         email: data.email,
         password: data.password,
       })
-      
+
       toast({
         title: "Login Berhasil",
         description: `Selamat datang kembali!`,
@@ -91,9 +91,9 @@ export default function LoginPage() {
           <div className="size-8 bg-primary rounded-lg flex items-center justify-center text-primary-foreground shadow-lg shadow-primary/20">
             <ShieldCheck className="size-5" />
           </div>
-          <span className="font-bold text-xl text-foreground">VendorTrack</span>
+          <span className="font-bold text-xl text-foreground">Nutrio</span>
         </div>
-        
+
         <div className="flex items-center gap-6">
           <Link href="#" className="text-sm font-medium text-muted-foreground hover:text-primary transition-colors flex items-center gap-1.5">
             <BookOpen className="size-4" />
@@ -114,21 +114,21 @@ export default function LoginPage() {
               <Lock className="size-8" />
             </div>
             <div className="space-y-2">
-              <CardTitle className="text-2xl font-bold tracking-tight text-foreground">Masuk ke VendorTrack</CardTitle>
+              <CardTitle className="text-2xl font-bold tracking-tight text-foreground">Masuk ke Nutrio</CardTitle>
               <CardDescription className="text-slate-500 font-medium">
                 Portal Pengawasan Makan Bergizi Gratis (MBG)
               </CardDescription>
             </div>
           </CardHeader>
-          
+
           <CardContent className="space-y-6 px-10 pb-10">
             <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
               <div className="space-y-4">
                 <div className="space-y-2">
                   <Label htmlFor="email" className="text-slate-700 font-semibold text-sm">Email atau NIK</Label>
-                  <Input 
-                    id="email" 
-                    placeholder="Masukkan email terdaftar" 
+                  <Input
+                    id="email"
+                    placeholder="Masukkan email terdaftar"
                     className="h-11 border-slate-200 bg-slate-50/30 focus-visible:bg-white transition-all rounded-xl"
                     disabled={isLoading}
                     {...form.register("email")}
@@ -139,22 +139,22 @@ export default function LoginPage() {
                     </p>
                   )}
                 </div>
-                
+
                 <div className="space-y-2">
                   <div className="flex items-center justify-between">
                     <Label htmlFor="password" className="text-slate-700 font-semibold text-sm">Kata Sandi</Label>
                     <Link href="#" className="text-xs font-bold text-primary hover:underline">Lupa sandi?</Link>
                   </div>
                   <div className="relative">
-                    <Input 
-                      id="password" 
-                      type={showPassword ? "text" : "password"} 
-                      placeholder="••••••••" 
+                    <Input
+                      id="password"
+                      type={showPassword ? "text" : "password"}
+                      placeholder="••••••••"
                       className="h-11 border-slate-200 bg-slate-50/30 pr-10 focus-visible:bg-white transition-all rounded-xl"
                       disabled={isLoading}
                       {...form.register("password")}
                     />
-                    <button 
+                    <button
                       type="button"
                       onClick={() => setShowPassword(!showPassword)}
                       className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 transition-colors"
@@ -170,8 +170,8 @@ export default function LoginPage() {
                 </div>
 
                 <div className="flex items-center space-x-2 pl-1">
-                  <Checkbox 
-                    id="remember" 
+                  <Checkbox
+                    id="remember"
                     onCheckedChange={(checked) => form.setValue("rememberMe", checked as boolean)}
                   />
                   <Label htmlFor="remember" className="text-xs font-medium text-slate-500 cursor-pointer">
@@ -180,7 +180,7 @@ export default function LoginPage() {
                 </div>
               </div>
 
-              <Button 
+              <Button
                 type="submit"
                 className="w-full h-12 font-bold text-sm bg-primary hover:bg-primary/90 text-primary-foreground shadow-lg shadow-primary/20 transition-all rounded-xl"
                 disabled={isLoading}
@@ -205,8 +205,8 @@ export default function LoginPage() {
               </div>
             </div>
 
-            <Button 
-              variant="outline" 
+            <Button
+              variant="outline"
               className="w-full h-11 border-slate-200 bg-background hover:bg-slate-50 text-slate-700 font-semibold gap-2 rounded-xl"
               disabled={isLoading}
             >
@@ -223,7 +223,7 @@ export default function LoginPage() {
               </p>
             </div>
           </CardContent>
-          
+
           <CardFooter className="bg-slate-50/80 border-t border-slate-100 p-6">
             <p className="text-[11px] leading-relaxed text-slate-500 text-center italic w-full">
               Sistem Resmi Pemerintah Republik Indonesia. Segala aktivitas di dalam sistem ini dicatat dan diawasi secara ketat.
@@ -244,7 +244,7 @@ export default function LoginPage() {
         </div>
         <div className="text-center space-y-2">
           <p className="text-xs text-slate-400 font-medium tracking-tight">
-            © 2026 <span className="text-slate-500 font-bold">VendorTrack</span> - Badan Gizi Nasional. Hak Cipta Dilindungi.
+            © 2026 <span className="text-slate-500 font-bold">Nutrio</span> - Badan Gizi Nasional. Hak Cipta Dilindungi.
           </p>
           <div className="flex items-center justify-center gap-1.5 text-[10px] text-slate-300 font-medium uppercase tracking-tighter">
             <Globe className="size-3" />

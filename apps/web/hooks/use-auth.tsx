@@ -39,7 +39,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [ability, setAbility] = useState<AppAbility>(defineAbilitiesFor(UserRole.PUBLIC))
 
   useEffect(() => {
-    const savedUser = localStorage.getItem("vendorTrack_user")
+    const savedUser = localStorage.getItem("Nutrio_user")
     const token = TokenStorage.getAccessToken()
 
     if (savedUser && token) {
@@ -54,10 +54,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     try {
       // Call backend login API
       const response = await authService.login(credentials)
-      
+
       // Store tokens in cookies
       TokenStorage.setTokens(response.accessToken, response.refreshToken)
-      
+
       // Store user data
       const userData: User = {
         id: response.user.id,
@@ -65,12 +65,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         role: response.user.role as Role,
         fullName: response.user.fullName,
       }
-      
+
       setUser(userData)
       const newAbility = defineAbilitiesFor(userData.role)
       setAbility(newAbility)
-      localStorage.setItem("vendorTrack_user", JSON.stringify(userData))
-      
+      localStorage.setItem("Nutrio_user", JSON.stringify(userData))
+
       router.push("/portal")
     } catch (error) {
       console.error('Login error:', error)
@@ -81,7 +81,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const logout = () => {
     setUser(null)
     setAbility(defineAbilitiesFor(UserRole.PUBLIC))
-    localStorage.removeItem("vendorTrack_user")
+    localStorage.removeItem("Nutrio_user")
     TokenStorage.clearTokens()
     router.push("/login")
   }
