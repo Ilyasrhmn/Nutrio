@@ -6,8 +6,8 @@ import { useRouter } from "next/navigation"
 import { useForm, Controller } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import * as z from "zod"
-import { 
-  ShieldCheck, 
+import {
+  ShieldCheck,
   ArrowRight,
   Shield,
   Lock,
@@ -16,9 +16,9 @@ import {
 
 import { Button } from "@workspace/ui/components/button"
 import { Label } from "@workspace/ui/components/label"
-import { 
-  Card, 
-  CardContent, 
+import {
+  Card,
+  CardContent,
 } from "@workspace/ui/components/card"
 import {
   Select,
@@ -62,10 +62,10 @@ export default function RegisterGatewayPage() {
           <div className="size-10 bg-primary rounded-xl flex items-center justify-center text-primary-foreground shadow-lg shadow-primary/20">
             <ShieldCheck className="size-6" />
           </div>
-          <span className="font-bold text-2xl text-foreground">VendorTrack</span>
+          <span className="font-bold text-2xl text-foreground">Nutrio</span>
         </div>
         <div className="space-y-2">
-          <h1 className="text-3xl font-bold tracking-tight text-foreground">Bergabung dengan VendorTrack</h1>
+          <h1 className="text-3xl font-bold tracking-tight text-foreground">Bergabung dengan Nutrio</h1>
           <p className="text-slate-500 font-medium max-w-md mx-auto">
             Portal Pengawasan Makan Bergizi Gratis (MBG) Nasional
           </p>
@@ -113,7 +113,7 @@ export default function RegisterGatewayPage() {
               )}
             </div>
 
-            <Button 
+            <Button
               type="submit"
               className="w-full h-14 font-black text-base bg-primary hover:bg-primary/90 text-primary-foreground shadow-lg shadow-primary/20 transition-all rounded-2xl gap-2 mt-4"
             >
@@ -148,7 +148,7 @@ export default function RegisterGatewayPage() {
 
         <div className="space-y-4 text-center">
           <p className="text-xs text-slate-400 font-medium">
-            © 2026 <span className="text-slate-500 font-bold">VendorTrack</span> - Badan Gizi Nasional. Hak Cipta Dilindungi.
+            © 2026 <span className="text-slate-500 font-bold">Nutrio</span> - Badan Gizi Nasional. Hak Cipta Dilindungi.
           </p>
           <div className="flex items-center justify-center gap-4 text-[11px] font-bold text-slate-400 uppercase tracking-wider">
             <Link href="#" className="hover:text-primary transition-colors">Kebijakan Privasi</Link>

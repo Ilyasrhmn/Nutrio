@@ -1,11 +1,11 @@
 "use client"
 
 import * as React from "react"
-import { 
-  Printer, 
-  Clock, 
-  ChefHat, 
-  CheckCircle2, 
+import {
+  Printer,
+  Clock,
+  ChefHat,
+  CheckCircle2,
   AlertCircle,
   FileText,
   ClipboardList
@@ -73,9 +73,9 @@ export default function KitchenSopPage() {
             Instruksi teknis untuk tim masak. Cetak atau tampilkan di tablet dapur untuk koordinasi tim.
           </p>
         </div>
-        
-        <Button 
-          size="lg" 
+
+        <Button
+          size="lg"
           onClick={handlePrint}
           className="rounded-2xl h-14 px-8 font-black shadow-xl shadow-primary/20 gap-3 active:scale-95 transition-all"
         >
@@ -87,12 +87,12 @@ export default function KitchenSopPage() {
       {/* 2. Main Printable Document Area */}
       <Card className="max-w-5xl mx-auto border-none shadow-2xl bg-white rounded-[40px] overflow-hidden ring-1 ring-slate-100 print:shadow-none print:ring-0 print:rounded-none">
         <CardContent className="p-10 md:p-16 space-y-12">
-          
+
           {/* 2A. Document Header */}
           <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 border-b-4 border-slate-900 pb-8">
             <div className="space-y-1">
               <p className="text-sm font-black text-slate-400 uppercase tracking-[0.3em]">
-                VENDORTRACK - KITCHEN WORK ORDER
+                Nutrio - KITCHEN WORK ORDER
               </p>
               <h2 className="text-5xl md:text-7xl font-black text-slate-900 tracking-tighter">
                 450 <span className="text-3xl text-slate-400 uppercase tracking-normal">Porsi</span>
@@ -115,8 +115,8 @@ export default function KitchenSopPage() {
           {/* 2B. Timeline / Task Checklist */}
           <div className="space-y-0 border-t border-slate-100">
             {tasks.map((task, index) => (
-              <div 
-                key={index} 
+              <div
+                key={index}
                 className={cn(
                   "flex flex-col md:flex-row gap-6 md:gap-12 py-10 border-b border-slate-100 transition-colors group hover:bg-slate-50/50",
                   task.isUrgent && "bg-primary/[0.02]"
@@ -183,7 +183,7 @@ export default function KitchenSopPage() {
           {/* Print Only Notice */}
           <div className="hidden print:block text-center pt-8 border-t border-dashed border-slate-200">
             <p className="text-[10px] font-bold text-slate-400 uppercase italic">
-              Dokumen ini dihasilkan secara otomatis oleh sistem VendorTrack - Badan Gizi Nasional (BGN)
+              Dokumen ini dihasilkan secara otomatis oleh sistem Nutrio - Badan Gizi Nasional (BGN)
             </p>
           </div>
 

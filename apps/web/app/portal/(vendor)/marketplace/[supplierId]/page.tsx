@@ -2,12 +2,12 @@
 
 import * as React from "react"
 import Link from "next/link"
-import { 
-  MapPin, 
-  MessageSquare, 
-  Star, 
-  Store, 
-  ShieldCheck, 
+import {
+  MapPin,
+  MessageSquare,
+  Star,
+  Store,
+  ShieldCheck,
   ArrowLeft,
   ChevronRight,
   Info,
@@ -53,7 +53,7 @@ export default function SupplierMarketplacePage({ params }: { params: { supplier
   const [isContactSaved, setIsContactSaved] = React.useState(false)
   const [isChatOpen, setIsChatOpen] = React.useState(false)
   const [addedItems, setAddedItems] = React.useState<number[]>([])
-  
+
   const { toast } = useToast()
 
   const products: Product[] = [
@@ -92,7 +92,7 @@ export default function SupplierMarketplacePage({ params }: { params: { supplier
       }
       return [...prev, { ...product, qty: 1 }]
     })
-    
+
     setAddedItems(prev => [...prev, product.id])
     setTimeout(() => {
       setAddedItems(prev => prev.filter(id => id !== product.id))
@@ -119,35 +119,35 @@ export default function SupplierMarketplacePage({ params }: { params: { supplier
             <div className="size-8 bg-primary rounded-lg flex items-center justify-center text-primary-foreground shadow-lg shadow-primary/20">
               <ShieldCheck className="size-5" />
             </div>
-            <span className="font-bold text-lg text-slate-900">VendorTrack <span className="text-primary">Market</span></span>
+            <span className="font-bold text-lg text-slate-900">Nutrio <span className="text-primary">Market</span></span>
           </div>
-          
+
           <div className="hidden md:flex items-center gap-1">
-            <Button 
-              variant="ghost" 
+            <Button
+              variant="ghost"
               onClick={() => setActiveNav('direktori')}
               className={cn(
-                "px-4 font-bold text-sm h-16 rounded-none border-b-2 transition-all", 
+                "px-4 font-bold text-sm h-16 rounded-none border-b-2 transition-all",
                 activeNav === 'direktori' ? "border-primary text-primary" : "border-transparent text-slate-500"
               )}
             >
               Direktori Supplier
             </Button>
-            <Button 
-              variant="ghost" 
+            <Button
+              variant="ghost"
               onClick={() => setActiveNav('katalog_publik')}
               className={cn(
-                "px-4 font-bold text-sm h-16 rounded-none border-b-2 transition-all", 
+                "px-4 font-bold text-sm h-16 rounded-none border-b-2 transition-all",
                 activeNav === 'katalog_publik' ? "border-primary text-primary" : "border-transparent text-slate-500"
               )}
             >
               Katalog Publik
             </Button>
-            <Button 
-              variant="ghost" 
+            <Button
+              variant="ghost"
               onClick={() => setActiveNav('pengadaan')}
               className={cn(
-                "px-4 font-bold text-sm h-16 rounded-none border-b-2 transition-all flex items-center gap-2", 
+                "px-4 font-bold text-sm h-16 rounded-none border-b-2 transition-all flex items-center gap-2",
                 activeNav === 'pengadaan' ? "border-primary text-primary" : "border-transparent text-slate-500"
               )}
             >
@@ -183,9 +183,9 @@ export default function SupplierMarketplacePage({ params }: { params: { supplier
             <Card className="border-border bg-card shadow-xl rounded-[32px] overflow-hidden">
               <CardContent className="p-8 md:p-10 flex flex-col md:flex-row gap-8 items-start md:items-center">
                 <div className="size-32 rounded-3xl bg-slate-100 flex items-center justify-center border border-slate-200 shrink-0 overflow-hidden shadow-inner">
-                   <Store className="size-16 text-slate-300" />
+                  <Store className="size-16 text-slate-300" />
                 </div>
-                
+
                 <div className="flex-1 space-y-4">
                   <div className="space-y-1">
                     <div className="flex items-center gap-3">
@@ -208,15 +208,15 @@ export default function SupplierMarketplacePage({ params }: { params: { supplier
                 </div>
 
                 <div className="flex flex-col gap-3 w-full md:w-[240px]">
-                  <Button 
+                  <Button
                     onClick={() => setIsChatOpen(true)}
                     className="w-full h-14 rounded-2xl font-black shadow-lg shadow-primary/20 gap-3 text-sm"
                   >
                     <MessageSquare className="size-5" />
                     Chat & Nego Supplier
                   </Button>
-                  <Button 
-                    variant={isContactSaved ? "default" : "outline"} 
+                  <Button
+                    variant={isContactSaved ? "default" : "outline"}
                     onClick={() => setIsContactSaved(!isContactSaved)}
                     className={cn(
                       "w-full h-12 rounded-2xl font-bold gap-2 text-sm transition-all",
@@ -259,8 +259,8 @@ export default function SupplierMarketplacePage({ params }: { params: { supplier
                         </div>
                       </CardContent>
                       <CardFooter className="p-4 pt-0">
-                        <Button 
-                          variant="outline" 
+                        <Button
+                          variant="outline"
                           onClick={() => addToCart(product)}
                           className={cn(
                             "w-full rounded-xl font-bold text-xs h-10 gap-2 border-slate-200 transition-all",
@@ -399,9 +399,9 @@ export default function SupplierMarketplacePage({ params }: { params: { supplier
                         </div>
                         <div className="flex items-center gap-4">
                           <div className="flex items-center bg-slate-50 rounded-full border border-slate-200 p-1">
-                            <Button 
-                              variant="ghost" 
-                              size="icon" 
+                            <Button
+                              variant="ghost"
+                              size="icon"
                               className="size-8 rounded-full h-8 w-8"
                               onClick={() => {
                                 if (item.qty > 1) {
@@ -412,9 +412,9 @@ export default function SupplierMarketplacePage({ params }: { params: { supplier
                               -
                             </Button>
                             <span className="w-8 text-center font-bold text-sm">{item.qty}</span>
-                            <Button 
-                              variant="ghost" 
-                              size="icon" 
+                            <Button
+                              variant="ghost"
+                              size="icon"
                               className="size-8 rounded-full h-8 w-8"
                               onClick={() => {
                                 setCart(prev => prev.map(i => i.id === item.id ? { ...i, qty: i.qty + 1 } : i))
@@ -423,9 +423,9 @@ export default function SupplierMarketplacePage({ params }: { params: { supplier
                               +
                             </Button>
                           </div>
-                          <Button 
-                            variant="ghost" 
-                            size="icon" 
+                          <Button
+                            variant="ghost"
+                            size="icon"
                             onClick={() => removeFromCart(item.id)}
                             className="text-slate-300 hover:text-destructive hover:bg-destructive/5"
                           >
@@ -492,16 +492,16 @@ export default function SupplierMarketplacePage({ params }: { params: { supplier
                 </div>
               </div>
             </div>
-            <Button 
-              variant="ghost" 
-              size="icon" 
+            <Button
+              variant="ghost"
+              size="icon"
               onClick={() => setIsChatOpen(false)}
               className="text-primary-foreground hover:bg-white/10 rounded-full"
             >
               <X className="size-5" />
             </Button>
           </CardHeader>
-          
+
           <CardContent className="flex-1 p-4 overflow-y-auto space-y-4 bg-slate-50">
             <div className="flex flex-col items-center py-4 space-y-2">
               <Badge variant="outline" className="bg-white text-[10px] text-slate-400 font-bold border-slate-100">HARI INI</Badge>

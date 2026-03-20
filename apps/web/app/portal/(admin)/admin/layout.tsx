@@ -25,7 +25,7 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
     // Check if user is admin
     const checkAdminAccess = async () => {
       // Use the same key as use-auth hook
-      const userData = localStorage.getItem('vendorTrack_user');
+      const userData = localStorage.getItem('Nutrio_user');
       if (!userData) {
         console.warn('No user data in localStorage');
         router.push('/login');
@@ -33,7 +33,7 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
       }
 
       const user = JSON.parse(userData);
-      
+
       // Check for admin_bgn role
       const isAdmin = user.role === 'admin_bgn';
       if (!isAdmin) {
@@ -120,9 +120,9 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
           <Tabs value={activeTab} className="w-full">
             <TabsList className="grid w-full max-w-md grid-cols-4">
               {navItems.map((item) => (
-                <TabsTrigger 
-                  key={item.value} 
-                  value={item.value} 
+                <TabsTrigger
+                  key={item.value}
+                  value={item.value}
                   className="p-0"
                   asChild
                 >

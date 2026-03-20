@@ -15,7 +15,7 @@ export function Features() {
     >
       <div className="text-center mb-16 flex flex-col items-center">
         <div className="inline-flex items-center px-3 py-1 rounded-full bg-indigo-50 text-indigo-700 font-medium text-xs mb-6">
-          Solusi VendorTrack
+          Solusi Nutrio
         </div>
         <h2 className="text-3xl sm:text-4xl font-extrabold tracking-tight leading-[1.1] mb-4">
           Ubah Pengawasan Menjadi{" "}

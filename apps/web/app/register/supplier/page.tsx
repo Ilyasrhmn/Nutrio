@@ -2,12 +2,12 @@
 
 import * as React from "react"
 import { useRouter } from "next/navigation"
-import { 
-  ShieldCheck, 
-  Sparkles, 
-  MapPin, 
-  CheckCircle2, 
-  ChevronRight, 
+import {
+  ShieldCheck,
+  Sparkles,
+  MapPin,
+  CheckCircle2,
+  ChevronRight,
   ArrowLeft,
   FileCheck,
   Package,
@@ -67,8 +67,8 @@ export default function SupplierOnboardingPage() {
   return (
     <div className="min-h-screen bg-[#FDFCFB] flex flex-col items-center justify-center p-6 font-sans">
       <div className="w-full max-w-[1000px] mb-4">
-        <Button 
-          variant="ghost" 
+        <Button
+          variant="ghost"
           onClick={() => router.push("/register")}
           className="gap-2 text-slate-500 hover:text-primary hover:bg-primary/5 font-bold"
         >
@@ -86,26 +86,26 @@ export default function SupplierOnboardingPage() {
                 <Package className="size-6" />
               </div>
               <div>
-                <h1 className="font-bold text-foreground leading-tight text-lg">VendorTrack</h1>
+                <h1 className="font-bold text-foreground leading-tight text-lg">Nutrio</h1>
                 <p className="text-[10px] font-black text-muted-foreground uppercase tracking-widest">SUPPLIER PORTAL</p>
               </div>
             </div>
 
             <div className="space-y-8 relative">
               <div className="absolute left-[19px] top-2 bottom-2 w-0.5 bg-slate-100 -z-0" />
-              
+
               {steps.map((step) => {
                 const isActive = currentStep === step.id
                 const isCompleted = currentStep > step.id
-                
+
                 return (
                   <div key={step.id} className="relative z-10 flex items-start gap-4">
-                    <div 
+                    <div
                       className={cn(
                         "size-10 rounded-full flex items-center justify-center text-sm font-bold transition-all border-2",
-                        isActive ? "bg-amber-500 border-amber-500 text-white shadow-lg shadow-amber-200 scale-110" : 
-                        isCompleted ? "bg-emerald-500 border-emerald-500 text-white" : 
-                        "bg-white border-slate-200 text-slate-400"
+                        isActive ? "bg-amber-500 border-amber-500 text-white shadow-lg shadow-amber-200 scale-110" :
+                          isCompleted ? "bg-emerald-500 border-emerald-500 text-white" :
+                            "bg-white border-slate-200 text-slate-400"
                       )}
                     >
                       {isCompleted ? <CheckCircle2 className="size-5" /> : step.id}
@@ -176,8 +176,8 @@ export default function SupplierOnboardingPage() {
 
                   <div className="space-y-2">
                     <Label className="text-slate-700 font-bold text-[10px] uppercase tracking-wider pl-1">Alamat Lengkap Gudang/Toko</Label>
-                    <textarea 
-                      placeholder="Jalan, RT/RW, Kelurahan, Kecamatan..." 
+                    <textarea
+                      placeholder="Jalan, RT/RW, Kelurahan, Kecamatan..."
                       className="w-full min-h-[100px] rounded-2xl border border-slate-200 bg-slate-50/50 p-5 text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 transition-all"
                     />
                   </div>
@@ -185,11 +185,11 @@ export default function SupplierOnboardingPage() {
                   <div className="space-y-3">
                     <Label className="text-slate-700 font-bold text-[10px] uppercase tracking-wider pl-1">Pin Lokasi Toko di Peta</Label>
                     <div className="relative h-40 w-full bg-slate-100 rounded-2xl border border-slate-200 overflow-hidden flex items-center justify-center group">
-                       <div className="absolute inset-0 bg-[url('https://images.unsplash.com/photo-1524661135-423995f22d0b?q=80&w=2000&auto=format&fit=crop')] bg-cover bg-center opacity-30 grayscale" />
-                       <Button className="relative z-10 rounded-full font-bold shadow-xl gap-2 h-10 px-6 bg-white text-slate-900 hover:bg-slate-50 border-none text-xs">
-                         <Navigation className="size-4 text-amber-600" />
-                         Gunakan GPS Saat Ini
-                       </Button>
+                      <div className="absolute inset-0 bg-[url('https://images.unsplash.com/photo-1524661135-423995f22d0b?q=80&w=2000&auto=format&fit=crop')] bg-cover bg-center opacity-30 grayscale" />
+                      <Button className="relative z-10 rounded-full font-bold shadow-xl gap-2 h-10 px-6 bg-white text-slate-900 hover:bg-slate-50 border-none text-xs">
+                        <Navigation className="size-4 text-amber-600" />
+                        Gunakan GPS Saat Ini
+                      </Button>
                     </div>
                   </div>
                 </div>
@@ -302,17 +302,17 @@ export default function SupplierOnboardingPage() {
 
           {/* Footer Navigation */}
           <footer className="p-8 border-t border-slate-100 flex items-center justify-between bg-white/80 backdrop-blur-md">
-            <Button 
-              variant="outline" 
-              onClick={prevStep} 
+            <Button
+              variant="outline"
+              onClick={prevStep}
               disabled={currentStep === 1}
               className="rounded-2xl h-12 px-8 border-slate-200 font-bold text-slate-600 gap-2 disabled:opacity-20 transition-all"
             >
               <ArrowLeft className="size-4" />
               Kembali
             </Button>
-            
-            <Button 
+
+            <Button
               onClick={nextStep}
               className={cn(
                 "rounded-2xl h-12 px-10 font-black shadow-xl transition-all gap-2 active:scale-95",

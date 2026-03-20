@@ -6,7 +6,7 @@ export class InitialSchema1710400000000 implements MigrationInterface {
     public async up(queryRunner: QueryRunner): Promise<void> {
         await queryRunner.query(`
 -- =============================================================================
--- VendorTrack — Full Database Schema
+-- Nutrio — Full Database Schema
 -- PostgreSQL 16+
 -- Version: 1.0.0 | Covers PRD Fase 0–3 (Sprint 1–8)
 -- =============================================================================
@@ -16,11 +16,11 @@ export class InitialSchema1710400000000 implements MigrationInterface {
 -- -----------------------------------------------------------------------------
 DO $$
 BEGIN
-    IF NOT EXISTS (SELECT FROM pg_catalog.pg_roles WHERE rolname = 'vendortrack_app') THEN
-        CREATE ROLE vendortrack_app LOGIN PASSWORD 'REPLACE_IN_ENV';
+    IF NOT EXISTS (SELECT FROM pg_catalog.pg_roles WHERE rolname = 'Nutrio_app') THEN
+        CREATE ROLE Nutrio_app LOGIN PASSWORD 'REPLACE_IN_ENV';
     END IF;
-    IF NOT EXISTS (SELECT FROM pg_catalog.pg_roles WHERE rolname = 'vendortrack_readonly') THEN
-        CREATE ROLE vendortrack_readonly LOGIN PASSWORD 'REPLACE_IN_ENV';
+    IF NOT EXISTS (SELECT FROM pg_catalog.pg_roles WHERE rolname = 'Nutrio_readonly') THEN
+        CREATE ROLE Nutrio_readonly LOGIN PASSWORD 'REPLACE_IN_ENV';
     END IF;
 END
 $$;
@@ -1133,36 +1133,36 @@ CREATE POLICY admin_all ON citizen_reports      FOR ALL TO postgres USING (TRUE)
 CREATE POLICY admin_all ON audit_logs           FOR SELECT TO postgres USING (TRUE);
 
 CREATE POLICY vendor_own ON vendors
-    FOR SELECT TO vendortrack_app
+    FOR SELECT TO Nutrio_app
     USING (user_id = current_setting('app.current_user_id', TRUE)::UUID);
 
 CREATE POLICY vendor_own_docs ON documents
-    FOR SELECT TO vendortrack_app
+    FOR SELECT TO Nutrio_app
     USING (vendor_id IN (
         SELECT id FROM vendors WHERE user_id = current_setting('app.current_user_id', TRUE)::UUID
     ));
 
 CREATE POLICY inspector_assigned ON inspections
-    FOR SELECT TO vendortrack_app
+    FOR SELECT TO Nutrio_app
     USING (inspector_id = current_setting('app.current_user_id', TRUE)::UUID);
 
 -- =============================================================================
 -- SECTION 22: DATABASE ROLES
 -- =============================================================================
 
-GRANT CONNECT ON DATABASE vendortrack TO vendortrack_app;
-GRANT USAGE ON SCHEMA public TO vendortrack_app;
-GRANT SELECT, INSERT, UPDATE ON ALL TABLES IN SCHEMA public TO vendortrack_app;
-GRANT USAGE ON ALL SEQUENCES IN SCHEMA public TO vendortrack_app;
-REVOKE DELETE ON audit_logs FROM vendortrack_app;
+GRANT CONNECT ON DATABASE Nutrio TO Nutrio_app;
+GRANT USAGE ON SCHEMA public TO Nutrio_app;
+GRANT SELECT, INSERT, UPDATE ON ALL TABLES IN SCHEMA public TO Nutrio_app;
+GRANT USAGE ON ALL SEQUENCES IN SCHEMA public TO Nutrio_app;
+REVOKE DELETE ON audit_logs FROM Nutrio_app;
 
 GRANT ALL PRIVILEGES ON ALL TABLES IN SCHEMA public TO postgres;
 GRANT ALL PRIVILEGES ON ALL SEQUENCES IN SCHEMA public TO postgres;
 
-GRANT CONNECT ON DATABASE vendortrack TO vendortrack_readonly;
-GRANT USAGE ON SCHEMA public TO vendortrack_readonly;
-GRANT SELECT ON ALL TABLES IN SCHEMA public TO vendortrack_readonly;
-REVOKE SELECT ON users, refresh_tokens, external_api_logs FROM vendortrack_readonly;
+GRANT CONNECT ON DATABASE Nutrio TO Nutrio_readonly;
+GRANT USAGE ON SCHEMA public TO Nutrio_readonly;
+GRANT SELECT ON ALL TABLES IN SCHEMA public TO Nutrio_readonly;
+REVOKE SELECT ON users, refresh_tokens, external_api_logs FROM Nutrio_readonly;
         `);
     }
 

@@ -26,7 +26,7 @@ export function Hero() {
           </h1>
 
           <p className="text-lg text-slate-500 mb-8 max-w-xl leading-[1.65]">
-            Portal Mitra BGN menyelesaikan onboarding. VendorTrack
+            Portal Mitra BGN menyelesaikan onboarding. Nutrio
             menyelesaikan apa yang terjadi SETELAH vendor disetujui. Pastikan
             kepatuhan SOP dapur berjalan setiap hari.
           </p>
@@ -76,7 +76,7 @@ export function Hero() {
                 <div className="w-3 h-3 rounded-full bg-green-400"></div>
               </div>
               <div className="mx-auto bg-white px-24 py-1.5 rounded-md text-xs font-medium text-slate-400 border border-slate-100 shadow-sm">
-                VendorTrack Dashboard
+                Nutrio Dashboard
               </div>
             </div>
 

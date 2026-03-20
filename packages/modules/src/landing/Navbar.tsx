@@ -11,7 +11,7 @@ export function Navbar() {
             <ShieldCheck className="w-5 h-5" />
           </div>
           <span className="font-bold text-xl tracking-tight text-slate-900">
-            Vendor<span className="text-indigo-600">Track</span>
+            Nutrio
           </span>
         </div>
         <div className="hidden md:flex items-center gap-8 text-sm font-medium text-slate-600">
@@ -33,6 +33,13 @@ export function Navbar() {
           >
             Dashboard
           </a>
+          <Link
+            href="/asisten"
+            className="flex items-center gap-1.5 text-indigo-600 font-bold hover:text-indigo-700 transition-colors px-3 py-1 bg-indigo-50 rounded-full"
+          >
+            <ShieldCheck className="w-4 h-4 animate-pulse" />
+            Tanya Juknis (AI)
+          </Link>
         </div>
         <div className="flex items-center gap-4">
           <a

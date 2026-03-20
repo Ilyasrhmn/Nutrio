@@ -38,7 +38,7 @@ export default function MarketplaceHomePage() {
       distance: "3.2 km",
       rating: 4.8,
       reviews: 124,
-      image: "https://images.unsplash.com/photo-1582408921715-18e7806367c1?q=80&w=400&auto=format&fit=crop"
+      image: "https://images.unsplash.com/photo-1586201375761-83865001e31c?q=80&w=400&auto=format&fit=crop"
     },
     {
       id: "koperasi-susu",
@@ -49,7 +49,7 @@ export default function MarketplaceHomePage() {
       distance: "5.1 km",
       rating: 4.9,
       reviews: 89,
-      image: "https://images.unsplash.com/photo-1550583760-704c9a42172c?q=80&w=400&auto=format&fit=crop"
+      image: "https://images.unsplash.com/photo-1586201375761-83865001e31c?q=80&w=400&auto=format&fit=crop"
     },
     {
       id: "gudang-beras",

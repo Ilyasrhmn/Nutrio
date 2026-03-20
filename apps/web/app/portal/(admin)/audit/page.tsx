@@ -1,13 +1,13 @@
 "use client"
 
 import * as React from "react"
-import { 
-  History, 
-  Search, 
-  Filter, 
-  Eye, 
-  CheckCircle2, 
-  XCircle, 
+import {
+  History,
+  Search,
+  Filter,
+  Eye,
+  CheckCircle2,
+  XCircle,
   Calendar,
   Camera,
   Layers,
@@ -19,13 +19,13 @@ import { Button } from "@workspace/ui/components/button"
 import { Input } from "@workspace/ui/components/input"
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@workspace/ui/components/card"
 import { Badge } from "@workspace/ui/components/badge"
-import { 
-  Table, 
-  TableBody, 
-  TableCell, 
-  TableHead, 
-  TableHeader, 
-  TableRow 
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow
 } from "@workspace/ui/components/table"
 import { cn } from "@workspace/ui/lib/utils"
 
@@ -169,8 +169,8 @@ export default function AuditPage() {
                   <TableCell className="text-center">
                     <span className={cn(
                       "text-xs font-black",
-                      log.scoreEffect.includes('-') ? "text-red-600" : 
-                      log.scoreEffect.includes('+') ? "text-emerald-600" : "text-orange-600"
+                      log.scoreEffect.includes('-') ? "text-red-600" :
+                        log.scoreEffect.includes('+') ? "text-emerald-600" : "text-orange-600"
                     )}>{log.scoreEffect}</span>
                   </TableCell>
                   <TableCell className="pr-8 text-right">
@@ -187,7 +187,7 @@ export default function AuditPage() {
 
       {/* Footnote */}
       <p className="text-center text-[10px] font-bold text-slate-400 uppercase tracking-[0.2em]">
-        Data Validated & Secured by VendorTrack compliance engine
+        Data Validated & Secured by Nutrio compliance engine
       </p>
     </div>
   )

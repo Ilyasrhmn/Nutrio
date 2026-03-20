@@ -7,7 +7,7 @@ config({ path: path.resolve(__dirname, '../../.env') });
 
 export const AppDataSource = new DataSource({
   type: 'postgres',
-  url: process.env.DATABASE_URL || 'postgresql://vendortrack_admin:REPLACE_IN_ENV@localhost:5432/vendortrack',
+  url: process.env.DATABASE_URL || 'postgresql://Nutrio_admin:REPLACE_IN_ENV@localhost:5432/Nutrio',
   synchronize: false, // Must be false for safe migrations
   logging: true,
   entities: [__dirname + '/../**/*.entity{.ts,.js}'],

@@ -2,7 +2,7 @@
 
 ## Purpose
 
-This capability defines the standardized Role-Based Access Control (RBAC) implementation using CASL across the VendorTrack application. It ensures consistent permission evaluation between backend and frontend, with database-backed role evaluation and no hardcoded dummy data.
+This capability defines the standardized Role-Based Access Control (RBAC) implementation using CASL across the Nutrio application. It ensures consistent permission evaluation between backend and frontend, with database-backed role evaluation and no hardcoded dummy data.
 
 ## Requirements
 
