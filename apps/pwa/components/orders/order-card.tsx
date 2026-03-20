@@ -33,18 +33,25 @@ export function OrderCard({ order }: OrderCardProps) {
           <div className="flex justify-between items-start">
             <div className="space-y-1">
               <p className="text-[10px] font-mono text-slate-400">{order.id}</p>
-              <h3 className="font-bold text-slate-900 leading-none">{order.vendorName}</h3>
+              <h3 className="font-bold text-slate-900 leading-none">
+                {order.vendorName}
+              </h3>
             </div>
-            <Badge className={cn("border-none font-bold", config.className)}>
-              {config.label}
+            <Badge className={cn("border-none font-bold", config?.className)}>
+              {config?.label}
             </Badge>
           </div>
 
           <div className="space-y-2">
             {order.items.map((item, i) => (
-              <div key={i} className="flex items-center gap-2 text-sm text-slate-600">
+              <div
+                key={i}
+                className="flex items-center gap-2 text-sm text-slate-600"
+              >
                 <Package className="h-3.5 w-3.5" />
-                <span>{item.name} • {item.qty} {item.unit}</span>
+                <span>
+                  {item.name} • {item.qty} {item.unit}
+                </span>
               </div>
             ))}
           </div>
