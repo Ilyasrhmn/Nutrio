@@ -305,7 +305,7 @@ function PublicHome() {
             Membangun Generasi <span className="text-green-600">Emas 2045</span>
           </h2>
           <p className="text-sm text-slate-500 font-medium px-4">
-            Sistem verifikasi berbasis AI dan Blockchain untuk memastikan setiap
+            Sistem verifikasi berbasis AI untuk memastikan setiap
             anak Indonesia mendapatkan nutrisi terbaik dengan standar keamanan
             tertinggi.
           </p>
@@ -372,7 +372,7 @@ function PublicHome() {
                 Audit
               </p>
               <p className="text-xs font-bold text-slate-700">
-                Blockchain Ledger
+                Audit Trail
               </p>
             </Card>
           </div>
