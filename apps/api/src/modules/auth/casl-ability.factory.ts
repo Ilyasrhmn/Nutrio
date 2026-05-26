@@ -162,6 +162,14 @@ export class CaslAbilityFactory {
     can('read', 'Settings');
     cannot('read', 'Audit');
     cannot('read', 'Reports');
+    can('read', 'Eligibility');
+    can('read', 'Onboarding');
+    can('read', 'MissionControl');
+    can('read', 'Checkpoint');
+    can('read', 'DeliveryToken');
+    can('read', 'Scoring');
+    can('read', 'Debrief');
+    can('read', 'RAG');
   }
 
   private defineInspectorAbilities(
@@ -178,6 +186,8 @@ export class CaslAbilityFactory {
     cannot('read', 'Funds');
     cannot('read', 'Menu');
     cannot('read', 'Marketplace');
+    can('read', 'Inspection');
+    can('read', 'Document');
   }
 
   private defineCoordinatorAbilities(
@@ -195,6 +205,8 @@ export class CaslAbilityFactory {
     cannot('read', 'Funds');
     cannot('read', 'Menu');
     cannot('read', 'Marketplace');
+    can('read', 'Checkpoint');
+    can('read', 'Scoring');
   }
 
   private defineDinkesAbilities(
@@ -209,6 +221,9 @@ export class CaslAbilityFactory {
     cannot('read', 'Funds');
     cannot('read', 'Menu');
     cannot('read', 'Marketplace');
+    can('read', 'CommandCenter');
+    can('read', 'RiskIntelligence');
+    can('read', 'PublicDashboard');
   }
 
   private definePublicAbilities(
@@ -223,5 +238,7 @@ export class CaslAbilityFactory {
     cannot('read', 'Marketplace');
     cannot('read', 'Audit');
     cannot('read', 'Reports');
+    can('read', 'PublicDashboard');
+    can('read', 'Eligibility');
   }
 }
