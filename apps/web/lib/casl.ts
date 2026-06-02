@@ -6,8 +6,7 @@ import {
 } from "@casl/ability";
 import { AppAction, AppSubject, UserRole } from "@workspace/common";
 
-export type { AppAction };
-export type AppSubject = any;
+export type { AppAction, AppSubject };
 export type AppAbility = PureAbility<[AppAction, AppSubject]>;
 export const AppAbility = PureAbility as AbilityClass<AppAbility>;
 
