@@ -4,7 +4,9 @@
     "baseUrl": ".",
     "paths": {
       "@workspace/ui/*": ["../../packages/ui/src/*"]
-    }
+    },
+    "moduleResolution": "Bundler",
+    "module": "ESNext"
   },
   "include": ["src"],
   "exclude": ["node_modules"]

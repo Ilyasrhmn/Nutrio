@@ -34,14 +34,14 @@ export default function GlobalAIAssistantPage() {
     { 
       role: "assistant", 
       content: "Halo! Saya Asisten MBG. Saya memegang seluruh data Juknis & SOP resmi. Silakan tanya apa saja, atau unggah foto porsi makan/dokumen untuk saya analisa kepatuhannya.",
-      sources: []
+      sources: [] as string[]
     }
   ])
   const [inputValue, setInputValue] = useState("")
 
   const handleSendMessage = () => {
     if (!inputValue.trim()) return
-    setMessages([...messages, { role: "user", content: inputValue, sources: [] }])
+    setMessages([...messages, { role: "user", content: inputValue, sources: [] as string[] }])
     setInputValue("")
     
     // Simulate AI Response

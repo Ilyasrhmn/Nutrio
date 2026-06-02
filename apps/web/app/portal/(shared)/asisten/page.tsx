@@ -35,7 +35,7 @@ export default function PortalAIAssistantPage() {
     { 
       role: "assistant", 
       content: "Halo! Saya Asisten MBG. Saya memegang seluruh data Juknis & SOP resmi. Silakan tanya apa saja, atau unggah foto porsi makan/dokumen untuk saya analisa kepatuhannya.",
-      sources: []
+      sources: [] as string[]
     }
   ])
   const [inputValue, setInputValue] = useState("")
@@ -43,7 +43,7 @@ export default function PortalAIAssistantPage() {
 
   const handleSendMessage = () => {
     if (!inputValue.trim()) return
-    setMessages([...messages, { role: "user", content: inputValue, sources: [] }])
+    setMessages([...messages, { role: "user", content: inputValue, sources: [] as string[] }])
     setInputValue("")
     
     setTimeout(() => {
