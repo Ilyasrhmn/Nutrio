@@ -18,6 +18,7 @@ import { EligibilityModule } from "./modules/eligibility/eligibility.module";
 import { OnboardingModule } from "./modules/onboarding/onboarding.module";
 import { ScoringModule } from "./modules/scoring/scoring.module";
 import { CheckpointsModule } from "./modules/checkpoints/checkpoints.module";
+import { MissionControlModule } from "./modules/mission-control/mission-control.module";
 
 @Module({
   imports: [
@@ -41,6 +42,7 @@ import { CheckpointsModule } from "./modules/checkpoints/checkpoints.module";
     OnboardingModule,
     ScoringModule,
     CheckpointsModule,
+    MissionControlModule,
   ],
   controllers: [AppController],
   providers: [AppService],
