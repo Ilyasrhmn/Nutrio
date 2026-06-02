@@ -77,9 +77,9 @@ export default function PWALandingPage() {
   const fetchData = useCallback(async () => {
     try {
       const [cpRes, scoreRes, meRes] = await Promise.all([
-        apiClient.get('/checkpoints/today'),
-        apiClient.get('/scoring/today'),
-        apiClient.get('/auth/me'),
+        apiClient.get<CheckpointState[]>('/checkpoints/today'),
+        apiClient.get<{ score: number }>('/scoring/today'),
+        apiClient.get<{ fullName?: string; email?: string }>('/auth/me'),
       ])
       setCheckpoints(cpRes.data ?? [])
       setDailyData({
