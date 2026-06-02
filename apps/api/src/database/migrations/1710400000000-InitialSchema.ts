@@ -1,37 +1,76 @@
 import { MigrationInterface, QueryRunner } from 'typeorm';
+import { config } from 'dotenv';
+import * as path from 'path';
+
+// Load .env for migration CLI
+config({ path: path.resolve(__dirname, '../../../.env') });
 
 export class InitialSchema1710400000000 implements MigrationInterface {
     name = 'InitialSchema1710400000000';
 
+    /**
+     * Get database config from environment variables.
+     * Falls back to legacy defaults for backward compatibility.
+     */
+    private getDbConfig() {
+        const dbUrl = process.env.DATABASE_URL || '';
+        let dbName = 'Nutrio';
+        try {
+            const url = new URL(dbUrl);
+            dbName = url.pathname.replace('/', '') || dbName;
+        } catch {
+            // fallback to default
+        }
+
+        return {
+            dbName,
+            roleOwner: process.env.DB_ROLE_OWNER || 'postgres',
+            roleApp: process.env.DB_ROLE_APP || 'Nutrio_app',
+            roleReadonly: process.env.DB_ROLE_READONLY || 'Nutrio_readonly',
+            roleAppPassword: process.env.DB_ROLE_APP_PASSWORD || 'REPLACE_IN_ENV',
+            roleReadonlyPassword: process.env.DB_ROLE_READONLY_PASSWORD || 'REPLACE_IN_ENV',
+            skipDbRoles: process.env.SKIP_DB_ROLES === 'true',
+        };
+    }
+
     public async up(queryRunner: QueryRunner): Promise<void> {
+        const cfg = this.getDbConfig();
+
+        // =====================================================================
+        // ROLES (skip on cloud databases that don't allow CREATE ROLE)
+        // =====================================================================
+        if (!cfg.skipDbRoles) {
+            console.log('🔧 Creating database roles...');
+            await queryRunner.query(`
+                DO $$
+                BEGIN
+                    IF NOT EXISTS (SELECT FROM pg_catalog.pg_roles WHERE rolname = '${cfg.roleApp}') THEN
+                        CREATE ROLE "${cfg.roleApp}" LOGIN PASSWORD '${cfg.roleAppPassword}';
+                    END IF;
+                    IF NOT EXISTS (SELECT FROM pg_catalog.pg_roles WHERE rolname = '${cfg.roleReadonly}') THEN
+                        CREATE ROLE "${cfg.roleReadonly}" LOGIN PASSWORD '${cfg.roleReadonlyPassword}';
+                    END IF;
+                END
+                $$;
+            `);
+        } else {
+            console.log('⏭️  Skipping database role creation (SKIP_DB_ROLES=true)');
+        }
+
+        // =====================================================================
+        // EXTENSIONS + SCHEMA
+        // =====================================================================
         await queryRunner.query(`
 -- =============================================================================
--- Nutrio — Full Database Schema
+-- Database Schema
 -- PostgreSQL 16+
--- Version: 1.0.0 | Covers PRD Fase 0–3 (Sprint 1–8)
 -- =============================================================================
 
--- -----------------------------------------------------------------------------
--- ROLES
--- -----------------------------------------------------------------------------
-DO $$
-BEGIN
-    IF NOT EXISTS (SELECT FROM pg_catalog.pg_roles WHERE rolname = 'Nutrio_app') THEN
-        CREATE ROLE Nutrio_app LOGIN PASSWORD 'REPLACE_IN_ENV';
-    END IF;
-    IF NOT EXISTS (SELECT FROM pg_catalog.pg_roles WHERE rolname = 'Nutrio_readonly') THEN
-        CREATE ROLE Nutrio_readonly LOGIN PASSWORD 'REPLACE_IN_ENV';
-    END IF;
-END
-$$;
-
--- -----------------------------------------------------------------------------
--- EXTENSIONS
--- -----------------------------------------------------------------------------
-CREATE EXTENSION IF NOT EXISTS "uuid-ossp";      -- UUID generation
-CREATE EXTENSION IF NOT EXISTS "pgcrypto";        -- Encryption helpers
-CREATE EXTENSION IF NOT EXISTS "postgis";         -- Geospatial (vendor coordinates)
-CREATE EXTENSION IF NOT EXISTS "pg_trgm";         -- Trigram search for vendor names
+-- Extensions
+CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
+CREATE EXTENSION IF NOT EXISTS "pgcrypto";
+CREATE EXTENSION IF NOT EXISTS "postgis";
+CREATE EXTENSION IF NOT EXISTS "pg_trgm";
 
 -- =============================================================================
 -- SECTION 1: ENUMS
@@ -1099,11 +1138,15 @@ INSERT INTO system_config (key, value, description) VALUES
     ('qr_token_expiry_days',          '365',   'Days until QR code expires and must be regenerated'),
     ('open_data_push_day',            '1',     'Day of week for data.go.id push (1=Monday)'),
     ('ml_model_retrain_day',          '0',     'Day of week for ML model retrain (0=Sunday)');
+        `);
 
--- =============================================================================
--- SECTION 21: ROW LEVEL SECURITY (RLS)
--- =============================================================================
-
+        // =====================================================================
+        // RLS + admin policies + GRANT (skip on cloud databases)
+        // Cloud databases handle access control differently (e.g. Supabase, Neon)
+        // =====================================================================
+        if (!cfg.skipDbRoles) {
+            console.log('🔧 Creating RLS policies and GRANT statements...');
+            await queryRunner.query(`
 ALTER TABLE vendors              ENABLE ROW LEVEL SECURITY;
 ALTER TABLE documents            ENABLE ROW LEVEL SECURITY;
 ALTER TABLE inspections          ENABLE ROW LEVEL SECURITY;
@@ -1118,52 +1161,53 @@ ALTER TABLE marketplace_applications ENABLE ROW LEVEL SECURITY;
 ALTER TABLE citizen_reports      ENABLE ROW LEVEL SECURITY;
 ALTER TABLE audit_logs           ENABLE ROW LEVEL SECURITY;
 
-CREATE POLICY admin_all ON vendors              FOR ALL TO postgres USING (TRUE);
-CREATE POLICY admin_all ON documents            FOR ALL TO postgres USING (TRUE);
-CREATE POLICY admin_all ON inspections          FOR ALL TO postgres USING (TRUE);
-CREATE POLICY admin_all ON inspection_items     FOR ALL TO postgres USING (TRUE);
-CREATE POLICY admin_all ON inspection_photos    FOR ALL TO postgres USING (TRUE);
-CREATE POLICY admin_all ON risk_scores          FOR ALL TO postgres USING (TRUE);
-CREATE POLICY admin_all ON alerts               FOR ALL TO postgres USING (TRUE);
-CREATE POLICY admin_all ON notifications        FOR ALL TO postgres USING (TRUE);
-CREATE POLICY admin_all ON payments             FOR ALL TO postgres USING (TRUE);
-CREATE POLICY admin_all ON marketplace_listings FOR ALL TO postgres USING (TRUE);
-CREATE POLICY admin_all ON marketplace_applications FOR ALL TO postgres USING (TRUE);
-CREATE POLICY admin_all ON citizen_reports      FOR ALL TO postgres USING (TRUE);
-CREATE POLICY admin_all ON audit_logs           FOR SELECT TO postgres USING (TRUE);
+CREATE POLICY admin_all ON vendors              FOR ALL TO "${cfg.roleOwner}" USING (TRUE);
+CREATE POLICY admin_all ON documents            FOR ALL TO "${cfg.roleOwner}" USING (TRUE);
+CREATE POLICY admin_all ON inspections          FOR ALL TO "${cfg.roleOwner}" USING (TRUE);
+CREATE POLICY admin_all ON inspection_items     FOR ALL TO "${cfg.roleOwner}" USING (TRUE);
+CREATE POLICY admin_all ON inspection_photos    FOR ALL TO "${cfg.roleOwner}" USING (TRUE);
+CREATE POLICY admin_all ON risk_scores          FOR ALL TO "${cfg.roleOwner}" USING (TRUE);
+CREATE POLICY admin_all ON alerts               FOR ALL TO "${cfg.roleOwner}" USING (TRUE);
+CREATE POLICY admin_all ON notifications        FOR ALL TO "${cfg.roleOwner}" USING (TRUE);
+CREATE POLICY admin_all ON payments             FOR ALL TO "${cfg.roleOwner}" USING (TRUE);
+CREATE POLICY admin_all ON marketplace_listings FOR ALL TO "${cfg.roleOwner}" USING (TRUE);
+CREATE POLICY admin_all ON marketplace_applications FOR ALL TO "${cfg.roleOwner}" USING (TRUE);
+CREATE POLICY admin_all ON citizen_reports      FOR ALL TO "${cfg.roleOwner}" USING (TRUE);
+CREATE POLICY admin_all ON audit_logs           FOR SELECT TO "${cfg.roleOwner}" USING (TRUE);
 
 CREATE POLICY vendor_own ON vendors
-    FOR SELECT TO Nutrio_app
+    FOR SELECT TO "${cfg.roleApp}"
     USING (user_id = current_setting('app.current_user_id', TRUE)::UUID);
 
 CREATE POLICY vendor_own_docs ON documents
-    FOR SELECT TO Nutrio_app
+    FOR SELECT TO "${cfg.roleApp}"
     USING (vendor_id IN (
         SELECT id FROM vendors WHERE user_id = current_setting('app.current_user_id', TRUE)::UUID
     ));
 
 CREATE POLICY inspector_assigned ON inspections
-    FOR SELECT TO Nutrio_app
+    FOR SELECT TO "${cfg.roleApp}"
     USING (inspector_id = current_setting('app.current_user_id', TRUE)::UUID);
+            `);
 
--- =============================================================================
--- SECTION 22: DATABASE ROLES
--- =============================================================================
+            await queryRunner.query(`
+GRANT CONNECT ON DATABASE "${cfg.dbName}" TO "${cfg.roleApp}";
+GRANT USAGE ON SCHEMA public TO "${cfg.roleApp}";
+GRANT SELECT, INSERT, UPDATE ON ALL TABLES IN SCHEMA public TO "${cfg.roleApp}";
+GRANT USAGE ON ALL SEQUENCES IN SCHEMA public TO "${cfg.roleApp}";
+REVOKE DELETE ON audit_logs FROM "${cfg.roleApp}";
 
-GRANT CONNECT ON DATABASE Nutrio TO Nutrio_app;
-GRANT USAGE ON SCHEMA public TO Nutrio_app;
-GRANT SELECT, INSERT, UPDATE ON ALL TABLES IN SCHEMA public TO Nutrio_app;
-GRANT USAGE ON ALL SEQUENCES IN SCHEMA public TO Nutrio_app;
-REVOKE DELETE ON audit_logs FROM Nutrio_app;
+GRANT ALL PRIVILEGES ON ALL TABLES IN SCHEMA public TO "${cfg.roleOwner}";
+GRANT ALL PRIVILEGES ON ALL SEQUENCES IN SCHEMA public TO "${cfg.roleOwner}";
 
-GRANT ALL PRIVILEGES ON ALL TABLES IN SCHEMA public TO postgres;
-GRANT ALL PRIVILEGES ON ALL SEQUENCES IN SCHEMA public TO postgres;
-
-GRANT CONNECT ON DATABASE Nutrio TO Nutrio_readonly;
-GRANT USAGE ON SCHEMA public TO Nutrio_readonly;
-GRANT SELECT ON ALL TABLES IN SCHEMA public TO Nutrio_readonly;
-REVOKE SELECT ON users, refresh_tokens, external_api_logs FROM Nutrio_readonly;
-        `);
+GRANT CONNECT ON DATABASE "${cfg.dbName}" TO "${cfg.roleReadonly}";
+GRANT USAGE ON SCHEMA public TO "${cfg.roleReadonly}";
+GRANT SELECT ON ALL TABLES IN SCHEMA public TO "${cfg.roleReadonly}";
+REVOKE SELECT ON users, refresh_tokens, external_api_logs FROM "${cfg.roleReadonly}";
+            `);
+        } else {
+            console.log('⏭️  Skipping RLS, role policies, and GRANT statements (SKIP_DB_ROLES=true)');
+        }
     }
 
     public async down(queryRunner: QueryRunner): Promise<void> {

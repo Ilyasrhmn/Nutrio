@@ -1,21 +1,45 @@
 import { MigrationInterface, QueryRunner } from 'typeorm';
+import { config } from 'dotenv';
+import * as path from 'path';
+
+// Load .env for migration CLI
+config({ path: path.resolve(__dirname, '../../../.env') });
 
 export class SupplierSchema1710400000001 implements MigrationInterface {
     name = 'SupplierSchema1710400000001';
 
-    public async up(queryRunner: QueryRunner): Promise<void> {
-        await queryRunner.query(`
--- -----------------------------------------------------------------------------
--- ROLES ADDITION (Nutrio_admin)
--- -----------------------------------------------------------------------------
-DO $$
-BEGIN
-    IF NOT EXISTS (SELECT FROM pg_catalog.pg_roles WHERE rolname = 'Nutrio_admin') THEN
-        CREATE ROLE Nutrio_admin LOGIN PASSWORD 'REPLACE_IN_ENV';
-    END IF;
-END
-$$;
+    private getDbConfig() {
+        return {
+            roleAdmin: process.env.DB_ROLE_ADMIN || 'Nutrio_admin',
+            roleApp: process.env.DB_ROLE_APP || 'Nutrio_app',
+            roleReadonly: process.env.DB_ROLE_READONLY || 'Nutrio_readonly',
+            roleAdminPassword: process.env.DB_ROLE_ADMIN_PASSWORD || 'REPLACE_IN_ENV',
+            skipDbRoles: process.env.SKIP_DB_ROLES === 'true',
+        };
+    }
 
+    public async up(queryRunner: QueryRunner): Promise<void> {
+        const cfg = this.getDbConfig();
+
+        // =====================================================================
+        // ROLES (skip on cloud databases)
+        // =====================================================================
+        if (!cfg.skipDbRoles) {
+            console.log('🔧 Creating Nutrio_admin role...');
+            await queryRunner.query(`
+                DO $$
+                BEGIN
+                    IF NOT EXISTS (SELECT FROM pg_catalog.pg_roles WHERE rolname = '${cfg.roleAdmin}') THEN
+                        CREATE ROLE "${cfg.roleAdmin}" LOGIN PASSWORD '${cfg.roleAdminPassword}';
+                    END IF;
+                END
+                $$;
+            `);
+        } else {
+            console.log('⏭️  Skipping admin role creation (SKIP_DB_ROLES=true)');
+        }
+
+        await queryRunner.query(`
 -- -----------------------------------------------------------------------------
 -- SECTION 23: SUPPLIER FLOW — Tambahan Schema
 -- -----------------------------------------------------------------------------
@@ -552,7 +576,14 @@ INSERT INTO system_config (key, value, description) VALUES
     ('marketplace_catalog_cache_ttl',   '300',   'TTL cache katalog produk dalam detik')
 ON CONFLICT (key) DO NOTHING;
 
--- RLS
+        `);
+
+        // =====================================================================
+        // RLS & GRANT (skip on cloud databases)
+        // =====================================================================
+        if (!cfg.skipDbRoles) {
+            console.log('🔧 Creating RLS policies and GRANTs for supplier tables...');
+            await queryRunner.query(`
 ALTER TABLE suppliers               ENABLE ROW LEVEL SECURITY;
 ALTER TABLE supplier_documents      ENABLE ROW LEVEL SECURITY;
 ALTER TABLE supplier_products       ENABLE ROW LEVEL SECURITY;
@@ -562,27 +593,27 @@ ALTER TABLE supplier_contracts      ENABLE ROW LEVEL SECURITY;
 ALTER TABLE supplier_invoices       ENABLE ROW LEVEL SECURITY;
 ALTER TABLE supplier_reviews        ENABLE ROW LEVEL SECURITY;
 
-CREATE POLICY admin_supplier_all ON suppliers            FOR ALL TO Nutrio_admin USING (TRUE);
-CREATE POLICY admin_supdoc_all   ON supplier_documents   FOR ALL TO Nutrio_admin USING (TRUE);
-CREATE POLICY admin_prod_all     ON supplier_products    FOR ALL TO Nutrio_admin USING (TRUE);
-CREATE POLICY admin_po_all       ON purchase_orders      FOR ALL TO Nutrio_admin USING (TRUE);
-CREATE POLICY admin_poi_all      ON purchase_order_items FOR ALL TO Nutrio_admin USING (TRUE);
-CREATE POLICY admin_contract_all ON supplier_contracts   FOR ALL TO Nutrio_admin USING (TRUE);
-CREATE POLICY admin_invoice_all  ON supplier_invoices    FOR ALL TO Nutrio_admin USING (TRUE);
-CREATE POLICY admin_review_all   ON supplier_reviews     FOR ALL TO Nutrio_admin USING (TRUE);
+CREATE POLICY admin_supplier_all ON suppliers            FOR ALL TO "${cfg.roleAdmin}" USING (TRUE);
+CREATE POLICY admin_supdoc_all   ON supplier_documents   FOR ALL TO "${cfg.roleAdmin}" USING (TRUE);
+CREATE POLICY admin_prod_all     ON supplier_products    FOR ALL TO "${cfg.roleAdmin}" USING (TRUE);
+CREATE POLICY admin_po_all       ON purchase_orders      FOR ALL TO "${cfg.roleAdmin}" USING (TRUE);
+CREATE POLICY admin_poi_all      ON purchase_order_items FOR ALL TO "${cfg.roleAdmin}" USING (TRUE);
+CREATE POLICY admin_contract_all ON supplier_contracts   FOR ALL TO "${cfg.roleAdmin}" USING (TRUE);
+CREATE POLICY admin_invoice_all  ON supplier_invoices    FOR ALL TO "${cfg.roleAdmin}" USING (TRUE);
+CREATE POLICY admin_review_all   ON supplier_reviews     FOR ALL TO "${cfg.roleAdmin}" USING (TRUE);
 
 CREATE POLICY supplier_own ON suppliers
-    FOR ALL TO Nutrio_app
+    FOR ALL TO "${cfg.roleApp}"
     USING (user_id = current_setting('app.current_user_id', TRUE)::UUID);
 
 CREATE POLICY supplier_own_products ON supplier_products
-    FOR ALL TO Nutrio_app
+    FOR ALL TO "${cfg.roleApp}"
     USING (supplier_id IN (
         SELECT id FROM suppliers WHERE user_id = current_setting('app.current_user_id', TRUE)::UUID
     ));
 
 CREATE POLICY supplier_own_po ON purchase_orders
-    FOR SELECT TO Nutrio_app
+    FOR SELECT TO "${cfg.roleApp}"
     USING (
         supplier_id IN (SELECT id FROM suppliers WHERE user_id = current_setting('app.current_user_id', TRUE)::UUID)
         OR
@@ -590,15 +621,18 @@ CREATE POLICY supplier_own_po ON purchase_orders
     );
 
 CREATE POLICY vendor_own_po ON purchase_orders
-    FOR ALL TO Nutrio_app
+    FOR ALL TO "${cfg.roleApp}"
     USING (vendor_id IN (
         SELECT id FROM vendors WHERE user_id = current_setting('app.current_user_id', TRUE)::UUID
     ));
 
 GRANT SELECT ON suppliers, supplier_products, purchase_orders,
-                supplier_reviews, supplier_invoices TO Nutrio_readonly;
-REVOKE SELECT ON supplier_documents FROM Nutrio_readonly;
-        `);
+                supplier_reviews, supplier_invoices TO "${cfg.roleReadonly}";
+REVOKE SELECT ON supplier_documents FROM "${cfg.roleReadonly}";
+            `);
+        } else {
+            console.log('⏭️  Skipping supplier RLS policies and GRANTs (SKIP_DB_ROLES=true)');
+        }
     }
 
     public async down(queryRunner: QueryRunner): Promise<void> {
