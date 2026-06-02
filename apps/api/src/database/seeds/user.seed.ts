@@ -1,6 +1,14 @@
 import { DataSource } from 'typeorm';
 import { UserRole } from '@workspace/common';
 import * as bcrypt from 'bcrypt';
+import { config } from 'dotenv';
+import * as path from 'path';
+
+// Load .env for seed CLI
+config({ path: path.resolve(__dirname, '../../../.env') });
+
+// Allow overriding seed passwords via env
+const SEED_DEFAULT_PASSWORD = process.env.SEED_DEFAULT_PASSWORD;
 
 interface SeedUser {
   email: string;
@@ -165,9 +173,10 @@ export default class UserSeed {
           continue;
         }
 
-        // Hash password
+        // Hash password (use env override or individual password)
+        const passwordToHash = SEED_DEFAULT_PASSWORD || userData.password;
         const salt = await bcrypt.genSalt(10);
-        const passwordHash = await bcrypt.hash(userData.password, salt);
+        const passwordHash = await bcrypt.hash(passwordToHash, salt);
 
         // Insert user using queryRunner with TypeORM
         await queryRunner.manager.save('users', {
