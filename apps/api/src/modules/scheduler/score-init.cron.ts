@@ -15,9 +15,17 @@ export class ScoreInitCron {
   @Cron('1 0 * * *', { name: 'score-init' })
   async handle() {
     if (this.config.get('SCHEDULER_ENABLED') === 'false') return;
-    const vendorIds = await this.scoringService.getActiveVendorIds();
-    this.logger.log(`[score-init] Initializing ${vendorIds.length} active vendors`);
-    await Promise.all(vendorIds.map(id => this.scoringService.initializeDailyScore(id)));
-    this.logger.log('[score-init] Done');
+    try {
+      const vendorIds = await this.scoringService.getActiveVendorIds();
+      this.logger.log(`[score-init] Initializing ${vendorIds.length} active vendors`);
+      const results = await Promise.allSettled(
+        vendorIds.map(id => this.scoringService.initializeDailyScore(id)),
+      );
+      const failed = results.filter(r => r.status === 'rejected').length;
+      if (failed > 0) this.logger.warn(`[score-init] ${failed} vendors failed to initialize`);
+      this.logger.log('[score-init] Done');
+    } catch (err) {
+      this.logger.error('[score-init] Fatal error', err);
+    }
   }
 }
