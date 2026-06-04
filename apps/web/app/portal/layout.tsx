@@ -46,6 +46,8 @@ import { useAuth } from "@/hooks/use-auth";
 import { useUserMenu } from "@/hooks/use-user-menu";
 import { MenuTree } from "@workspace/common";
 import { AppSubject } from "@/lib/casl";
+import { NotificationBell } from "@/components/notification-bell";
+import { RAGDrawer } from "@/components/rag-drawer";
 
 const ICON_MAP: Record<string, any> = {
   LayoutDashboard,
@@ -147,10 +149,10 @@ export default function PortalLayout({
       {/* Sidebar */}
       <aside className="fixed inset-y-0 left-0 w-64 border-r border-border bg-card flex flex-col z-20">
         <div className="p-6 flex items-center gap-3">
-          <div className="size-10 bg-primary rounded-xl flex items-center justify-center text-primary-foreground shadow-lg shadow-primary/20">
+          <div className="size-10 bg-primary rounded-xl flex items-center justify-center text-primary-foreground shadow-lg shadow-primary/20 shrink-0">
             <ShieldCheck className="size-6" />
           </div>
-          <div>
+          <div className="flex-1 min-w-0">
             <h1 className="font-bold text-foreground leading-tight tracking-tight">
               Nutrio
             </h1>
@@ -158,6 +160,7 @@ export default function PortalLayout({
               MBG Monitoring
             </p>
           </div>
+          <NotificationBell />
         </div>
 
         <ScrollArea className="flex-1 w-full">
@@ -255,6 +258,9 @@ export default function PortalLayout({
 
       {/* Main Content */}
       <main className="flex-1 ml-64 min-h-screen">{children}</main>
+
+      {/* Global RAG Assistant */}
+      <RAGDrawer />
     </div>
   );
 }

@@ -1,13 +1,13 @@
 "use client"
 
 import React from "react"
-import { 
-  Scale, 
-  TrendingUp, 
-  ShieldAlert, 
-  MapPin, 
-  ArrowUpRight, 
-  DollarSign, 
+import {
+  Scale,
+  TrendingUp,
+  ShieldAlert,
+  MapPin,
+  ArrowUpRight,
+  DollarSign,
   FileText,
   Activity,
   AlertCircle
@@ -15,10 +15,40 @@ import {
 import { Button } from "@workspace/ui/components/button"
 import { Badge } from "@workspace/ui/components/badge"
 import { Progress } from "@workspace/ui/components/progress"
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@workspace/ui/components/card"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@workspace/ui/components/table"
 
+interface CcOverview {
+  totalActive: number
+  notStarted: number
+  critical: number
+  alertPending: number
+}
+
+interface Alert {
+  id: string
+  vendorName: string
+  alertType: string
+  severity: string
+  title: string
+  body: string
+  createdAt: string
+}
+
 export function AdminDashboard() {
+  const [overview, setOverview] = React.useState<CcOverview | null>(null)
+  const [alerts, setAlerts] = React.useState<Alert[]>([])
+
+  React.useEffect(() => {
+    import("@/lib/api-client").then(({ api }) => {
+      api.get<CcOverview>('/command-center/overview')
+        .then((r) => setOverview(r))
+        .catch(() => {})
+      api.get<{ data: Alert[] }>('/command-center/alerts?limit=3')
+        .then((r) => setAlerts((r as any).data ?? []))
+        .catch(() => {})
+    })
+  }, [])
+
   return (
     <div className="p-8 space-y-8 bg-slate-50/30 min-h-screen animate-in fade-in duration-500">
       <div className="flex justify-between items-end">
@@ -47,9 +77,9 @@ export function AdminDashboard() {
             <div className="mt-4 space-y-2">
               <div className="flex justify-between text-[10px] font-bold">
                 <span className="text-slate-400">PENYERAPAN</span>
-                <span className="text-slate-900">14% (Rp 10.2 T)</span>
+                <span className="text-slate-900">—</span>
               </div>
-              <Progress value={14} className="h-1.5 bg-slate-100" />
+              <Progress value={0} className="h-1.5 bg-slate-100" />
             </div>
           </div>
         </div>
@@ -59,11 +89,13 @@ export function AdminDashboard() {
             <ShieldAlert className="size-6" />
           </div>
           <div>
-            <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Dana Tertahan (Escrow/Fraud Flag)</p>
-            <h3 className="text-3xl font-black text-slate-900">Rp 142.8 Miliar</h3>
-            <p className="text-[10px] text-red-500 font-bold mt-2 flex items-center gap-1">
-              <AlertCircle className="size-3" /> 12 Vendor sedang di-investigasi
-            </p>
+            <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Vendor Kritis / Berisiko</p>
+            <h3 className="text-3xl font-black text-slate-900">{overview?.critical ?? '—'}</h3>
+            {overview && overview.critical > 0 && (
+              <p className="text-[10px] text-red-500 font-bold mt-2 flex items-center gap-1">
+                <AlertCircle className="size-3" /> {overview.critical} vendor di bawah ambang skor
+              </p>
+            )}
           </div>
         </div>
 
@@ -72,41 +104,49 @@ export function AdminDashboard() {
             <Activity className="size-6" />
           </div>
           <div>
-            <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Indeks Kepatuhan Nasional</p>
-            <h3 className="text-3xl font-black text-slate-900">92.4 / 100</h3>
+            <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Vendor Aktif Hari Ini</p>
+            <h3 className="text-3xl font-black text-slate-900">{overview?.totalActive ?? '—'}</h3>
             <div className="flex items-center gap-2 text-emerald-600 text-[10px] font-bold mt-2">
-              <TrendingUp className="size-3" /> +1.2% dari bulan lalu
+              <TrendingUp className="size-3" /> {overview?.notStarted ?? 0} belum mulai hari ini
             </div>
           </div>
         </div>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-        {/* Fraud Queue */}
+        {/* Alerts Queue */}
         <div className="bg-white rounded-[32px] border border-slate-100 shadow-sm overflow-hidden flex flex-col">
           <div className="p-6 border-b border-slate-50 flex justify-between items-center bg-slate-50/50">
-            <h3 className="font-black text-slate-900 text-sm uppercase tracking-tight">Antrian Mitigasi Fraud (AI Flagged)</h3>
+            <h3 className="font-black text-slate-900 text-sm uppercase tracking-tight">Alert Aktif ({overview?.alertPending ?? '—'})</h3>
             <Button variant="ghost" size="sm" className="text-[10px] font-black uppercase text-indigo-600">Lihat Semua</Button>
           </div>
           <div className="flex-1">
             <Table>
               <TableBody>
-                {[
-                  { region: "Bogor, Jabar", vendor: "Catering Berkah", anomaly: "Ghost Portion (F3.1)", risk: "CRITICAL" },
-                  { region: "Medan, Sumut", vendor: "UD Maju Jaya", anomaly: "Recycled Photo (F3.4)", risk: "HIGH" },
-                  { region: "Surabaya, Jatim", vendor: "Dapur Rakyat", anomaly: "Price Mark-up (F2.1)", risk: "MEDIUM" },
-                ].map((item, i) => (
-                  <TableRow key={i} className="group cursor-pointer hover:bg-slate-50">
+                {alerts.length === 0 ? (
+                  <TableRow>
+                    <TableCell colSpan={4} className="text-center py-12 text-slate-400">
+                      <div className="flex flex-col items-center gap-3">
+                        <ShieldAlert className="size-8 opacity-20" />
+                        <p className="text-sm font-medium">Tidak ada alert aktif</p>
+                      </div>
+                    </TableCell>
+                  </TableRow>
+                ) : alerts.map((item) => (
+                  <TableRow key={item.id} className="group cursor-pointer hover:bg-slate-50">
                     <TableCell className="p-6">
-                      <p className="font-bold text-slate-900 text-sm">{item.vendor}</p>
-                      <p className="text-[10px] text-slate-400 flex items-center gap-1"><MapPin className="size-3" /> {item.region}</p>
+                      <p className="font-bold text-slate-900 text-sm">{item.vendorName}</p>
+                      <p className="text-[10px] text-slate-400">{item.alertType}</p>
                     </TableCell>
                     <TableCell>
-                      <p className="text-xs font-medium text-slate-600">{item.anomaly}</p>
+                      <p className="text-xs font-medium text-slate-600">{item.title}</p>
                     </TableCell>
                     <TableCell>
-                      <Badge className={item.risk === 'CRITICAL' ? 'bg-red-500' : item.risk === 'HIGH' ? 'bg-orange-500' : 'bg-amber-500'}>
-                        {item.risk}
+                      <Badge className={
+                        item.severity === 'critical' ? 'bg-red-500' :
+                        item.severity === 'warning' ? 'bg-orange-500' : 'bg-amber-500'
+                      }>
+                        {item.severity.toUpperCase()}
                       </Badge>
                     </TableCell>
                     <TableCell className="text-right pr-6">
@@ -129,20 +169,8 @@ export function AdminDashboard() {
             </div>
             <h3 className="font-bold text-lg tracking-tight uppercase">System Audit Trail</h3>
           </div>
-          <div className="space-y-6 flex-1">
-            {[
-              { act: "Pencairan Dana Wilayah Barat", user: "Admin_Keuangan", time: "2m ago" },
-              { act: "Pembekuan Akun Vendor #082", user: "AI_Compliance", time: "15m ago" },
-              { act: "Update Juknis Gizi v3.1", user: "Admin_BGN", time: "1h ago" },
-            ].map((log, i) => (
-              <div key={i} className="flex gap-4 items-start">
-                <div className="size-2 rounded-full bg-indigo-500 mt-1.5 shadow-[0_0_8px_rgba(99,102,241,0.8)]"></div>
-                <div className="space-y-1">
-                  <p className="text-sm font-bold leading-none">{log.act}</p>
-                  <p className="text-[10px] text-slate-400 italic">Oleh {log.user} • {log.time}</p>
-                </div>
-              </div>
-            ))}
+          <div className="flex-1 py-4 text-center">
+            <p className="text-xs text-slate-400">Audit trail akan ditampilkan setelah aktivitas terjadi.</p>
           </div>
           <Button className="mt-8 w-full bg-white/10 hover:bg-white/20 border-white/10 text-white font-bold rounded-2xl h-12">
             Download Audit Full Log (.CSV)

@@ -2,15 +2,16 @@
 
 import * as React from "react"
 import Link from "next/link"
-import { 
-  Search, 
-  MapPin, 
-  Star, 
-  Store, 
-  ShieldCheck, 
+import {
+  Search,
+  MapPin,
+  Star,
+  Store,
+  ShieldCheck,
   ChevronRight,
   Filter,
-  Sparkles
+  Sparkles,
+  Loader2,
 } from "lucide-react"
 
 import { Button } from "@workspace/ui/components/button"
@@ -24,45 +25,58 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@workspace/ui/components/select"
-import { Alert, AlertDescription, AlertTitle } from "@workspace/ui/components/alert"
-import { cn } from "@workspace/ui/lib/utils"
+import { Alert, AlertDescription } from "@workspace/ui/components/alert"
+
+interface Supplier {
+  id: string
+  business_name: string
+  supplier_type: string
+  address_city: string
+  address_province: string
+  description: string | null
+  has_halal_cert: boolean
+  has_bpom_cert: boolean
+  avg_rating: string | null
+  total_reviews: number
+  product_count: string
+  product_categories: string[] | null
+}
+
+const SUPPLIER_TYPE_LABEL: Record<string, string> = {
+  petani: 'Petani / Kelompok Tani',
+  distributor: 'Distributor',
+  koperasi: 'Koperasi',
+  fmcg: 'Perusahaan FMCG',
+}
 
 export default function MarketplaceHomePage() {
-  const suppliers = [
-    {
-      id: "tani-makmur",
-      name: "PT Tani Makmur Sejahtera",
-      desc: "Pemasok utama daging ayam potong segar terstandarisasi untuk area Yogyakarta.",
-      badges: ["Verified NKV", "Daging & Unggas"],
-      location: "Kec. Depok, Sleman",
-      distance: "3.2 km",
-      rating: 4.8,
-      reviews: 124,
-      image: "https://images.unsplash.com/photo-1586201375761-83865001e31c?q=80&w=400&auto=format&fit=crop"
-    },
-    {
-      id: "koperasi-susu",
-      name: "Koperasi Susu Perah Mandiri",
-      desc: "Penyedia susu UHT dan susu segar kualitas premium dari peternak lokal.",
-      badges: ["Verified BPOM", "Susu Kemasan"],
-      location: "Kec. Ngaglik, Sleman",
-      distance: "5.1 km",
-      rating: 4.9,
-      reviews: 89,
-      image: "https://images.unsplash.com/photo-1586201375761-83865001e31c?q=80&w=400&auto=format&fit=crop"
-    },
-    {
-      id: "gudang-beras",
-      name: "Gudang Beras Nusantara",
-      desc: "Distributor beras kualitas super dengan stok stabil untuk kebutuhan skala besar.",
-      badges: ["Verified Standar BGN", "Sembako"],
-      location: "Kec. Mlati, Sleman",
-      distance: "6.0 km",
-      rating: 4.5,
-      reviews: 210,
-      image: "https://images.unsplash.com/photo-1586201375761-83865001e31c?q=80&w=400&auto=format&fit=crop"
-    }
-  ]
+  const [suppliers, setSuppliers] = React.useState<Supplier[]>([])
+  const [loading, setLoading] = React.useState(true)
+  const [q, setQ] = React.useState('')
+  const [province, setProvince] = React.useState('all')
+
+  const fetchSuppliers = React.useCallback(() => {
+    setLoading(true)
+    import("@/lib/api-client").then(({ api }) => {
+      const params = new URLSearchParams({ limit: '20' })
+      if (q) params.set('q', q)
+      if (province !== 'all') params.set('province', province)
+
+      api.get<{ data: Supplier[] }>(`/suppliers?${params}`)
+        .then((r) => setSuppliers((r as any).data ?? []))
+        .catch(() => setSuppliers([]))
+        .finally(() => setLoading(false))
+    })
+  }, [q, province])
+
+  React.useEffect(() => {
+    fetchSuppliers()
+  }, [fetchSuppliers])
+
+  const handleSearch = (e: React.FormEvent) => {
+    e.preventDefault()
+    fetchSuppliers()
+  }
 
   return (
     <div className="p-8 space-y-8 animate-in fade-in duration-500 bg-background">
@@ -75,46 +89,33 @@ export default function MarketplaceHomePage() {
       {/* Filter Bar */}
       <Card className="border-border bg-card shadow-sm rounded-2xl">
         <CardContent className="p-4 flex flex-col lg:flex-row items-center gap-4">
-          <div className="relative flex-1 w-full">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 size-4 text-muted-foreground" />
-            <Input className="pl-10 h-11 bg-slate-50/50 rounded-xl" placeholder="Cari nama PT, Toko, atau komoditas..." />
-          </div>
-          
+          <form onSubmit={handleSearch} className="relative flex-1 w-full flex gap-2">
+            <div className="relative flex-1">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 size-4 text-muted-foreground" />
+              <Input
+                className="pl-10 h-11 bg-slate-50/50 rounded-xl"
+                placeholder="Cari nama PT, Toko, atau komoditas..."
+                value={q}
+                onChange={(e) => setQ(e.target.value)}
+              />
+            </div>
+            <Button type="submit" className="h-11 rounded-xl shrink-0">Cari</Button>
+          </form>
+
           <div className="flex flex-wrap items-center gap-3 w-full lg:w-auto">
-            <Select defaultValue="diy">
-              <SelectTrigger className="w-[140px] h-11 rounded-xl bg-slate-50/50 border-slate-200">
-                <SelectValue placeholder="Provinsi" />
+            <Select value={province} onValueChange={setProvince}>
+              <SelectTrigger className="w-[180px] h-11 rounded-xl bg-slate-50/50 border-slate-200">
+                <SelectValue placeholder="Semua Provinsi" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="diy">DI Yogyakarta</SelectItem>
-                <SelectItem value="jabar">Jawa Barat</SelectItem>
+                <SelectItem value="all">Semua Provinsi</SelectItem>
+                <SelectItem value="DI Yogyakarta">DI Yogyakarta</SelectItem>
+                <SelectItem value="Jawa Barat">Jawa Barat</SelectItem>
+                <SelectItem value="Jawa Tengah">Jawa Tengah</SelectItem>
+                <SelectItem value="Jawa Timur">Jawa Timur</SelectItem>
+                <SelectItem value="DKI Jakarta">DKI Jakarta</SelectItem>
               </SelectContent>
             </Select>
-
-            <Select defaultValue="sleman">
-              <SelectTrigger className="w-[140px] h-11 rounded-xl bg-slate-50/50 border-slate-200">
-                <SelectValue placeholder="Kabupaten" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="sleman">Sleman</SelectItem>
-                <SelectItem value="bantul">Bantul</SelectItem>
-              </SelectContent>
-            </Select>
-
-            <Select>
-              <SelectTrigger className="w-[140px] h-11 rounded-xl bg-slate-50/50 border-slate-200">
-                <SelectValue placeholder="Semua Kategori" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="meat">Daging & Unggas</SelectItem>
-                <SelectItem value="veg">Sayur & Buah</SelectItem>
-                <SelectItem value="basic">Sembako</SelectItem>
-              </SelectContent>
-            </Select>
-
-            <Button variant="outline" className="h-11 px-4 rounded-xl border-slate-200 bg-card">
-              <Filter className="size-4" />
-            </Button>
           </div>
         </CardContent>
       </Card>
@@ -123,60 +124,81 @@ export default function MarketplaceHomePage() {
       <Alert className="bg-indigo-50 border-indigo-100 shadow-sm rounded-2xl">
         <Sparkles className="size-4 text-primary" />
         <AlertDescription className="text-primary font-bold text-sm">
-          Menampilkan supplier terdekat berdasarkan titik koordinat dapur SPPG Anda di Sleman.
+          Menampilkan supplier terverifikasi BGN yang tersedia di program MBG.
         </AlertDescription>
       </Alert>
 
       {/* Supplier Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {suppliers.map((supplier) => (
-          <Card key={supplier.id} className="group overflow-hidden border-border bg-card hover:shadow-xl hover:-translate-y-1 transition-all duration-300 rounded-3xl">
-            <div className="aspect-video w-full overflow-hidden relative">
-              <img src={supplier.image} alt={supplier.name} className="object-cover w-full h-full group-hover:scale-105 transition-transform duration-500" />
-              <div className="absolute top-3 left-3 flex flex-col gap-2">
-                {supplier.badges.map((badge, idx) => (
-                  <Badge key={idx} className={cn(
-                    "font-bold text-[9px] uppercase px-2 py-0.5 shadow-sm border-none",
-                    badge.includes("Verified") ? "bg-emerald-500 text-white" : "bg-white/90 backdrop-blur-md text-slate-900"
-                  )}>
-                    {badge}
+      {loading ? (
+        <div className="flex items-center justify-center py-20">
+          <Loader2 className="size-8 animate-spin text-primary" />
+        </div>
+      ) : suppliers.length === 0 ? (
+        <div className="flex flex-col items-center justify-center py-20 text-center space-y-4">
+          <div className="h-16 w-16 rounded-2xl bg-slate-100 flex items-center justify-center">
+            <Store className="size-8 text-slate-300" />
+          </div>
+          <div className="space-y-1">
+            <p className="font-bold text-slate-500">Belum ada supplier terdaftar</p>
+            <p className="text-sm text-slate-400">Supplier yang bergabung dalam program MBG akan tampil di sini.</p>
+          </div>
+        </div>
+      ) : (
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {suppliers.map((supplier) => (
+            <Card key={supplier.id} className="group overflow-hidden border-border bg-card hover:shadow-xl hover:-translate-y-1 transition-all duration-300 rounded-3xl">
+              <CardHeader className="pb-3">
+                <div className="flex items-center gap-2 flex-wrap">
+                  <Badge variant="outline" className="text-[10px] font-bold uppercase text-slate-500 border-slate-200">
+                    {SUPPLIER_TYPE_LABEL[supplier.supplier_type] ?? supplier.supplier_type}
                   </Badge>
-                ))}
-              </div>
-            </div>
-            <CardHeader className="pb-3">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-1.5 text-amber-500">
-                  <Star className="size-3.5 fill-current" />
-                  <span className="text-xs font-black">{supplier.rating}</span>
-                  <span className="text-[10px] text-slate-400 font-bold">({supplier.reviews})</span>
+                  {supplier.has_halal_cert && (
+                    <Badge className="text-[10px] font-bold bg-emerald-50 text-emerald-700 border-emerald-200 border">
+                      Halal
+                    </Badge>
+                  )}
+                  {supplier.has_bpom_cert && (
+                    <Badge className="text-[10px] font-bold bg-blue-50 text-blue-700 border-blue-200 border">
+                      BPOM
+                    </Badge>
+                  )}
                 </div>
-                <Badge variant="outline" className="text-[9px] font-black uppercase text-primary bg-primary/5 border-primary/10">Near You</Badge>
-              </div>
-              <CardTitle className="text-lg font-black text-slate-900 mt-2 group-hover:text-primary transition-colors">{supplier.name}</CardTitle>
-              <CardDescription className="text-xs font-medium text-slate-500 line-clamp-2 leading-relaxed mt-1">
-                {supplier.desc}
-              </CardDescription>
-            </CardHeader>
-            <CardContent className="pb-4">
-              <div className="flex items-center gap-1.5 text-slate-500 text-[11px] font-bold">
-                <MapPin className="size-3 text-primary" />
-                {supplier.location}
-                <span className="text-slate-300">•</span>
-                <span className="text-primary font-black">Jarak: {supplier.distance}</span>
-              </div>
-            </CardContent>
-            <CardFooter className="p-4 pt-0">
-              <Link href={`/portal/marketplace/${supplier.id}`} className="w-full">
-                <Button className="w-full rounded-2xl font-black text-xs uppercase tracking-widest h-11 gap-2 shadow-lg shadow-primary/10">
-                  Lihat Profil & Katalog
-                  <ChevronRight className="size-4" />
-                </Button>
-              </Link>
-            </CardFooter>
-          </Card>
-        ))}
-      </div>
+                <CardTitle className="text-lg font-black text-slate-900 mt-2 group-hover:text-primary transition-colors">
+                  {supplier.business_name}
+                </CardTitle>
+                {supplier.description && (
+                  <CardDescription className="text-xs font-medium text-slate-500 line-clamp-2 leading-relaxed mt-1">
+                    {supplier.description}
+                  </CardDescription>
+                )}
+              </CardHeader>
+              <CardContent className="pb-4 space-y-2">
+                <div className="flex items-center gap-1.5 text-slate-500 text-[11px] font-bold">
+                  <MapPin className="size-3 text-primary" />
+                  {supplier.address_city}, {supplier.address_province}
+                </div>
+                <div className="flex items-center justify-between text-[11px] text-slate-500">
+                  <span className="flex items-center gap-1">
+                    <Star className="size-3 text-amber-400 fill-amber-400" />
+                    {supplier.avg_rating ? parseFloat(supplier.avg_rating).toFixed(1) : '—'}
+                    <span className="text-slate-300">·</span>
+                    {supplier.total_reviews} ulasan
+                  </span>
+                  <span className="font-bold">{supplier.product_count} produk aktif</span>
+                </div>
+              </CardContent>
+              <CardFooter className="p-4 pt-0">
+                <Link href={`/portal/marketplace/${supplier.id}`} className="w-full">
+                  <Button className="w-full rounded-2xl font-black text-xs uppercase tracking-widest h-11 gap-2 shadow-lg shadow-primary/10">
+                    Lihat Profil & Katalog
+                    <ChevronRight className="size-4" />
+                  </Button>
+                </Link>
+              </CardFooter>
+            </Card>
+          ))}
+        </div>
+      )}
     </div>
   )
 }

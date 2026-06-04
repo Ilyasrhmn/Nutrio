@@ -24,7 +24,7 @@ export class AddCheckpointTables1710900000001 implements MigrationInterface {
       );
 
       CREATE UNIQUE INDEX idx_cp_unique_per_day
-        ON checkpoint_events(vendor_id, sppg_location_id, cp_type, (created_at::date));
+        ON checkpoint_events(vendor_id, sppg_location_id, cp_type, ((created_at AT TIME ZONE 'UTC')::date));
 
       CREATE TABLE delivery_tokens (
         id                UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
@@ -49,7 +49,7 @@ export class AddCheckpointTables1710900000001 implements MigrationInterface {
         confirmed_at        TIMESTAMPTZ NOT NULL DEFAULT NOW()
       );
 
-      CREATE INDEX idx_cp_events_vendor_date ON checkpoint_events(vendor_id, (created_at::date) DESC);
+      CREATE INDEX idx_cp_events_vendor_date ON checkpoint_events(vendor_id, ((created_at AT TIME ZONE 'UTC')::date) DESC);
       CREATE INDEX idx_delivery_tokens_token ON delivery_tokens(token);
     `);
   }

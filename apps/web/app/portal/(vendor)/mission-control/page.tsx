@@ -235,7 +235,7 @@ export default function MissionControlPage() {
   const fetchData = useCallback(async () => {
     try {
       const res = await api.get<MCData>('/mission-control/today')
-      setData(res.data)
+      setData(res)
     } catch {
       toast({ title: 'Gagal memuat data Mission Control', variant: 'destructive' })
     } finally {

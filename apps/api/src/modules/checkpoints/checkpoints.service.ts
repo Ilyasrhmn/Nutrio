@@ -7,6 +7,7 @@ import { StorageService } from '../storage/storage.service';
 import { VisionService } from '../ai/vision.service';
 import { ScoringService } from '../scoring/scoring.service';
 import { RealtimeService } from '../realtime/realtime.service';
+import { DebriefService } from '../debrief/debrief.service';
 import * as path from 'path';
 
 const CP_ORDER: CpType[] = ['CP1', 'CP2', 'CP3', 'CP4'];
@@ -25,6 +26,7 @@ export class CheckpointsService {
     private readonly visionService: VisionService,
     private readonly scoringService: ScoringService,
     private readonly realtimeService: RealtimeService,
+    private readonly debriefService: DebriefService,
   ) {}
 
   static cpOrderIndex(cpType: CpType): number {
@@ -136,6 +138,13 @@ export class CheckpointsService {
     // CP3 side effect: generate delivery tokens
     if (cpType === 'CP3') {
       await this.generateDeliveryTokens(vendorId, sppg);
+    }
+
+    // CP4 side effect: auto-generate daily debrief
+    if (cpType === 'CP4') {
+      this.debriefService.generate(vendorId, today).catch(e =>
+        this.logger.error(`[checkpoints] Auto debrief failed for ${vendorId}: ${e.message}`),
+      );
     }
 
     return saved;

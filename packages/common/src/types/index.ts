@@ -67,3 +67,4 @@ export interface BaseEntity {
 export type Address = `0x${string}`;
 
 export * from './casl';
+export * from './eligibility';

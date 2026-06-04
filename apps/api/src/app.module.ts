@@ -19,6 +19,15 @@ import { OnboardingModule } from "./modules/onboarding/onboarding.module";
 import { ScoringModule } from "./modules/scoring/scoring.module";
 import { CheckpointsModule } from "./modules/checkpoints/checkpoints.module";
 import { MissionControlModule } from "./modules/mission-control/mission-control.module";
+import { NotificationsModule } from "./modules/notifications/notifications.module";
+import { DeliveryModule } from "./modules/delivery/delivery.module";
+import { SchoolConfirmModule } from "./modules/school-confirm/school-confirm.module";
+import { DebriefModule } from "./modules/debrief/debrief.module";
+import { CommandCenterModule } from "./modules/command-center/command-center.module";
+import { PublicModule } from "./modules/public/public.module";
+import { RagModule } from "./modules/rag/rag.module";
+import { FundsModule } from "./modules/funds/funds.module";
+import { SuppliersModule } from "./modules/suppliers/suppliers.module";
 
 @Module({
   imports: [
@@ -43,6 +52,20 @@ import { MissionControlModule } from "./modules/mission-control/mission-control.
     ScoringModule,
     CheckpointsModule,
     MissionControlModule,
+    // PHASE 4 — Closing the Loop
+    NotificationsModule,
+    DeliveryModule,
+    SchoolConfirmModule,
+    DebriefModule,
+    // PHASE 5 — Dunia 3 + Public
+    CommandCenterModule,
+    PublicModule,
+    // PHASE 6 — RAG Assistant
+    RagModule,
+    // PHASE 7 — Funds Transparency
+    FundsModule,
+    // Supplier Marketplace
+    SuppliersModule,
   ],
   controllers: [AppController],
   providers: [AppService],

@@ -1,21 +1,17 @@
 "use client"
 
 import React from "react"
-import { 
-  Store, 
-  Package, 
-  ShoppingCart, 
-  TrendingUp, 
-  MessageSquare, 
-  ArrowUpRight, 
+import {
+  Store,
+  Package,
+  ShoppingCart,
+  TrendingUp,
+  MessageSquare,
   Truck,
   CheckCircle2,
-  Clock
 } from "lucide-react"
 import { Button } from "@workspace/ui/components/button"
-import { Badge } from "@workspace/ui/components/badge"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@workspace/ui/components/table"
-import { Progress } from "@workspace/ui/components/progress"
 
 export function SupplierDashboard() {
   return (
@@ -41,15 +37,14 @@ export function SupplierDashboard() {
           </div>
           <div>
             <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Total Penjualan (Bulan Ini)</p>
-            <h3 className="text-2xl font-black text-slate-900">Rp 142.500.000</h3>
-            <Badge variant="outline" className="text-[10px] font-bold border-emerald-100 text-emerald-600 bg-emerald-50 mt-2">+12% vs Jan</Badge>
+            <h3 className="text-2xl font-black text-slate-900">—</h3>
           </div>
         </div>
 
         {[
-          { label: "Pesanan Aktif (PO)", value: "24 PO", sub: "Menunggu Pengiriman", icon: ShoppingCart, color: "blue" },
-          { label: "Produk Terlaris", value: "Daging Ayam", sub: "1.2 Ton terjual", icon: Package, color: "primary" },
-          { label: "Rating Supplier", value: "4.9 / 5.0", sub: "Dari 120 Vendor", icon: CheckCircle2, color: "amber" },
+          { label: "Pesanan Aktif (PO)", value: "—", sub: "Menunggu Pengiriman", icon: ShoppingCart, color: "blue" },
+          { label: "Produk Terlaris", value: "—", sub: "Belum ada data", icon: Package, color: "primary" },
+          { label: "Rating Supplier", value: "—", sub: "Belum ada ulasan", icon: CheckCircle2, color: "amber" },
         ].map((stat, i) => (
           <div key={i} className="bg-white p-6 rounded-[32px] border border-slate-100 shadow-sm space-y-4">
             <div className={`size-10 bg-${stat.color}-50 flex items-center justify-center rounded-xl text-${stat.color}-600`}>
@@ -81,30 +76,14 @@ export function SupplierDashboard() {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {[
-                { vendor: "Catering Sehat", item: "Daging Ayam", qty: "200kg", status: "PENDING", time: "2 jam lalu" },
-                { vendor: "Dapur Ibu", item: "Beras Premium", qty: "500kg", status: "SHIPPED", time: "5 jam lalu" },
-                { vendor: "Mitra SPPG", item: "Sayur Sop", qty: "150kg", status: "ARRIVED", time: "1 hari lalu" },
-              ].map((po, i) => (
-                <TableRow key={i} className="group">
-                  <TableCell className="pl-6 py-4">
-                    <p className="font-bold text-slate-900 text-sm">{po.vendor}</p>
-                    <p className="text-[10px] text-slate-400 uppercase font-black">{po.time}</p>
-                  </TableCell>
-                  <TableCell>
-                    <p className="text-sm font-medium text-slate-600">{po.item}</p>
-                    <p className="font-black text-indigo-600 text-xs">{po.qty}</p>
-                  </TableCell>
-                  <TableCell>
-                    <Badge className={po.status === 'PENDING' ? 'bg-amber-500' : po.status === 'SHIPPED' ? 'bg-blue-500' : 'bg-emerald-500'}>
-                      {po.status}
-                    </Badge>
-                  </TableCell>
-                  <TableCell className="text-right pr-6">
-                    <Button size="sm" className="bg-slate-900 text-white rounded-xl h-8 text-[10px] font-bold">Proses PO</Button>
-                  </TableCell>
-                </TableRow>
-              ))}
+              <TableRow>
+                <TableCell colSpan={4} className="text-center py-12 text-slate-400">
+                  <div className="flex flex-col items-center gap-3">
+                    <Store className="size-8 opacity-20" />
+                    <p className="text-sm font-medium">Belum ada pesanan masuk</p>
+                  </div>
+                </TableCell>
+              </TableRow>
             </TableBody>
           </Table>
         </div>
@@ -118,26 +97,13 @@ export function SupplierDashboard() {
             <h3 className="font-bold text-lg mb-6 flex items-center gap-2 uppercase tracking-tighter">
               Fulfillment Rate
             </h3>
-            <div className="space-y-6">
-              <div className="space-y-2">
-                <div className="flex justify-between text-[10px] font-bold text-indigo-300">
-                  <span>KECEPATAN KIRIM</span>
-                  <span>98%</span>
-                </div>
-                <Progress value={98} className="h-1.5 bg-white/10" />
-              </div>
-              <div className="space-y-2">
-                <div className="flex justify-between text-[10px] font-bold text-emerald-300">
-                  <span>KUALITAS BAHAN</span>
-                  <span>100%</span>
-                </div>
-                <Progress value={100} className="h-1.5 bg-white/10" />
-              </div>
+            <div className="py-4 text-center">
+              <p className="text-xs text-slate-400">Data akan tersedia setelah ada pesanan terproses.</p>
             </div>
             <div className="mt-8 p-4 bg-white/5 rounded-2xl border border-white/10">
               <div className="flex items-center gap-3">
                 <MessageSquare className="size-4 text-indigo-400" />
-                <p className="text-[11px] text-slate-300">Ada 3 pesan belum dibaca dari Vendor terkait spek produk.</p>
+                <p className="text-[11px] text-slate-300">Tidak ada pesan baru dari Vendor.</p>
               </div>
             </div>
           </div>

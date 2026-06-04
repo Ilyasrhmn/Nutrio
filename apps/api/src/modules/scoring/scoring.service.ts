@@ -24,7 +24,7 @@ export class ScoringService {
   }
 
   private todayString(): string {
-    return new Date().toISOString().split('T')[0];
+    return new Date().toISOString().split('T')[0] ?? '';
   }
 
   async initializeDailyScore(vendorId: string): Promise<DailyScoreRecord> {
@@ -111,13 +111,27 @@ export class ScoringService {
     return this.recordRepo.findOneOrFail({ where: { id: record.id } });
   }
 
-  async getHistory(vendorId: string, days: number): Promise<DailyScoreRecord[]> {
-    return this.recordRepo
-      .createQueryBuilder('r')
-      .where('r.vendorId = :vendorId', { vendorId })
-      .orderBy('r.scoreDate', 'DESC')
-      .limit(days)
-      .getMany();
+  async getHistory(vendorId: string, days: number) {
+    const rows = await this.dataSource.query(
+      `SELECT
+         r.score_date          AS date,
+         COALESCE(r.score_final, r.score_current) AS score,
+         COUNT(ce.id) FILTER (WHERE ce.cp_status = 'done') AS cp_done
+       FROM daily_score_records r
+       LEFT JOIN checkpoint_events ce
+              ON ce.vendor_id = r.vendor_id
+             AND ce.submitted_at::date = r.score_date::date
+       WHERE r.vendor_id = $1
+       GROUP BY r.score_date, r.score_final, r.score_current
+       ORDER BY r.score_date DESC
+       LIMIT $2`,
+      [vendorId, days],
+    );
+    return rows.map((r: any) => ({
+      date: r.date,
+      score: Number(r.score),
+      cpDone: Number(r.cp_done),
+    }));
   }
 
   async getActiveVendorIds(): Promise<string[]> {

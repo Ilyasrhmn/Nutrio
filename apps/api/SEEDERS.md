@@ -77,12 +77,12 @@ npm run seed:generate -- product-seeder
 Setelah menjalankan seeder, Anda dapat login dengan salah satu user di atas.
 
 **Contoh Login sebagai Admin:**
-1. Buka halaman login: `http://localhost:3001/login`
+1. Buka halaman login: `http://localhost:3333/login`
 2. Email: `admin@bgn.go.id`
 3. Password: `Admin123!`
 
 **Contoh Login sebagai Vendor:**
-1. Buka halaman login: `http://localhost:3001/login`
+1. Buka halaman login: `http://localhost:3333/login`
 2. Email: `vendor@sppg.go.id`
 3. Password: `Vendor123!`
 

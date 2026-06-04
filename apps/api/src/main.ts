@@ -5,7 +5,7 @@ import { AllExceptionsFilter } from "./common/filters/all-exceptions.filter";
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
-  const port = process.env["PORT"] ?? 3001;
+  const port = process.env["PORT"] ?? 3333;
   const httpAdapterHost = app.get(HttpAdapterHost);
 
   app.useGlobalFilters(new AllExceptionsFilter(httpAdapterHost));

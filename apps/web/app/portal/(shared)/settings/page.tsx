@@ -32,11 +32,25 @@ import {
 } from "@workspace/ui/components/tabs"
 import { cn } from "@workspace/ui/lib/utils"
 
+interface UserProfile {
+  fullName: string
+  email: string
+  role: string
+  phone: string | null
+  lastLoginAt: string | null
+}
+
 export default function SettingsPage() {
   const [mounted, setMounted] = React.useState(false)
+  const [profile, setProfile] = React.useState<UserProfile | null>(null)
 
   React.useEffect(() => {
     setMounted(true)
+    import("@/lib/api-client").then(({ api }) => {
+      api.get<UserProfile>("/auth/me")
+        .then((r) => setProfile(r))
+        .catch(() => {})
+    })
   }, [])
 
   if (!mounted) return null
@@ -69,24 +83,32 @@ export default function SettingsPage() {
             <div className="flex flex-col md:flex-row md:items-end gap-6">
               <Avatar className="size-24 border-4 border-card shadow-xl ring-1 ring-border">
                 <AvatarImage src="" />
-                <AvatarFallback className="bg-primary/10 text-primary text-2xl font-black">BS</AvatarFallback>
+                <AvatarFallback className="bg-primary/10 text-primary text-2xl font-black">
+                  {profile?.fullName?.slice(0, 2).toUpperCase() ?? '?'}
+                </AvatarFallback>
               </Avatar>
               <div className="space-y-1 md:pb-2">
-                <h3 className="text-2xl font-black text-foreground">Budi Santoso</h3>
+                <h3 className="text-2xl font-black text-foreground">{profile?.fullName ?? '—'}</h3>
                 <div className="flex flex-wrap items-center gap-3">
-                  <p className="text-sm font-bold text-muted-foreground">Auditor Utama - Satgas MBG</p>
-                  <div className="size-1 rounded-full bg-slate-300" />
-                  <p className="text-[11px] font-bold text-slate-500 uppercase tracking-widest bg-muted px-2 py-0.5 rounded">NIP: 198802142010121001</p>
+                  <p className="text-sm font-bold text-muted-foreground">{profile?.email ?? '—'}</p>
+                  {profile?.role && (
+                    <>
+                      <div className="size-1 rounded-full bg-slate-300" />
+                      <p className="text-[11px] font-bold text-slate-500 uppercase tracking-widest bg-muted px-2 py-0.5 rounded">{profile.role}</p>
+                    </>
+                  )}
                 </div>
                 <div className="flex items-center gap-4 mt-2">
                    <div className="flex items-center gap-1.5 text-[11px] font-medium text-slate-500">
                      <Shield className="size-3 text-primary" />
                      Badan Gizi Nasional
                    </div>
-                   <div className="flex items-center gap-1.5 text-[11px] font-medium text-slate-500">
-                     <Clock className="size-3" />
-                     Login Terakhir: Hari ini, 08:00 WIB
-                   </div>
+                   {profile?.lastLoginAt && (
+                     <div className="flex items-center gap-1.5 text-[11px] font-medium text-slate-500">
+                       <Clock className="size-3" />
+                       Login Terakhir: {new Date(profile.lastLoginAt).toLocaleString('id-ID', { dateStyle: 'short', timeStyle: 'short' })}
+                     </div>
+                   )}
                 </div>
               </div>
             </div>

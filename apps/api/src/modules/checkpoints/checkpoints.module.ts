@@ -9,6 +9,7 @@ import { StorageModule } from '../storage/storage.module';
 import { AiModule } from '../ai/ai.module';
 import { ScoringModule } from '../scoring/scoring.module';
 import { RealtimeModule } from '../realtime/realtime.module';
+import { DebriefModule } from '../debrief/debrief.module';
 
 @Module({
   imports: [
@@ -21,6 +22,7 @@ import { RealtimeModule } from '../realtime/realtime.module';
     AiModule,
     ScoringModule,
     RealtimeModule,
+    DebriefModule,
   ],
   providers: [CheckpointsService],
   controllers: [CheckpointsController],

@@ -21,6 +21,7 @@
     "react-webcam": "^7.2.0",
     "html5-qrcode": "^2.3.8",
     "clsx": "^2.1.1",
+    "socket.io-client": "^4.8.0",
     "tailwind-merge": "^3.0.1"
   },
   "devDependencies": {
@@ -34,6 +35,6 @@
     "eslint": "^9.39.2",
     "postcss": "^8.5.1",
     "tailwindcss": "^4.1.18",
-    "typescript": "^5.9.3"
+    "typescript": "^6.0.3"
   }
 }

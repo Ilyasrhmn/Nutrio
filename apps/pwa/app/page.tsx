@@ -10,9 +10,9 @@ import { apiClient } from "../lib/api-client"
 
 interface CheckpointState {
   id: string
-  cp_type: 'CP1' | 'CP2' | 'CP3' | 'CP4'
-  cp_status: 'pending' | 'in_progress' | 'done' | 'failed' | 'force_closed'
-  completed_at: string | null
+  cpType: 'CP1' | 'CP2' | 'CP3' | 'CP4'
+  cpStatus: 'pending' | 'in_progress' | 'done' | 'failed' | 'force_closed'
+  completedAt: string | null
 }
 
 interface DailyData {
@@ -38,9 +38,9 @@ const CP_WINDOWS: Record<string, { start: number; end: number }> = {
 function getNextPendingCp(checkpoints: CheckpointState[]): CheckpointState | null {
   const order = ['CP1', 'CP2', 'CP3', 'CP4']
   for (const cpType of order) {
-    const cp = checkpoints.find(c => c.cp_type === cpType)
-    if (!cp || cp.cp_status === 'pending') {
-      return cp ?? { id: cpType, cp_type: cpType as 'CP1' | 'CP2' | 'CP3' | 'CP4', cp_status: 'pending', completed_at: null }
+    const cp = checkpoints.find(c => c.cpType === cpType)
+    if (!cp || cp.cpStatus === 'pending') {
+      return cp ?? { id: cpType, cpType: cpType as 'CP1' | 'CP2' | 'CP3' | 'CP4', cpStatus: 'pending', completedAt: null }
     }
   }
   return null
@@ -76,14 +76,15 @@ export default function PWALandingPage() {
 
   const fetchData = useCallback(async () => {
     try {
-      const [cpRes, scoreRes, meRes] = await Promise.all([
+      const [cpRes, scoreRes, meRes, sppgRes] = await Promise.all([
         apiClient.get<CheckpointState[]>('/checkpoints/today'),
         apiClient.get<{ score: number }>('/scoring/today'),
         apiClient.get<{ fullName?: string; email?: string }>('/auth/me'),
+        apiClient.get<{ targetPorsi?: number }[]>('/public/sppg/search?limit=1').catch(() => ({ data: [] })),
       ])
       setCheckpoints(cpRes.data ?? [])
       setDailyData({
-        targetPorsi: 100,
+        targetPorsi: (sppgRes.data[0] as any)?.targetPorsi ?? 0,
         menu: 'Nasi + Lauk Pauk',
         score: scoreRes.data?.score ?? 100,
       })
@@ -97,14 +98,14 @@ export default function PWALandingPage() {
 
   useEffect(() => { fetchData() }, [fetchData])
 
-  const allDone = checkpoints.length === 4 && checkpoints.every(c => c.cp_status === 'done')
+  const allDone = checkpoints.length === 4 && checkpoints.every(c => c.cpStatus === 'done')
   const nextCp = getNextPendingCp(checkpoints)
-  const windowOpen = nextCp ? isWindowOpen(nextCp.cp_type) : false
-  const countdown = nextCp ? getCountdownToWindow(nextCp.cp_type) : ''
+  const windowOpen = nextCp ? isWindowOpen(nextCp.cpType) : false
+  const countdown = nextCp ? getCountdownToWindow(nextCp.cpType) : ''
 
   const handleStart = () => {
     if (!nextCp) return
-    router.push(`/cp/${nextCp.cp_type}/context`)
+    router.push(`/cp/${nextCp.cpType}/context`)
   }
 
   if (loading) {
@@ -139,7 +140,7 @@ export default function PWALandingPage() {
         <div className="w-full space-y-4">
           <div className="bg-white rounded-xl border p-4 text-center">
             <p className="text-xs text-slate-400 uppercase tracking-wide mb-1">Tugas Berikutnya</p>
-            <p className="text-xl font-bold">{nextCp.cp_type} — {CP_LABELS[nextCp.cp_type]}</p>
+            <p className="text-xl font-bold">{nextCp.cpType} — {CP_LABELS[nextCp.cpType]}</p>
             {!windowOpen && countdown && (
               <p className="text-sm text-yellow-600 mt-2">⏰ Dimulai dalam {countdown}</p>
             )}
@@ -156,8 +157,8 @@ export default function PWALandingPage() {
 
           <div className="grid grid-cols-4 gap-2">
             {(['CP1','CP2','CP3','CP4'] as const).map(cpType => {
-              const cp = checkpoints.find(c => c.cp_type === cpType)
-              const status = cp?.cp_status ?? 'pending'
+              const cp = checkpoints.find(c => c.cpType === cpType)
+              const status = cp?.cpStatus ?? 'pending'
               return (
                 <div key={cpType} className={cn(
                   'rounded-lg border p-2 text-center text-xs',

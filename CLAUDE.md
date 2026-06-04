@@ -7,7 +7,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 pnpm + Turborepo monorepo. Workspaces are `apps/*` and `packages/*`. Node `>=20`, package manager `pnpm@10.4.1`.
 
 Apps:
-- `apps/api` — NestJS 11 + TypeORM (Postgres) backend. Port `3001`.
+- `apps/api` — NestJS 11 + TypeORM (Postgres) backend. Port `3333`.
 - `apps/web` — Next.js 16 (App Router, Turbopack) admin/portal SPA. Port `3000`.
 - `apps/pwa` — Next.js 16 PWA (`@ducanh2912/next-pwa`) for field/school users; uses camera + QR scanner.
 
@@ -81,7 +81,7 @@ Auth flow: JWT access token (15 min) + refresh token (7 days), both stored in **
 - App Router with route groups. The web portal segments by role: `apps/web/app/portal/(admin|vendor|supplier|shared)/...`. The PWA segments by user type: `apps/pwa/app/(sekolah|operasional|publik)/...`. Route groups don't appear in the URL — they're for layout/code organization.
 - Tailwind v4 — config lives in `packages/ui/src/styles/globals.css` (note the `.vscode/settings.json` pointing the Tailwind extension at it). Each Next app imports `@workspace/ui/globals.css`.
 - API calls go through `apps/web/lib/api-client.ts` (`api.get/post/...`) so they get the auth + refresh interceptors automatically. Don't `fetch` directly from components.
-- Frontend env: `NEXT_PUBLIC_API_URL` (defaults to `http://localhost:3001`).
+- Frontend env: `NEXT_PUBLIC_API_URL` (defaults to `http://localhost:3333`).
 
 ## Backend conventions
 

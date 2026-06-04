@@ -41,14 +41,9 @@ const NUTRI_STANDARDS = {
 }
 
 export default function MenuPlanningPage() {
-  const [menuName, setMenuName] = React.useState("Nasi Ayam Teriyaki & Tumis Sayur")
-  const [totalPortions, setTotalPortions] = React.useState(650)
-  const [ingredients, setIngredients] = React.useState([
-    { id: 1, name: "Beras", weight: 100 },
-    { id: 2, name: "Ayam", weight: 80 },
-    { id: 3, name: "Wortel", weight: 30 },
-    { id: 4, name: "Buncis", weight: 20 },
-    { id: 5, name: "Minyak", weight: 5 },
+  const [menuName, setMenuName] = React.useState("")
+  const [totalPortions, setTotalPortions] = React.useState(100)
+  const [ingredients, setIngredients] = React.useState<{ id: number; name: string; weight: number }[]>([
   ])
 
   const totals = React.useMemo(() => {
