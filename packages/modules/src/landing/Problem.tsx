@@ -12,25 +12,25 @@ export function Problem() {
     {
       title: "Rantai Pasok Mentah Segar",
       desc: "Supplier lokal mendistribusikan sayuran organik dan protein segar langsung dari kebun.",
-      image: "https://images.unsplash.com/photo-1592417817098-8f3d6eb19675?auto=format&fit=crop&w=600&q=80",
+      image: "/assets/picture/SupplierLokalMBG.jpeg",
       tag: "Supplier"
     },
     {
       title: "Sterilisasi & Dapur Higienis",
       desc: "Standardisasi dapur catering UMKM yang terjaga kebersihannya di setiap proses memasak.",
-      image: "https://images.unsplash.com/photo-1556910103-1c02745aae4d?auto=format&fit=crop&w=600&q=80",
+      image: "/assets/picture/DapurMBGHigenis.jpeg",
       tag: "Vendor"
     },
     {
       title: "Penyajian Bergizi di Sekolah",
       desc: "Siswa menikmati porsi makan siang dengan gizi seimbang yang terverifikasi kebersihannya.",
-      image: "https://images.unsplash.com/photo-1577896851231-70ef18881754?auto=format&fit=crop&w=600&q=80",
+      image: "/assets/picture/PenyajianBergiziMBG.jpeg",
       tag: "Sekolah"
     },
     {
       title: "Kepatuhan SOP Berkala",
       desc: "Koki dan staf dapur melakukan pemeriksaan kesehatan harian dengan foto bukti real-time.",
-      image: "https://images.unsplash.com/photo-1577219491135-ce391730fb2c?auto=format&fit=crop&w=600&q=80",
+      image: "/assets/picture/KepatuhanSOP.jpeg",
       tag: "Kepatuhan"
     }
   ];
