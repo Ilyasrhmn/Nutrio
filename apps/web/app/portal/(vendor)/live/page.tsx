@@ -6,11 +6,14 @@ import {
   Package, ChefHat, BoxSelect, Truck,
   CheckCircle2, TrendingDown, Wallet,
   RefreshCw, Loader2, Zap, ExternalLink,
-  Activity,
+  Activity, Navigation, Timer, Clock, Camera,
+  ShieldCheck, MapPin, Lock, AlertTriangle,
+  Info, Scan, School,
 } from "lucide-react"
 import { Button } from "@workspace/ui/components/button"
-import { Card, CardContent, CardHeader, CardTitle } from "@workspace/ui/components/card"
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@workspace/ui/components/card"
 import { Badge } from "@workspace/ui/components/badge"
+import { Alert } from "@workspace/ui/components/alert"
 import { cn } from "@workspace/ui/lib/utils"
 import { api } from "../../../../lib/api-client"
 
@@ -66,6 +69,9 @@ export default function LivePage() {
   const [checkpoints, setCheckpoints] = React.useState<Partial<Record<string, CpEvent>>>({})
   const [loading, setLoading] = React.useState(true)
   const [lastUpdated, setLastUpdated] = React.useState<Date | null>(null)
+  const [activeStep, setActiveStep] = React.useState(1)
+  const [isCP2Done, setIsCP2Done] = React.useState(false)
+  const [safetyTimeLeft, setSafetyTimeLeft] = React.useState(14400) // 4 hours in seconds
 
   const today = new Date().toISOString().split("T")[0]!
 

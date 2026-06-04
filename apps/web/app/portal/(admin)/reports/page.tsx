@@ -51,6 +51,27 @@ interface ReportStats {
 
 export default function AIReportsPage() {
   const [hoveredRow, setHoveredRow] = React.useState<number | null>(null);
+  const [q, setQ] = React.useState("")
+
+  const data: ReportStats = {
+    complianceRate: 87,
+    fraudPreventionRate: 94,
+    stats: {
+      highScore: 12,
+      midScore: 34,
+      lowScore: 8,
+      totalWithData: 54,
+      totalActive: 60,
+      cpDoneToday: 45,
+      cpTotalToday: 50,
+      cp3DoneToday: 38,
+    },
+    anomalies: [
+      { vendorId: "V001", vendorName: "PT Tani Makmur Sejahtera", score: 45, lastReason: "Foto makanan tidak sesuai standar gizi" },
+      { vendorId: "V002", vendorName: "CV Sumber Pangan Nusantara", score: 58, lastReason: "Porsi tidak konsisten dengan laporan harian" },
+      { vendorId: "V003", vendorName: "PT Maju Bersama Sentosa", score: 72, lastReason: "Rute pengiriman tidak normal, deviasi 35km" },
+    ],
+  }
 
   const complianceChartOptions: any = {
     chart: { type: 'radialBar', sparkline: { enabled: true } },
@@ -134,9 +155,11 @@ export default function AIReportsPage() {
             <div className="flex flex-col sm:flex-row gap-3">
               <div className="relative w-full sm:w-72">
                 <Search className="absolute left-4 top-1/2 -translate-y-1/2 size-4 text-violet-200" />
-                <Input 
-                  className="pl-11 bg-white/10 border-white/20 text-white placeholder:text-violet-200 rounded-2xl h-12 focus-visible:ring-white/30 font-medium shadow-inner" 
-                  placeholder="Cari ID laporan atau vendor..." 
+                <Input
+                  className="pl-11 bg-white/10 border-white/20 text-white placeholder:text-violet-200 rounded-2xl h-12 focus-visible:ring-white/30 font-medium shadow-inner"
+                  placeholder="Cari ID laporan atau vendor..."
+                  value={q}
+                  onChange={e => setQ(e.target.value)}
                 />
               </div>
               <Button className="h-12 px-6 bg-white text-violet-900 hover:bg-violet-50 shadow-lg shadow-black/10 font-bold rounded-2xl gap-2 transition-transform active:scale-95">
