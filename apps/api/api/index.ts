@@ -7,24 +7,37 @@ import type { Request, Response } from 'express';
 import { AppModule } from '../src/app.module';
 import { AllExceptionsFilter } from '../src/common/filters/all-exceptions.filter';
 
-const server = express();
-let initialized = false;
+const expressApp = express();
+let bootstrapPromise: Promise<void> | null = null;
+
+function applyCors(req: Request, res: Response) {
+  const rawOrigins = process.env['ALLOWED_ORIGINS'];
+  const reqOrigin = req.headers['origin'] as string | undefined;
+
+  if (rawOrigins) {
+    const allowed = rawOrigins.split(',').map((o) => o.trim());
+    res.setHeader('Access-Control-Allow-Origin', allowed.includes(reqOrigin ?? '') ? reqOrigin! : allowed[0]);
+  } else {
+    // No restriction configured — allow all
+    res.setHeader('Access-Control-Allow-Origin', reqOrigin ?? '*');
+  }
+
+  res.setHeader('Vary', 'Origin');
+  res.setHeader('Access-Control-Allow-Credentials', 'true');
+  res.setHeader('Access-Control-Allow-Methods', 'GET,HEAD,PUT,PATCH,POST,DELETE,OPTIONS');
+  res.setHeader('Access-Control-Allow-Headers', 'Content-Type,Authorization,X-Requested-With');
+  res.setHeader('Access-Control-Max-Age', '86400');
+}
 
 async function bootstrap() {
-  if (initialized) return;
-
-  const app = await NestFactory.create(AppModule, new ExpressAdapter(server), {
+  const app = await NestFactory.create(AppModule, new ExpressAdapter(expressApp), {
     logger: ['error', 'warn'],
   });
 
   const adapterHost = app.get(HttpAdapterHost);
   app.useGlobalFilters(new AllExceptionsFilter(adapterHost));
   app.useGlobalPipes(
-    new ValidationPipe({
-      whitelist: true,
-      forbidNonWhitelisted: true,
-      transform: true,
-    }),
+    new ValidationPipe({ whitelist: true, forbidNonWhitelisted: true, transform: true }),
   );
 
   const allowedOrigins = process.env['ALLOWED_ORIGINS']
@@ -35,13 +48,29 @@ async function bootstrap() {
     origin: allowedOrigins,
     credentials: true,
     methods: ['GET', 'HEAD', 'PUT', 'PATCH', 'POST', 'DELETE', 'OPTIONS'],
+    allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With'],
+    maxAge: 86400,
   });
 
   await app.init();
-  initialized = true;
 }
 
 export default async function handler(req: Request, res: Response) {
-  await bootstrap();
-  server(req, res);
+  // CORS headers are set FIRST — before any async work — so preflight never fails
+  applyCors(req, res);
+
+  if (req.method === 'OPTIONS') {
+    return res.status(204).end();
+  }
+
+  try {
+    if (!bootstrapPromise) {
+      bootstrapPromise = bootstrap();
+    }
+    await bootstrapPromise;
+    expressApp(req, res);
+  } catch (err) {
+    bootstrapPromise = null; // retry on next request
+    res.status(500).json({ error: 'Bootstrap failed', message: (err as Error).message });
+  }
 }

@@ -15,8 +15,19 @@ import MenuSeed from './seeds/menu.seed';
 import RoleMenuSeed from './seeds/role-menu.seed';
 import UserSeed from './seeds/user.seed';
 import DemoScenarioSeed from './seeds/demo-scenario.seed';
+import VendorLifecycleSeed from './seeds/vendor-lifecycle.seed';
+import DailyOpsSeed from './seeds/daily-ops.seed';
+import MarketplaceSupplierSeed from './seeds/marketplace-supplier.seed';
+import ComplianceSeed from './seeds/compliance.seed';
 
-// Urutan penting — FK dependencies
+// Urutan penting — FK dependencies:
+// 1. Access control (roles, permissions, menus)
+// 2. Users (semua role)
+// 3. DemoScenario — vendor1 record + SPPG location + supplier record
+// 4. VendorLifecycle — enrich vendor1, vendor2 + SOP template + vendor3-5
+// 5. DailyOps — score history, checkpoints, tokens, confirmations, debriefs
+// 6. MarketplaceSupplier — products, POs, marketplace listing
+// 7. Compliance — inspection, citizen reports, QR codes, alerts, notifications
 const SEEDERS = [
   RoleSeed,
   PermissionSeed,
@@ -25,6 +36,10 @@ const SEEDERS = [
   RoleMenuSeed,
   UserSeed,
   DemoScenarioSeed,
+  VendorLifecycleSeed,
+  DailyOpsSeed,
+  MarketplaceSupplierSeed,
+  ComplianceSeed,
 ];
 
 async function main() {
