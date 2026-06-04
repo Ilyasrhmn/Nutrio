@@ -1,24 +1,23 @@
-import 'reflect-metadata';
-import { NestFactory, HttpAdapterHost } from '@nestjs/core';
-import { ExpressAdapter } from '@nestjs/platform-express';
-import { ValidationPipe } from '@nestjs/common';
+// Only express is imported statically. ALL NestJS/AppModule imports are dynamic
+// inside bootstrap() so any module-level crash (e.g. missing DATABASE_URL) is
+// caught by the try/catch AFTER CORS headers have already been sent.
 import express from 'express';
 import type { Request, Response } from 'express';
-import { AppModule } from '../src/app.module';
-import { AllExceptionsFilter } from '../src/common/filters/all-exceptions.filter';
 
 const expressApp = express();
 let bootstrapPromise: Promise<void> | null = null;
 
-function applyCors(req: Request, res: Response) {
+function applyCors(req: Request, res: Response): void {
   const rawOrigins = process.env['ALLOWED_ORIGINS'];
   const reqOrigin = req.headers['origin'] as string | undefined;
 
   if (rawOrigins) {
     const allowed = rawOrigins.split(',').map((o) => o.trim());
-    res.setHeader('Access-Control-Allow-Origin', allowed.includes(reqOrigin ?? '') ? reqOrigin! : allowed[0]);
+    res.setHeader(
+      'Access-Control-Allow-Origin',
+      allowed.includes(reqOrigin ?? '') ? reqOrigin! : allowed[0],
+    );
   } else {
-    // No restriction configured — allow all
     res.setHeader('Access-Control-Allow-Origin', reqOrigin ?? '*');
   }
 
@@ -29,7 +28,15 @@ function applyCors(req: Request, res: Response) {
   res.setHeader('Access-Control-Max-Age', '86400');
 }
 
-async function bootstrap() {
+async function bootstrap(): Promise<void> {
+  // Dynamic imports — any crash here is caught by handler's try/catch,
+  // which runs only after applyCors() has already set the response headers.
+  const { NestFactory, HttpAdapterHost } = await import('@nestjs/core');
+  const { ExpressAdapter } = await import('@nestjs/platform-express');
+  const { ValidationPipe } = await import('@nestjs/common');
+  const { AppModule } = await import('../src/app.module');
+  const { AllExceptionsFilter } = await import('../src/common/filters/all-exceptions.filter');
+
   const app = await NestFactory.create(AppModule, new ExpressAdapter(expressApp), {
     logger: ['error', 'warn'],
   });
@@ -55,12 +62,14 @@ async function bootstrap() {
   await app.init();
 }
 
-export default async function handler(req: Request, res: Response) {
-  // CORS headers are set FIRST — before any async work — so preflight never fails
+export default async function handler(req: Request, res: Response): Promise<void> {
+  // applyCors() is synchronous and runs before ANY await — guaranteed to execute
+  // even if bootstrap() later throws, so preflight OPTIONS always gets 204.
   applyCors(req, res);
 
   if (req.method === 'OPTIONS') {
-    return res.status(204).end();
+    res.status(204).end();
+    return;
   }
 
   try {
@@ -70,7 +79,7 @@ export default async function handler(req: Request, res: Response) {
     await bootstrapPromise;
     expressApp(req, res);
   } catch (err) {
-    bootstrapPromise = null; // retry on next request
+    bootstrapPromise = null;
     res.status(500).json({ error: 'Bootstrap failed', message: (err as Error).message });
   }
 }
