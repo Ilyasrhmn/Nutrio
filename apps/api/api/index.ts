@@ -3,6 +3,8 @@
 // caught by the try/catch AFTER CORS headers have already been sent.
 import express from 'express';
 import type { Request, Response } from 'express';
+import { AppModule } from '../src/app.module';
+import { AllExceptionsFilter } from '../src/common/filters/all-exceptions.filter';
 
 const expressApp = express();
 let bootstrapPromise: Promise<void> | null = null;
@@ -13,10 +15,9 @@ function applyCors(req: Request, res: Response): void {
 
   if (rawOrigins) {
     const allowed = rawOrigins.split(',').map((o) => o.trim());
-    res.setHeader(
-      'Access-Control-Allow-Origin',
-      allowed.includes(reqOrigin ?? '') ? reqOrigin! : allowed[0],
-    );
+    if (reqOrigin && allowed.includes(reqOrigin)) {
+      res.setHeader('Access-Control-Allow-Origin', reqOrigin);
+    }
   } else {
     res.setHeader('Access-Control-Allow-Origin', reqOrigin ?? '*');
   }
@@ -34,8 +35,6 @@ async function bootstrap(): Promise<void> {
   const { NestFactory, HttpAdapterHost } = await import('@nestjs/core');
   const { ExpressAdapter } = await import('@nestjs/platform-express');
   const { ValidationPipe } = await import('@nestjs/common');
-  const { AppModule } = await import('../src/app.module');
-  const { AllExceptionsFilter } = await import('../src/common/filters/all-exceptions.filter');
 
   const app = await NestFactory.create(AppModule, new ExpressAdapter(expressApp), {
     logger: ['error', 'warn'],
