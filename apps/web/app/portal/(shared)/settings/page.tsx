@@ -2,297 +2,276 @@
 
 import * as React from "react"
 import { 
-  User, 
-  Shield, 
-  Bell, 
-  Key, 
-  LogOut, 
-  Smartphone, 
-  MessageSquare, 
-  Laptop, 
-  CheckCircle2, 
-  XCircle, 
-  Clock, 
-  Search,
-  Lock,
-  ChevronRight,
-  MoreVertical
+  User,
+  Bell,
+  Key,
+  Shield,
+  Smartphone,
+  Mail,
+  Save,
+  Copy,
+  CheckCircle2,
+  AlertTriangle,
+  LogOut,
+  RefreshCw,
+  Camera,
+  Settings
 } from "lucide-react"
 
 import { Button } from "@workspace/ui/components/button"
 import { Input } from "@workspace/ui/components/input"
-import { Badge } from "@workspace/ui/components/badge"
-import { Avatar, AvatarFallback, AvatarImage } from "@workspace/ui/components/avatar"
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@workspace/ui/components/card"
-import { 
-  Tabs, 
-  TabsContent, 
-  TabsList, 
-  TabsTrigger 
-} from "@workspace/ui/components/tabs"
+import { Avatar, AvatarFallback, AvatarImage } from "@workspace/ui/components/avatar"
 import { cn } from "@workspace/ui/lib/utils"
 
 export default function SettingsPage() {
-  const [mounted, setMounted] = React.useState(false)
+  const [activeTab, setActiveTab] = React.useState("profile");
+  const [copied, setCopied] = React.useState(false);
 
-  React.useEffect(() => {
-    setMounted(true)
-  }, [])
-
-  if (!mounted) return null
+  const copyApiKey = () => {
+    navigator.clipboard.writeText("mbg_live_938472938472938472938472");
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
+  }
 
   return (
-    <div className="p-8 space-y-8 bg-background">
-      {/* Top Header */}
-      <div className="flex items-center justify-between">
+    <div className="p-8 max-w-7xl mx-auto bg-background min-h-[calc(100vh-64px)]">
+      
+      {/* Simple Header */}
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-border pb-6 mb-8">
         <div className="space-y-1">
-          <h2 className="text-2xl font-bold text-foreground tracking-tight">Profil & Pengaturan</h2>
-          <p className="text-muted-foreground text-sm font-medium">Kelola preferensi akun dan protokol keamanan sistem MBG.</p>
+          <h2 className="text-2xl font-bold text-foreground flex items-center gap-2">
+            <Settings className="size-6 text-muted-foreground" /> Pengaturan Akun
+          </h2>
+          <p className="text-muted-foreground text-sm">
+            Kelola informasi profil, preferensi notifikasi, dan kredensial API Anda.
+          </p>
         </div>
-        <div className="flex items-center gap-4">
-          <div className="relative w-64">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 size-4 text-muted-foreground" />
-            <Input className="pl-10 h-10 bg-card border-border rounded-lg" placeholder="Cari pengaturan..." />
-          </div>
-          <Button variant="outline" size="icon" className="rounded-full bg-card border-border relative">
-            <Bell className="size-4 text-muted-foreground" />
-            <span className="absolute top-2 right-2.5 size-2 bg-destructive rounded-full border-2 border-card"></span>
-          </Button>
-        </div>
+        <Button className="bg-primary text-primary-foreground font-bold gap-2">
+          <Save className="size-4" />
+          Simpan Perubahan
+        </Button>
       </div>
 
-      {/* Profile Header Card */}
-      <Card className="bg-card border-border shadow-sm overflow-hidden">
-        <CardContent className="p-0">
-          <div className="h-24 bg-gradient-to-r from-primary/20 via-primary/10 to-background border-b border-border/50" />
-          <div className="px-8 pb-8 flex flex-col md:flex-row md:items-end justify-between gap-6 -mt-10">
-            <div className="flex flex-col md:flex-row md:items-end gap-6">
-              <Avatar className="size-24 border-4 border-card shadow-xl ring-1 ring-border">
-                <AvatarImage src="" />
-                <AvatarFallback className="bg-primary/10 text-primary text-2xl font-black">BS</AvatarFallback>
-              </Avatar>
-              <div className="space-y-1 md:pb-2">
-                <h3 className="text-2xl font-black text-foreground">Budi Santoso</h3>
-                <div className="flex flex-wrap items-center gap-3">
-                  <p className="text-sm font-bold text-muted-foreground">Auditor Utama - Satgas MBG</p>
-                  <div className="size-1 rounded-full bg-slate-300" />
-                  <p className="text-[11px] font-bold text-slate-500 uppercase tracking-widest bg-muted px-2 py-0.5 rounded">NIP: 198802142010121001</p>
+      {/* 2-Column Layout for Settings */}
+      <div className="flex flex-col md:flex-row gap-8 lg:gap-12 items-start">
+        
+        {/* Left Sidebar Menu */}
+        <div className="w-full md:w-64 shrink-0 flex flex-col gap-1 sticky top-24">
+          <button 
+            onClick={() => setActiveTab("profile")}
+            className={cn(
+              "flex items-center gap-3 px-4 py-3 text-sm font-medium rounded-lg transition-colors text-left",
+              activeTab === "profile" 
+                ? "bg-primary/10 text-primary font-bold" 
+                : "text-muted-foreground hover:bg-muted hover:text-foreground"
+            )}
+          >
+            <User className="size-4 shrink-0" />
+            Profil Pengguna
+          </button>
+          
+          <button 
+            onClick={() => setActiveTab("notifications")}
+            className={cn(
+              "flex items-center gap-3 px-4 py-3 text-sm font-medium rounded-lg transition-colors text-left",
+              activeTab === "notifications" 
+                ? "bg-primary/10 text-primary font-bold" 
+                : "text-muted-foreground hover:bg-muted hover:text-foreground"
+            )}
+          >
+            <Bell className="size-4 shrink-0" />
+            Preferensi Notifikasi
+          </button>
+          
+          <button 
+            onClick={() => setActiveTab("api")}
+            className={cn(
+              "flex items-center gap-3 px-4 py-3 text-sm font-medium rounded-lg transition-colors text-left",
+              activeTab === "api" 
+                ? "bg-primary/10 text-primary font-bold" 
+                : "text-muted-foreground hover:bg-muted hover:text-foreground"
+            )}
+          >
+            <Key className="size-4 shrink-0" />
+            Akses API & Webhook
+          </button>
+        </div>
+
+        {/* Right Content Area */}
+        <div className="flex-1 min-w-0">
+          
+          {/* TAB: PROFIL */}
+          {activeTab === "profile" && (
+            <div className="space-y-8 animate-in fade-in duration-300">
+              <div className="space-y-1">
+                <h3 className="text-xl font-bold text-foreground">Informasi Pribadi</h3>
+                <p className="text-sm text-muted-foreground">Perbarui foto dan detail kontak administratif Anda.</p>
+              </div>
+
+              {/* Avatar Edit */}
+              <div className="flex flex-col sm:flex-row items-center gap-6 p-6 border border-border rounded-xl bg-card shadow-sm">
+                <Avatar className="size-20">
+                  <AvatarImage src="" />
+                  <AvatarFallback className="bg-primary/10 text-primary text-xl font-bold">
+                    AD
+                  </AvatarFallback>
+                </Avatar>
+                <div className="space-y-2 text-center sm:text-left flex-1">
+                  <h3 className="text-base font-bold text-foreground">Administrator BGN Pusat</h3>
+                  <p className="text-sm text-muted-foreground">admin_bgn@nutrio.go.id</p>
+                  <div className="flex gap-3 justify-center sm:justify-start pt-2">
+                    <Button variant="outline" size="sm" className="h-9 font-medium">Ubah Foto</Button>
+                    <Button variant="ghost" size="sm" className="h-9 font-medium text-destructive hover:text-destructive hover:bg-destructive/10">Hapus Gambar</Button>
+                  </div>
                 </div>
-                <div className="flex items-center gap-4 mt-2">
-                   <div className="flex items-center gap-1.5 text-[11px] font-medium text-slate-500">
-                     <Shield className="size-3 text-primary" />
-                     Badan Gizi Nasional
-                   </div>
-                   <div className="flex items-center gap-1.5 text-[11px] font-medium text-slate-500">
-                     <Clock className="size-3" />
-                     Login Terakhir: Hari ini, 08:00 WIB
-                   </div>
+              </div>
+
+              {/* Form Fields */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-6">
+                <div className="space-y-2">
+                  <label className="text-sm font-semibold text-foreground">Nama Lengkap</label>
+                  <Input defaultValue="Administrator BGN Pusat" className="bg-background h-11" />
+                </div>
+                <div className="space-y-2">
+                  <label className="text-sm font-semibold text-foreground">NIP / ID Pegawai</label>
+                  <Input defaultValue="198203112009121002" className="bg-background h-11" />
+                </div>
+                <div className="space-y-2">
+                  <label className="text-sm font-semibold text-foreground">Email Instansi</label>
+                  <Input defaultValue="admin_bgn@nutrio.go.id" className="bg-background h-11" />
+                </div>
+                <div className="space-y-2">
+                  <label className="text-sm font-semibold text-foreground">Nomor Telepon</label>
+                  <Input defaultValue="+62 812 3456 7890" className="bg-background h-11" />
+                </div>
+              </div>
+
+              <div className="pt-6 border-t border-border mt-8">
+                <div className="flex flex-col sm:flex-row items-center justify-between gap-4 p-6 border border-destructive/20 bg-destructive/5 rounded-xl">
+                  <div className="space-y-1">
+                    <h3 className="text-base font-bold text-foreground flex items-center gap-2">
+                      <Shield className="size-4 text-destructive" /> Keamanan Akun
+                    </h3>
+                    <p className="text-sm text-muted-foreground">Ubah kata sandi atau aktifkan autentikasi dua faktor (2FA) untuk mengamankan akun.</p>
+                  </div>
+                  <Button variant="outline" className="w-full sm:w-auto h-10 border-destructive/30 text-destructive hover:bg-destructive/10">
+                    Atur Keamanan
+                  </Button>
                 </div>
               </div>
             </div>
-            <div className="md:pb-2 flex items-center gap-3">
-              <Badge className="bg-emerald-50 text-emerald-600 border-emerald-100 font-bold px-3 py-1">Status Aktif</Badge>
-              <Button size="icon" variant="ghost" className="rounded-full border border-border">
-                <MoreVertical className="size-4" />
-              </Button>
-            </div>
-          </div>
-        </CardContent>
-      </Card>
+          )}
 
-      {/* Main Tabs */}
-      <Tabs defaultValue="keamanan" className="w-full">
-        <TabsList>
-          <TabsTrigger value="profil">Profil</TabsTrigger>
-          <TabsTrigger value="keamanan">Keamanan</TabsTrigger>
-          <TabsTrigger value="notifikasi">Notifikasi</TabsTrigger>
-          <TabsTrigger value="akses-api">Akses API</TabsTrigger>
-        </TabsList>
+          {/* TAB: NOTIFIKASI */}
+          {activeTab === "notifications" && (
+            <div className="space-y-8 animate-in fade-in duration-300">
+              <div className="space-y-1">
+                <h3 className="text-xl font-bold text-foreground">Preferensi Notifikasi</h3>
+                <p className="text-sm text-muted-foreground">Pilih jenis pemberitahuan dan saluran notifikasi yang ingin Anda terima.</p>
+              </div>
 
-        <TabsContent value="keamanan" className="mt-8">
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-            {/* Left Column - Security Settings */}
-            <div className="lg:col-span-2 space-y-8">
-              {/* 2FA Card */}
-              <Card className="bg-card border-border shadow-sm">
-                <CardHeader className="flex flex-row items-center justify-between pb-6 border-b border-border/50">
-                  <div className="space-y-1">
-                    <div className="flex items-center gap-2">
-                      <Lock className="size-4 text-primary" />
-                      <CardTitle className="text-lg font-bold">Autentikasi Dua Langkah (2FA)</CardTitle>
-                    </div>
-                    <CardDescription className="text-muted-foreground font-medium">Lindungi akun Anda dengan lapisan keamanan tambahan.</CardDescription>
+              <div className="border border-border rounded-xl divide-y divide-border bg-card shadow-sm">
+                <div className="p-6 flex items-start justify-between gap-4">
+                  <div className="space-y-1 flex-1">
+                    <h4 className="text-base font-bold text-foreground flex items-center gap-2">
+                      <AlertTriangle className="size-4 text-destructive" /> Peringatan Fraud (Kritis)
+                    </h4>
+                    <p className="text-sm text-muted-foreground leading-relaxed">Pemberitahuan instan saat sistem mendeteksi anomali gizi tingkat tinggi atau indikasi kecurangan vendor.</p>
                   </div>
-                  <Badge className="bg-emerald-50 text-emerald-600 border-emerald-100 font-bold">AKTIF</Badge>
-                </CardHeader>
-                <CardContent className="p-0">
-                  <div className="divide-y divide-border/50">
-                    <div className="p-6 flex items-center justify-between hover:bg-muted/5 transition-colors">
-                      <div className="flex items-center gap-4">
-                        <div className="size-10 bg-slate-100 rounded-xl flex items-center justify-center text-slate-600">
-                          <Key className="size-5" />
-                        </div>
-                        <div>
-                          <p className="text-sm font-bold text-foreground">Aplikasi Authenticator</p>
-                          <p className="text-xs text-muted-foreground">Gunakan Google Authenticator atau Authy.</p>
-                        </div>
-                      </div>
-                      <Button variant="outline" size="sm" className="h-8 text-[11px] font-bold uppercase tracking-wider rounded-full px-4">Konfigurasi</Button>
-                    </div>
-
-                    <div className="p-6 flex items-center justify-between hover:bg-muted/5 transition-colors">
-                      <div className="flex items-center gap-4">
-                        <div className="size-10 bg-slate-100 rounded-xl flex items-center justify-center text-slate-600">
-                          <MessageSquare className="size-5" />
-                        </div>
-                        <div>
-                          <p className="text-sm font-bold text-foreground">Verifikasi WhatsApp / SMS</p>
-                          <p className="text-xs text-muted-foreground">Kode dikirimkan ke +62 812-****-4402</p>
-                        </div>
-                      </div>
-                      <Button variant="outline" size="sm" className="h-8 text-[11px] font-bold uppercase tracking-wider rounded-full px-4">Edit</Button>
-                    </div>
-
-                    <div className="p-6 flex items-center justify-between hover:bg-muted/5 transition-colors">
-                      <div className="flex items-center gap-4">
-                        <div className="size-10 bg-slate-100 rounded-xl flex items-center justify-center text-slate-600">
-                          <Smartphone className="size-5" />
-                        </div>
-                        <div>
-                          <p className="text-sm font-bold text-foreground">Kunci Perangkat Keras</p>
-                          <p className="text-xs text-muted-foreground">Gunakan kunci fisik Yubikey atau sejenisnya.</p>
-                        </div>
-                      </div>
-                      <Button variant="outline" size="sm" className="h-8 text-[11px] font-bold uppercase tracking-wider rounded-full px-4">Tambah</Button>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-
-              {/* Active Sessions Card */}
-              <Card className="bg-card border-border shadow-sm">
-                <CardHeader className="flex flex-row items-center justify-between pb-6 border-b border-border/50">
-                  <CardTitle className="text-lg font-bold">Sesi Perangkat Aktif</CardTitle>
-                  <Button variant="ghost" size="sm" className="text-destructive hover:bg-destructive/5 font-bold text-xs">Keluarkan Semua Perangkat</Button>
-                </CardHeader>
-                <CardContent className="p-0">
-                  <div className="divide-y divide-border/50">
-                    <div className="p-6 flex items-center justify-between">
-                      <div className="flex items-center gap-4">
-                        <div className="size-10 bg-emerald-50 rounded-xl flex items-center justify-center text-emerald-600">
-                          <Laptop className="size-5" />
-                        </div>
-                        <div>
-                          <div className="flex items-center gap-2">
-                            <p className="text-sm font-bold text-foreground">Windows PC - Chrome</p>
-                            <Badge className="bg-emerald-50 text-emerald-600 border-emerald-100 text-[9px] font-black h-4 px-1">SEDANG AKTIF</Badge>
-                          </div>
-                          <p className="text-xs text-muted-foreground">Jakarta, Indonesia • IP: 182.1.22.91</p>
-                        </div>
-                      </div>
-                      <Button variant="ghost" size="icon" className="text-muted-foreground">
-                        <ChevronRight className="size-4" />
-                      </Button>
-                    </div>
-
-                    <div className="p-6 flex items-center justify-between opacity-70">
-                      <div className="flex items-center gap-4">
-                        <div className="size-10 bg-slate-100 rounded-xl flex items-center justify-center text-slate-600">
-                          <Smartphone className="size-5" />
-                        </div>
-                        <div>
-                          <p className="text-sm font-bold text-foreground">MacBook Pro - Safari</p>
-                          <p className="text-xs text-muted-foreground">Jakarta, Indonesia • 2 jam lalu</p>
-                        </div>
-                      </div>
-                      <Button variant="ghost" size="icon" className="text-muted-foreground">
-                        <ChevronRight className="size-4" />
-                      </Button>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-            </div>
-
-            {/* Right Column - Sidebar Settings */}
-            <div className="space-y-8">
-              {/* Permissions Card */}
-              <Card className="bg-primary text-primary-foreground shadow-xl border-0 overflow-hidden relative group">
-                <div className="absolute top-0 right-0 p-4 opacity-10 group-hover:rotate-12 transition-transform">
-                  <Shield className="size-24" />
+                  <label className="relative inline-flex items-center cursor-pointer shrink-0 mt-1">
+                    <input type="checkbox" defaultChecked className="sr-only peer" />
+                    <div className="w-11 h-6 bg-slate-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary"></div>
+                  </label>
                 </div>
-                <CardHeader>
-                  <CardTitle className="text-lg font-bold">Hak Akses Sistem</CardTitle>
-                  <div className="mt-2 py-1 px-3 bg-white/20 backdrop-blur-md rounded-lg inline-block">
-                    <p className="text-[10px] font-black uppercase tracking-widest">Administrator Tingkat 4</p>
+                
+                <div className="p-6 flex items-start justify-between gap-4">
+                  <div className="space-y-1 flex-1">
+                    <h4 className="text-base font-bold text-foreground flex items-center gap-2">
+                      <Smartphone className="size-4 text-blue-500" /> Push Notification Mobile
+                    </h4>
+                    <p className="text-sm text-muted-foreground leading-relaxed">Terima notifikasi langsung ke perangkat mobile melalui aplikasi resmi BGN untuk update mendesak.</p>
                   </div>
-                </CardHeader>
-                <CardContent className="space-y-4 pt-4">
-                  <div className="space-y-3">
-                    <div className="flex items-center gap-3">
-                      <CheckCircle2 className="size-4 text-emerald-300" />
-                      <span className="text-xs font-bold">Verifikasi Mutu Gizi</span>
-                    </div>
-                    <div className="flex items-center gap-3">
-                      <CheckCircle2 className="size-4 text-emerald-300" />
-                      <span className="text-xs font-bold">Akses Buku Besar Blockchain</span>
-                    </div>
-                    <div className="flex items-center gap-3">
-                      <CheckCircle2 className="size-4 text-emerald-300" />
-                      <span className="text-xs font-bold">Blokir Vendor Nakal</span>
-                    </div>
-                    <div className="flex items-center gap-3 opacity-50">
-                      <XCircle className="size-4 text-red-300" />
-                      <span className="text-xs font-bold line-through">Akses Root Sistem</span>
-                    </div>
+                  <label className="relative inline-flex items-center cursor-pointer shrink-0 mt-1">
+                    <input type="checkbox" defaultChecked className="sr-only peer" />
+                    <div className="w-11 h-6 bg-slate-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary"></div>
+                  </label>
+                </div>
+
+                <div className="p-6 flex items-start justify-between gap-4">
+                  <div className="space-y-1 flex-1">
+                    <h4 className="text-base font-bold text-foreground flex items-center gap-2">
+                      <Mail className="size-4 text-muted-foreground" /> Rekap Laporan Harian (Email)
+                    </h4>
+                    <p className="text-sm text-muted-foreground leading-relaxed">Kirim ringkasan eksekutif harian mengenai status penyerapan anggaran dan logistik setiap sore.</p>
                   </div>
-                  <Button className="w-full bg-white text-primary hover:bg-white/90 font-black text-[10px] uppercase tracking-widest mt-4">
-                    Lihat Dokumen Kebijakan
-                  </Button>
-                </CardContent>
-              </Card>
+                  <label className="relative inline-flex items-center cursor-pointer shrink-0 mt-1">
+                    <input type="checkbox" className="sr-only peer" />
+                    <div className="w-11 h-6 bg-slate-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary"></div>
+                  </label>
+                </div>
+              </div>
+            </div>
+          )}
 
-              {/* Security Logs Card */}
-              <Card className="bg-card border-border shadow-sm">
-                <CardHeader className="pb-4">
-                  <CardTitle className="text-base font-bold">Log Keamanan Terakhir</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <div className="space-y-6 relative before:absolute before:inset-0 before:left-2 before:border-l before:border-border before:border-dashed">
-                    <div className="relative pl-8">
-                      <div className="absolute left-0 top-1 size-4 bg-primary/10 rounded-full border-2 border-primary flex items-center justify-center z-10">
-                        <div className="size-1.5 bg-primary rounded-full" />
-                      </div>
-                      <p className="text-[11px] font-bold text-foreground">Kata Sandi Diubah</p>
-                      <p className="text-[10px] text-muted-foreground">Oleh sistem keamanan • 2 hari lalu</p>
-                    </div>
+          {/* TAB: AKSES API */}
+          {activeTab === "api" && (
+            <div className="space-y-8 animate-in fade-in duration-300">
+              <div className="space-y-1">
+                <h3 className="text-xl font-bold text-foreground">API & Webhooks</h3>
+                <p className="text-sm text-muted-foreground">Kelola API Keys dan konfigurasi Webhook untuk integrasi dengan sistem kementerian/lembaga lain.</p>
+              </div>
 
-                    <div className="relative pl-8">
-                      <div className="absolute left-0 top-1 size-4 bg-primary/10 rounded-full border-2 border-primary flex items-center justify-center z-10">
-                        <div className="size-1.5 bg-primary rounded-full" />
-                      </div>
-                      <p className="text-[11px] font-bold text-foreground">Perangkat Baru Terverifikasi</p>
-                      <p className="text-[10px] text-muted-foreground">Chrome via Windows • 5 hari lalu</p>
+              <div className="space-y-6">
+                <div className="p-6 border border-border rounded-xl bg-card shadow-sm space-y-6">
+                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+                    <div className="space-y-1">
+                      <h3 className="text-base font-bold text-foreground">Production API Key</h3>
+                      <p className="text-sm text-muted-foreground">Kunci utama untuk akses endpoint <code className="bg-muted px-1.5 py-0.5 rounded">/api/v1</code>.</p>
                     </div>
-
-                    <div className="relative pl-8">
-                      <div className="absolute left-0 top-1 size-4 bg-destructive/10 rounded-full border-2 border-destructive flex items-center justify-center z-10">
-                        <div className="size-1.5 bg-destructive rounded-full" />
-                      </div>
-                      <p className="text-[11px] font-bold text-destructive">Percobaan Login Gagal</p>
-                      <p className="text-[10px] text-muted-foreground">IP: 192.168.1.10 • 1 minggu lalu</p>
-                    </div>
+                    <span className="bg-emerald-100 text-emerald-700 px-2.5 py-1 rounded text-[11px] font-bold uppercase tracking-wider w-fit">Active</span>
                   </div>
                   
-                  <Button variant="link" className="w-full mt-6 h-auto p-0 text-[10px] font-bold uppercase tracking-widest text-primary">
-                    Lihat Semua Aktivitas
+                  <div className="flex flex-col sm:flex-row items-center gap-3">
+                    <div className="relative flex-1 w-full">
+                      <Input 
+                        readOnly 
+                        value="mbg_live_938472938472938472938472" 
+                        className="font-mono text-sm pr-12 bg-muted/50 h-11" 
+                      />
+                      <Button 
+                        variant="ghost" 
+                        size="icon"
+                        onClick={copyApiKey}
+                        className="absolute right-1 top-1/2 -translate-y-1/2 size-9 hover:bg-background"
+                      >
+                        {copied ? <CheckCircle2 className="size-4 text-emerald-600" /> : <Copy className="size-4 text-muted-foreground" />}
+                      </Button>
+                    </div>
+                    <Button variant="outline" className="w-full sm:w-auto gap-2 h-11 font-medium">
+                      <RefreshCw className="size-4" /> Rotate Key
+                    </Button>
+                  </div>
+                </div>
+
+                <div className="p-8 border border-border border-dashed rounded-xl bg-muted/30 flex flex-col items-center justify-center text-center space-y-4">
+                  <div className="size-14 bg-background rounded-full shadow-sm border border-border flex items-center justify-center">
+                    <Key className="size-6 text-muted-foreground" />
+                  </div>
+                  <div className="space-y-1">
+                    <p className="text-base font-bold text-foreground">Belum ada Webhook Aktif</p>
+                    <p className="text-sm text-muted-foreground max-w-sm mx-auto">Tambahkan Webhook untuk menerima event real-time seperti validasi pencairan dana otomatis.</p>
+                  </div>
+                  <Button variant="default" className="mt-2">
+                    Buat Endpoint Webhook
                   </Button>
-                </CardContent>
-              </Card>
+                </div>
+              </div>
             </div>
-          </div>
-        </TabsContent>
-      </Tabs>
+          )}
+
+        </div>
+      </div>
     </div>
   )
 }
