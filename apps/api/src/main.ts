@@ -15,7 +15,15 @@ async function bootstrap() {
     transform: true,
   }));
 
-  app.enableCors();
+  const allowedOrigins = process.env['ALLOWED_ORIGINS']
+    ? process.env['ALLOWED_ORIGINS'].split(',').map((o) => o.trim())
+    : true; // true = allow all, safe for local dev; override with ALLOWED_ORIGINS in production
+
+  app.enableCors({
+    origin: allowedOrigins,
+    credentials: true,
+    methods: ['GET', 'HEAD', 'PUT', 'PATCH', 'POST', 'DELETE', 'OPTIONS'],
+  });
 
   await app.listen(port);
 

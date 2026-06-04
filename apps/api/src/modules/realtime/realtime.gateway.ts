@@ -12,7 +12,7 @@ import { Server, Socket } from 'socket.io';
 import { RealtimeService } from './realtime.service';
 
 // Vendor/staff WebSocket namespace
-@WebSocketGateway({ namespace: '/ops', cors: { origin: '*', credentials: true } })
+@WebSocketGateway({ namespace: '/ops', cors: { origin: process.env['ALLOWED_ORIGINS'] ? process.env['ALLOWED_ORIGINS'].split(',').map((o) => o.trim()) : true } })
 export class OpsGateway implements OnGatewayInit, OnGatewayConnection, OnGatewayDisconnect {
   private readonly logger = new Logger(OpsGateway.name);
 
@@ -74,7 +74,7 @@ export class OpsGateway implements OnGatewayInit, OnGatewayConnection, OnGateway
 }
 
 // BGN admin WebSocket namespace
-@WebSocketGateway({ namespace: '/bgn', cors: { origin: '*', credentials: true } })
+@WebSocketGateway({ namespace: '/bgn', cors: { origin: process.env['ALLOWED_ORIGINS'] ? process.env['ALLOWED_ORIGINS'].split(',').map((o) => o.trim()) : true } })
 export class BgnGateway implements OnGatewayInit, OnGatewayConnection, OnGatewayDisconnect {
   private readonly logger = new Logger(BgnGateway.name);
 
