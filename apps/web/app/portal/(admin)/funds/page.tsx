@@ -145,7 +145,7 @@ export default function FundTrackingPage() {
         
         {/* Metric Cards Grid */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          <Card className="rounded-[24px] border-none shadow-xl shadow-slate-200/50 hover:-translate-y-1 transition-transform duration-300 overflow-hidden group bg-white">
+          <Card className="relative rounded-[24px] border-none shadow-xl shadow-slate-200/50 hover:-translate-y-1 transition-transform duration-300 overflow-hidden group bg-white">
             <div className="absolute top-0 right-0 p-6 opacity-[0.02] group-hover:scale-110 transition-transform duration-500 pointer-events-none">
               <Landmark className="size-32" />
             </div>
@@ -165,7 +165,7 @@ export default function FundTrackingPage() {
             </CardContent>
           </Card>
 
-          <Card className="rounded-[24px] border-none shadow-xl shadow-slate-200/50 hover:-translate-y-1 transition-transform duration-300 overflow-hidden group bg-white">
+          <Card className="relative rounded-[24px] border-none shadow-xl shadow-slate-200/50 hover:-translate-y-1 transition-transform duration-300 overflow-hidden group bg-white">
              <div className="absolute top-0 right-0 p-6 opacity-[0.02] group-hover:scale-110 transition-transform duration-500 pointer-events-none">
               <TrendingUp className="size-32" />
             </div>
@@ -189,7 +189,7 @@ export default function FundTrackingPage() {
             </CardContent>
           </Card>
 
-          <Card className="rounded-[24px] border-none shadow-xl shadow-slate-200/50 hover:-translate-y-1 transition-transform duration-300 overflow-hidden group bg-white">
+          <Card className="relative rounded-[24px] border-none shadow-xl shadow-slate-200/50 hover:-translate-y-1 transition-transform duration-300 overflow-hidden group bg-white">
             <div className="absolute top-0 right-0 p-6 opacity-[0.02] group-hover:scale-110 transition-transform duration-500 pointer-events-none">
               <RefreshCw className="size-32" />
             </div>
