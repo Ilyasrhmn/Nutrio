@@ -63,312 +63,289 @@ const CP_META: Record<CpKey, { label: string; Icon: React.ElementType; hint: str
 const CP_ORDER: CpKey[] = ["CP1", "CP2", "CP3", "CP4"]
 
 export default function CheckpointsPage() {
-  const { toast } = useToast()
-  const [cpMap, setCpMap] = React.useState<Partial<Record<CpKey, CpEvent>>>({})
-  const [loading, setLoading] = React.useState(true)
-  const [submitting, setSubmitting] = React.useState<CpKey | null>(null)
-  const [selectedFiles, setSelectedFiles] = React.useState<Partial<Record<CpKey, File>>>({})
-  const [previews, setPreviews] = React.useState<Partial<Record<CpKey, string>>>({})
-  const fileRefs = React.useRef<Partial<Record<CpKey, HTMLInputElement | null>>>({})
+  const [dailyScore] = React.useState(95);
+  const [streakDays] = React.useState(4);
 
-  const today = new Date().toISOString().split("T")[0]!
+  const isKritis = dailyScore < 75;
 
-  const fetchCheckpoints = React.useCallback(async () => {
-    try {
-      const events = await api.get<CpEvent[]>("/checkpoints/today")
-      const map: Partial<Record<CpKey, CpEvent>> = {}
-      for (const ev of events ?? []) map[ev.cpType] = ev
-      setCpMap(map)
-    } catch {
-      // no vendor or API error
-    } finally {
-      setLoading(false)
-    }
-  }, [])
+  const checkpoints = [
+    {
+      time: "02:00",
+      label: "Mulai Produksi",
+      status: "Selesai",
+      statusVariant: "success",
+      badge: "AI Validated",
+      icon: CheckCircle2,
+      color: "text-emerald-500",
+      bg: "bg-emerald-50",
+      borderColor: "border-emerald-500",
+    },
+    {
+      time: "05:00",
+      label: "QC & Pemorsian",
+      status: "Selesai",
+      statusVariant: "success",
+      badge: "AI Validated",
+      icon: CheckCircle2,
+      color: "text-emerald-500",
+      bg: "bg-emerald-50",
+      borderColor: "border-emerald-500",
+    },
+    {
+      time: "07:30",
+      label: "Dispatch",
+      status: "Terlambat (07:46)",
+      statusVariant: "destructive",
+      badge: "-5 Poin (Telat)",
+      icon: Clock,
+      color: "text-red-500",
+      bg: "bg-red-50",
+      borderColor: "border-red-500",
+    },
+    {
+      time: "08:00",
+      label: "Handover Sekolah",
+      status: "Menunggu",
+      statusVariant: "outline",
+      badge: "Pending",
+      icon: Clock,
+      color: "text-slate-400",
+      bg: "bg-slate-50",
+      borderColor: "border-slate-200",
+    },
+  ];
 
-  React.useEffect(() => { fetchCheckpoints() }, [fetchCheckpoints])
-
-  const isDone = (cp: CpKey) => cpMap[cp]?.cpStatus === "done"
-  const isLocked = (cp: CpKey) => {
-    const idx = CP_ORDER.indexOf(cp)
-    return idx > 0 && !isDone(CP_ORDER[idx - 1]!)
-  }
-
-  const handleFileChange = (cp: CpKey, file: File) => {
-    setSelectedFiles(prev => ({ ...prev, [cp]: file }))
-    setPreviews(prev => ({ ...prev, [cp]: URL.createObjectURL(file) }))
-  }
-
-  const handleSubmit = async (cp: CpKey) => {
-    const file = selectedFiles[cp]
-    if (!file) return
-    setSubmitting(cp)
-    try {
-      const fd = new FormData()
-      fd.append("photo", file)
-      await api.post(`/checkpoints/${cp}/submit`, fd, {
-        headers: { "Content-Type": "multipart/form-data" },
-      })
-      toast({ title: `${cp} berhasil dikirim!` })
-      setSelectedFiles(prev => ({ ...prev, [cp]: undefined }))
-      setPreviews(prev => ({ ...prev, [cp]: undefined }))
-      await fetchCheckpoints()
-    } catch (e: any) {
-      toast({ title: e?.message ?? "Gagal submit checkpoint", variant: "destructive" })
-    } finally {
-      setSubmitting(null)
-    }
-  }
-
-  const doneCount = CP_ORDER.filter(isDone).length
-
-  if (loading) {
-    return (
-      <div className="flex items-center justify-center min-h-[50vh]">
-        <Loader2 className="size-8 animate-spin text-muted-foreground" />
-      </div>
-    )
-  }
+  const history = [
+    {
+      date: "Hari Ini",
+      time: "07:46",
+      desc: "Telat Dispatch (Lewat 16 menit)",
+      penalty: "-5 Poin",
+      evidence: "Lihat Log GPS",
+    },
+    {
+      date: "10 Mar 2026",
+      time: "05:15",
+      desc: "QC Gagal: Daging ayam kurang",
+      penalty: "-5 Poin",
+      evidence: "Lihat Foto AI",
+    },
+    {
+      date: "02 Mar 2026",
+      time: "02:10",
+      desc: "Telat Mulai Produksi (Ringan)",
+      penalty: "-2 Poin",
+      evidence: "Lihat Timestamp",
+    },
+  ];
 
   return (
-    <div className="p-8 max-w-3xl mx-auto space-y-8">
-      {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+    <div className="p-6 lg:p-8 space-y-6 max-w-7xl mx-auto animate-in fade-in duration-500">
+      {/* Header & Badges */}
+      <div className="flex flex-col md:flex-row md:items-end justify-between gap-4">
         <div>
-          <p className="text-[11px] font-black text-muted-foreground uppercase tracking-widest">
-            {new Date().toLocaleDateString("id-ID", { weekday: "long", day: "numeric", month: "long", year: "numeric" })}
-          </p>
-          <h1 className="text-2xl font-black text-foreground tracking-tight">Checkpoint Harian</h1>
-          <p className="text-sm text-muted-foreground font-medium mt-0.5">{doneCount} dari 4 checkpoint selesai</p>
+          <h1 className="text-2xl font-bold text-slate-900 tracking-tight">Pemantauan Skor & Kepatuhan AI</h1>
+          <p className="text-slate-500 text-sm mt-1">Kalkulasi real-time kepatuhan SOP harian dan akumulasi pinalti vendor.</p>
         </div>
-        <div className="flex items-center gap-2">
-          {doneCount === 4 && (
-            <Link href={`/portal/debrief/${today}`}>
-              <Button variant="outline" className="gap-2 rounded-full font-bold text-sm h-9">
-                <ExternalLink className="size-3.5" />
-                Lihat Debrief
-              </Button>
-            </Link>
-          )}
-          <Button variant="ghost" onClick={fetchCheckpoints} className="rounded-full font-bold text-sm gap-2 text-muted-foreground h-9">
-            <RefreshCw className="size-3.5" />
-            Refresh
+        <div className="flex items-center gap-3">
+          <div className="flex items-center gap-2 px-4 py-2 bg-white border border-slate-200/60 rounded-xl shadow-sm">
+            <Flame className="size-5 text-orange-500 animate-bounce" />
+            <div className="flex flex-col">
+              <p className="text-[10px] font-bold text-slate-400 uppercase leading-none">Streak Aktif</p>
+              <p className="text-sm font-bold text-orange-600 leading-tight mt-0.5">{streakDays} Hari</p>
+            </div>
+          </div>
+          <Button variant="outline" className="rounded-xl h-10 border-slate-200 text-slate-600 gap-2 font-semibold">
+            <Calendar className="size-4" />
+            Riwayat
           </Button>
         </div>
       </div>
 
-      {/* Progress stepper */}
-      <div className="flex items-center gap-1 sm:gap-2">
-        {CP_ORDER.map((cp, i) => {
-          const done = isDone(cp)
-          const active = !done && !isLocked(cp)
-          const meta = CP_META[cp]
-          return (
-            <React.Fragment key={cp}>
-              <div className="flex flex-col items-center gap-1.5">
-                <div className={cn(
-                  "size-10 rounded-full flex items-center justify-center border-2 transition-all",
-                  done && "bg-emerald-500 border-emerald-500 text-white",
-                  active && cn(meta.iconBg, meta.ring, "border-transparent"),
-                  !done && !active && "bg-slate-100 border-slate-200 text-slate-300",
-                )}>
-                  {done ? <CheckCircle2 className="size-5" /> : <meta.Icon className="size-4" />}
-                </div>
-                <span className={cn(
-                  "text-[10px] font-black",
-                  done ? "text-emerald-600" : active ? meta.text : "text-slate-400",
-                )}>{cp}</span>
-              </div>
-              {i < 3 && (
-                <div className={cn("h-0.5 flex-1 rounded-full mt-[-14px] transition-all", done ? "bg-emerald-400" : "bg-slate-200")} />
-              )}
-            </React.Fragment>
-          )
-        })}
-      </div>
-
-      {/* CP Cards */}
-      <div className="space-y-4">
-        {CP_ORDER.map((cp) => {
-          const meta = CP_META[cp]
-          const done = isDone(cp)
-          const locked = isLocked(cp)
-          const active = !done && !locked
-          const event = cpMap[cp]
-
-          return (
-            <Card
-              key={cp}
-              className={cn(
-                "rounded-2xl border transition-all overflow-hidden",
-                done && "border-emerald-200 bg-emerald-50/20",
-                active && meta.cardBorderActive,
-                locked && "border-slate-100 bg-slate-50/50 opacity-60",
-              )}
-            >
-              {/* Card header row */}
-              <div className={cn("flex items-center gap-4 p-5", done && "bg-emerald-50/40", active && meta.bg + "/20")}>
-                <div className={cn(
-                  "size-12 rounded-2xl flex items-center justify-center shrink-0",
-                  done && "bg-emerald-100 text-emerald-600",
-                  active && meta.iconBg,
-                  locked && "bg-slate-100 text-slate-300",
-                )}>
-                  {done ? <CheckCircle2 className="size-6" /> : locked ? <Lock className="size-5" /> : <meta.Icon className="size-6" />}
-                </div>
-                <div className="flex-1 min-w-0">
-                  <p className="font-black text-slate-900 text-sm leading-tight">
-                    {cp} — {meta.label}
-                  </p>
-                  <p className="text-[11px] text-slate-500 font-medium mt-0.5">
-                    {locked ? "Selesaikan checkpoint sebelumnya terlebih dahulu" : `Deadline: ${meta.deadline}`}
-                  </p>
-                </div>
-                <Badge className={cn(
-                  "font-bold text-[10px] uppercase shrink-0 border",
-                  done && "bg-emerald-100 text-emerald-700 border-emerald-200",
-                  active && meta.badgeCn,
-                  locked && "bg-slate-100 text-slate-400 border-slate-200",
-                )}>
-                  {done ? "Selesai ✓" : locked ? "Terkunci" : "Menunggu"}
-                </Badge>
-              </div>
-
-              {/* Done — show photo + AI validation */}
-              {done && event && (
-                <CardContent className="px-5 pb-5 pt-0">
-                  <div className="border-t border-emerald-100 pt-4 flex flex-col sm:flex-row gap-4">
-                    {event.photos[0]?.fileUrl && (
-                      <div className="w-full sm:w-36 h-24 rounded-xl overflow-hidden border border-slate-200 shrink-0">
-                        <img src={event.photos[0].fileUrl} alt={`Foto ${cp}`} className="w-full h-full object-cover" />
-                      </div>
-                    )}
-                    <div className="flex-1 space-y-2">
-                      {event.completedAt && (
-                        <p className="text-xs font-bold text-slate-500">
-                          Selesai pukul {new Date(event.completedAt).toLocaleTimeString("id-ID", { hour: "2-digit", minute: "2-digit" })}
-                        </p>
-                      )}
-                      {event.aiValidation ? (
-                        <div className={cn(
-                          "flex items-start gap-2 p-3 rounded-xl border text-xs font-medium",
-                          event.aiValidation.pass
-                            ? "bg-emerald-50 border-emerald-100 text-emerald-800"
-                            : "bg-red-50 border-red-100 text-red-800",
-                        )}>
-                          <Brain className="size-4 shrink-0 mt-0.5" />
-                          <div>
-                            <span className="font-black">
-                              {event.aiValidation.pass ? "AI: Foto Valid" : "AI: Foto Perlu Perbaikan"}
-                            </span>
-                            <span className="ml-1.5 text-[10px] opacity-60">
-                              ({Math.round(event.aiValidation.confidence * 100)}%)
-                            </span>
-                            <p className="mt-0.5 opacity-80 leading-snug">{event.aiValidation.reason}</p>
-                          </div>
-                        </div>
-                      ) : (
-                        <div className="flex items-center gap-2 text-xs text-slate-400 font-medium">
-                          <Brain className="size-3.5 animate-pulse" />
-                          Validasi AI sedang diproses...
-                        </div>
-                      )}
-                    </div>
-                  </div>
-                </CardContent>
-              )}
-
-              {/* Active — file upload form */}
-              {active && (
-                <CardContent className="px-5 pb-5 pt-0">
-                  <div className="border-t border-slate-100 pt-4 space-y-3">
-                    <p className="text-[11px] text-slate-500 font-medium">💡 {meta.hint}</p>
-
-                    <input
-                      type="file"
-                      accept="image/*"
-                      className="hidden"
-                      ref={el => { fileRefs.current[cp] = el }}
-                      onChange={e => {
-                        const file = e.target.files?.[0]
-                        if (file) handleFileChange(cp, file)
-                      }}
-                    />
-
-                    {previews[cp] ? (
-                      <div className="space-y-3">
-                        <div className="w-full h-44 rounded-xl overflow-hidden border border-slate-200 relative bg-slate-50">
-                          <img src={previews[cp]} alt="Preview" className="w-full h-full object-cover" />
-                          <button
-                            onClick={() => {
-                              setPreviews(p => ({ ...p, [cp]: undefined }))
-                              setSelectedFiles(f => ({ ...f, [cp]: undefined }))
-                            }}
-                            className="absolute top-2 right-2 size-6 bg-black/50 rounded-full flex items-center justify-center text-white hover:bg-black/70 transition-colors text-xs font-black leading-none"
-                          >
-                            ×
-                          </button>
-                        </div>
-                        <div className="flex gap-2">
-                          <Button
-                            variant="outline"
-                            onClick={() => fileRefs.current[cp]?.click()}
-                            className="rounded-xl font-bold text-xs h-10 flex-1"
-                          >
-                            <Upload className="size-3.5 mr-1.5" />
-                            Ganti Foto
-                          </Button>
-                          <Button
-                            onClick={() => handleSubmit(cp)}
-                            disabled={submitting === cp}
-                            className="rounded-xl font-black h-10 flex-1 shadow-lg shadow-primary/15"
-                          >
-                            {submitting === cp ? (
-                              <><RefreshCw className="size-3.5 animate-spin mr-1.5" />Mengirim...</>
-                            ) : (
-                              `Kirim ${cp} →`
-                            )}
-                          </Button>
-                        </div>
-                      </div>
-                    ) : (
-                      <button
-                        onClick={() => fileRefs.current[cp]?.click()}
-                        className={cn(
-                          "w-full border-2 border-dashed rounded-xl p-8 flex flex-col items-center gap-3 transition-all text-slate-400 hover:text-slate-600",
-                          meta.dashedCn,
-                        )}
-                      >
-                        <Upload className="size-7" />
-                        <div className="text-center">
-                          <p className="text-sm font-bold">Klik untuk memilih foto</p>
-                          <p className="text-xs mt-0.5">JPG, PNG, WEBP — maks. 10 MB</p>
-                        </div>
-                      </button>
-                    )}
-                  </div>
-                </CardContent>
-              )}
-            </Card>
-          )
-        })}
-      </div>
-
-      {/* All done — debrief CTA */}
-      {doneCount === 4 && (
-        <div className="p-6 bg-gradient-to-br from-emerald-50 to-teal-50 border border-emerald-100 rounded-2xl text-center space-y-3">
-          <div className="text-4xl">🎉</div>
-          <p className="font-black text-emerald-800 text-lg">Semua Checkpoint Selesai!</p>
-          <p className="text-sm text-emerald-700 font-medium">
-            Debrief harian dan estimasi pencairan dana sudah tersedia.
-          </p>
-          <Link href={`/portal/debrief/${today}`}>
-            <Button className="rounded-full font-black px-8 shadow-lg shadow-emerald-200 mt-2">
-              Lihat Debrief Hari Ini →
-            </Button>
-          </Link>
-        </div>
+      {/* Warning Banner */}
+      {isKritis ? (
+        <Alert variant="destructive" className="border-red-200 shadow-sm bg-red-50/50 rounded-xl">
+          <Lock className="size-4" />
+          <AlertTitle className="text-xs font-bold uppercase tracking-widest">Sistem Terkunci: Skor Rendah</AlertTitle>
+          <AlertDescription className="font-semibold text-red-800 text-xs">
+            Skor Anda berada di bawah 75. Tombol Pencairan Dana telah dibekukan otomatis. Hubungi Admin BGN untuk Manual Review.
+          </AlertDescription>
+        </Alert>
+      ) : (
+        <Alert className="border-amber-200 shadow-sm bg-amber-50/50 rounded-xl text-amber-900">
+          <Zap className="size-4 text-amber-600" />
+          <AlertTitle className="text-xs font-bold uppercase tracking-widest text-amber-900">Informasi Sistem</AlertTitle>
+          <AlertDescription className="font-medium text-amber-800 text-xs">
+            Skor Operasional Harian akan direset setiap pukul 00:00. Pertahankan skor di atas 75 untuk menjaga akses Smart Contract tetap aktif.
+          </AlertDescription>
+        </Alert>
       )}
+
+      {/* Metric Cards Grid */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <Card className={cn("border-slate-200/60 shadow-sm rounded-xl relative overflow-hidden", isKritis && "border-red-200 ring-1 ring-red-500")}>
+          <CardContent className="p-6 space-y-4">
+            <div className="flex items-center justify-between">
+              <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest flex items-center gap-1.5">
+                Skor Operasional <HelpCircle className="size-3 cursor-help" />
+              </p>
+              <Target className={cn("size-5", isKritis ? "text-red-500" : "text-primary")} />
+            </div>
+            <div className="space-y-3">
+              <div className="flex items-baseline gap-1">
+                <h3 className={cn("text-4xl font-bold tracking-tight", isKritis ? "text-red-600" : "text-slate-900")}>
+                  {dailyScore}
+                </h3>
+                <span className="text-sm font-medium text-slate-400">/ 100</span>
+              </div>
+              <div className="space-y-2">
+                <Progress value={dailyScore} className={cn("h-2", isKritis ? "bg-red-100" : "bg-slate-100")} />
+                <div className="flex justify-between items-center">
+                  <p className="text-[10px] text-slate-400 font-bold uppercase">Batas Kritis: 75</p>
+                  {isKritis && <Badge className="bg-red-600 text-[9px] h-4 border-none hover:bg-red-700">LOCKED</Badge>}
+                </div>
+              </div>
+            </div>
+          </CardContent>
+          {isKritis && <div className="absolute inset-0 bg-red-500/5 pointer-events-none" />}
+        </Card>
+
+        <Card className={cn("border-slate-200/60 shadow-sm rounded-xl border-l-4", isKritis ? "border-l-red-500" : "border-l-emerald-500")}>
+          <CardContent className="p-6 space-y-4">
+            <div className="flex items-center justify-between">
+              <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Status Smart Contract</p>
+              <ShieldCheck className={cn("size-5", isKritis ? "text-red-500" : "text-emerald-500")} />
+            </div>
+            <div className="space-y-2">
+              <div className="flex items-center gap-2">
+                <h3 className={cn("text-2xl font-bold", isKritis ? "text-red-600" : "text-slate-900")}>
+                  {isKritis ? "MANUAL REVIEW" : "OTOMATIS (CAIR)"}
+                </h3>
+              </div>
+              <p className="text-xs text-slate-500 font-medium">
+                {isKritis ? "Dana dibekukan hingga review admin selesai." : "Pencairan dana otomatis diaktifkan untuk besok."}
+              </p>
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card className="border-slate-200/60 shadow-sm rounded-xl">
+          <CardContent className="p-6 space-y-4">
+            <div className="flex items-center justify-between">
+              <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Progress Bonus Gold</p>
+              <Zap className="size-5 text-orange-500" />
+            </div>
+            <div className="space-y-3">
+              <div className="flex items-center gap-3">
+                <div className="flex -space-x-1.5">
+                  {[1, 2, 3, 4, 5].map((i) => (
+                    <div
+                      key={i}
+                      className={cn(
+                        "size-7 rounded-full border-2 border-white flex items-center justify-center text-[10px] font-bold shadow-sm",
+                        i <= streakDays ? "bg-orange-500 text-white" : "bg-slate-100 text-slate-400",
+                      )}
+                    >
+                      {i <= streakDays ? <CheckCircle2 className="size-3.5" /> : i}
+                    </div>
+                  ))}
+                </div>
+                <p className="text-xs font-bold text-slate-900">1 Hari Lagi!</p>
+              </div>
+              <p className="text-[10px] text-slate-500 font-medium leading-relaxed">
+                Pertahankan skor {">"}95 selama 5 hari berturut-turut untuk mendapatkan status <b>Vendor Gold</b> (+1% Margin).
+              </p>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+
+      {/* Live Checkpoint Tracker */}
+      <Card className="border-slate-200/60 shadow-sm rounded-xl">
+        <CardHeader className="p-6 border-b border-slate-100 flex flex-row items-center justify-between">
+          <div>
+            <CardTitle className="text-base font-bold text-slate-900">Status Checkpoint Hari Ini (Shift Pagi)</CardTitle>
+            <CardDescription className="text-xs text-slate-500 mt-1">Sistem validasi otomatis berbasis AI Visual & GPS.</CardDescription>
+          </div>
+          <Badge variant="outline" className="bg-primary/5 text-primary border-primary/20 font-bold px-3 py-1 text-[10px] uppercase">
+            Live Monitoring
+          </Badge>
+        </CardHeader>
+        <CardContent className="p-8">
+          <div className="relative flex flex-col md:flex-row justify-between gap-8 md:gap-4 max-w-4xl mx-auto">
+            {/* Connection Line */}
+            <div className="absolute top-[26px] left-[10%] right-[10%] h-0.5 bg-slate-100 hidden md:block" />
+
+            {checkpoints.map((cp, idx) => (
+              <div key={idx} className="relative z-10 flex flex-row md:flex-col items-center gap-4 flex-1 text-left md:text-center">
+                <div className={cn("size-12 rounded-xl flex items-center justify-center border-2 bg-white shadow-sm transition-all", cp.borderColor)}>
+                  <cp.icon className={cn("size-5", cp.color)} />
+                </div>
+                <div className="flex flex-col md:items-center gap-1 mt-1">
+                  <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">{cp.time}</span>
+                  <p className="text-sm font-bold text-slate-900 leading-tight">{cp.label}</p>
+                  <p className={cn("text-[10px] font-bold uppercase", cp.color)}>{cp.status}</p>
+                  <Badge
+                    variant={cp.statusVariant as any}
+                    className={cn(
+                      "mt-1 text-[9px] font-bold px-2 py-0.5 rounded-full border-none",
+                      cp.statusVariant === "success" ? "bg-emerald-100 text-emerald-700" : 
+                      cp.statusVariant === "destructive" ? "bg-red-100 text-red-700" : "bg-slate-100 text-slate-500",
+                    )}
+                  >
+                    {cp.badge}
+                  </Badge>
+                </div>
+              </div>
+            ))}
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* Penalty Ledger Table */}
+      <Card className="border-slate-200/60 shadow-sm rounded-xl overflow-hidden">
+        <CardHeader className="p-5 border-b border-slate-100 flex flex-col md:flex-row md:items-center justify-between gap-4">
+          <div>
+            <CardTitle className="text-base font-bold text-slate-900">Riwayat Pinalti (Kumulatif)</CardTitle>
+            <CardDescription className="text-xs text-slate-500 mt-1">Rekam jejak pelanggaran yang menambah total akumulasi pinalti.</CardDescription>
+          </div>
+          <div className="relative w-full md:w-64">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 size-4 text-slate-400" />
+            <Input className="pl-9 h-9 border-slate-200 rounded-lg text-xs" placeholder="Cari bukti atau deskripsi..." />
+          </div>
+        </CardHeader>
+        <div className="overflow-x-auto">
+          <Table>
+            <TableHeader className="bg-slate-50/50">
+              <TableRow>
+                <TableHead className="font-semibold text-xs h-10 pl-6">Tanggal</TableHead>
+                <TableHead className="font-semibold text-xs h-10 text-center">Waktu</TableHead>
+                <TableHead className="font-semibold text-xs h-10">Deskripsi (Checkpoint)</TableHead>
+                <TableHead className="font-semibold text-xs h-10 text-center">Potongan</TableHead>
+                <TableHead className="font-semibold text-xs h-10 pr-6 text-right">Bukti AI</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {history.map((row, idx) => (
+                <TableRow key={idx} className="group hover:bg-slate-50/80">
+                  <TableCell className="font-bold text-slate-900 pl-6 py-4 text-xs">{row.date}</TableCell>
+                  <TableCell className="text-center font-medium text-xs text-slate-500">{row.time}</TableCell>
+                  <TableCell className="font-medium text-slate-700 text-xs">{row.desc}</TableCell>
+                  <TableCell className="text-center">
+                    <span className="font-bold text-red-600 text-xs">{row.penalty}</span>
+                  </TableCell>
+                  <TableCell className="text-right pr-6 py-4">
+                    <Button variant="ghost" size="sm" className="h-8 text-primary font-semibold text-[10px] uppercase gap-1.5 hover:bg-primary/5 rounded-lg px-3">
+                      {row.evidence}
+                      <ExternalLink className="size-3" />
+                    </Button>
+                  </TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+        </div>
+      </Card>
     </div>
   )
 }

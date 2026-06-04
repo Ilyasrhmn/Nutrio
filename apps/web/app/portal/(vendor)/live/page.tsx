@@ -93,178 +93,229 @@ export default function LivePage() {
   }, [])
 
   React.useEffect(() => {
-    fetchAll()
-    const interval = setInterval(fetchAll, 30_000)
-    return () => clearInterval(interval)
-  }, [fetchAll])
+    let timer: NodeJS.Timeout | undefined;
+    if (isCP2Done && safetyTimeLeft > 0) {
+      timer = setInterval(() => {
+        setSafetyTimeLeft((prev) => prev - 1);
+      }, 1000);
+    }
+    return () => clearInterval(timer);
+  }, [isCP2Done, safetyTimeLeft]);
 
-  const doneCount = CP_STEPS.filter(s => checkpoints[s.key]?.cpStatus === "done").length
+  const formatTime = (seconds: number) => {
+    const h = Math.floor(seconds / 3600);
+    const m = Math.floor((seconds % 3600) / 60);
+    const s = seconds % 60;
+    return `${h.toString().padStart(2, "0")}:${m.toString().padStart(2, "0")}:${s.toString().padStart(2, "0")}`;
+  };
 
-  if (loading) {
-    return (
-      <div className="flex items-center justify-center min-h-[50vh]">
-        <Loader2 className="size-8 animate-spin text-muted-foreground" />
-      </div>
-    )
-  }
+  const isUrgent = safetyTimeLeft < 1800; // 30 menit terakhir
+
+  const steps = [
+    { id: 1, label: "Bahan Baku", icon: Info, time: "02:00" },
+    { id: 2, label: "Pemorsian", icon: Scan, time: "05:00" },
+    { id: 3, label: "Dispatch", icon: Truck, time: "07:30" },
+    { id: 4, label: "Handover", icon: School, time: "08:00" },
+  ];
+
+  const handleNextStep = () => {
+    if (activeStep === 2) setIsCP2Done(true);
+    if (activeStep < 4) setActiveStep((prev) => prev + 1);
+  };
 
   return (
-    <div className="p-8 max-w-3xl mx-auto space-y-6">
-      {/* Header */}
-      <div className="flex items-center justify-between">
+    <div className="p-6 lg:p-8 space-y-6 max-w-5xl mx-auto animate-in fade-in duration-500">
+      {/* Top Header & Live Status */}
+      <div className="flex flex-col md:flex-row md:items-start justify-between gap-4">
         <div>
-          <p className="text-[11px] font-black text-muted-foreground uppercase tracking-widest">
-            {new Date().toLocaleDateString("id-ID", { weekday: "long", day: "numeric", month: "long", year: "numeric" })}
+          <h1 className="text-2xl font-bold text-slate-900 tracking-tight">Panel Eksekusi Checkpoint</h1>
+          <p className="text-slate-500 text-sm mt-1">
+            Validasi aktivitas dapur secara real-time.
           </p>
-          <h1 className="text-2xl font-black text-foreground tracking-tight flex items-center gap-2">
-            <Activity className="size-6 text-primary" />
-            Operasional Live
-          </h1>
         </div>
-        <div className="flex items-center gap-2">
-          <Button
-            variant="ghost"
-            onClick={fetchAll}
-            className="rounded-full font-bold text-sm gap-2 text-muted-foreground h-9"
-          >
-            <RefreshCw className="size-3.5" />
-            Refresh
-          </Button>
-          {lastUpdated && (
-            <p className="text-[10px] text-slate-400 font-medium hidden sm:block">
-              Diperbarui {lastUpdated.toLocaleTimeString("id-ID", { hour: "2-digit", minute: "2-digit" })}
-            </p>
-          )}
+        <div className="flex items-center gap-4">
+          <Alert className="w-full md:w-[220px] bg-white border-slate-200/60 shadow-sm py-2 px-3 rounded-xl">
+            <Navigation className="size-4 text-blue-600" />
+            <div className="flex flex-col ml-2">
+              <span className="text-[9px] font-bold uppercase tracking-widest text-slate-400 leading-none">GPS Dapur</span>
+              <span className="text-[11px] font-bold text-blue-600 mt-0.5">Aktif (Akurasi 5m)</span>
+            </div>
+          </Alert>
         </div>
       </div>
 
-      {/* Score gauge + disbursement */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-        <ScoreGauge score={scoring?.score ?? 100} />
-
-        <Card className="rounded-2xl border-emerald-200 bg-emerald-50/50">
-          <CardContent className="flex flex-col justify-center h-full py-8 px-6 space-y-3">
-            <div className="flex items-center gap-2 text-emerald-600">
-              <Wallet className="size-5" />
-              <p className="text-[10px] font-black uppercase tracking-widest">Estimasi Pencairan Dana</p>
+      {/* Safety Countdown Banner */}
+      {isCP2Done && (
+        <Alert
+          className={cn(
+            "border shadow-sm rounded-xl transition-all duration-500 animate-in fade-in slide-in-from-top-4",
+            isUrgent
+              ? "bg-red-50 border-red-200 text-red-900"
+              : "bg-emerald-50 border-emerald-200 text-emerald-900",
+          )}
+        >
+          <Timer className={cn("size-5", isUrgent ? "text-red-600" : "text-emerald-600")} />
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between w-full gap-4">
+            <div>
+              <div className={cn("text-xs font-bold uppercase tracking-widest mb-1", isUrgent ? "text-red-700" : "text-emerald-700")}>
+                Aturan Emas: Zona Aman 4 Jam
+              </div>
+              <div className="text-xs font-medium opacity-80">
+                {isUrgent
+                  ? "Peringatan Kritis! Segera selesaikan sebelum batas waktu."
+                  : "Proses pengiriman berjalan. Pastikan tepat waktu."}
+              </div>
             </div>
-            <p className="text-3xl font-black text-emerald-700">
-              Rp {(scoring?.disbursementEstimate ?? 0).toLocaleString("id-ID")}
-            </p>
-            <p className="text-xs text-slate-500 font-medium leading-relaxed">
-              Berdasarkan skor × target porsi × tarif dasar MBG
-            </p>
-            {doneCount === 4 && (
-              <Link href={`/portal/debrief/${today}`}>
-                <Button variant="outline" className="rounded-full gap-2 font-bold text-xs h-8 border-emerald-200 text-emerald-700 hover:bg-emerald-100 mt-1">
-                  <ExternalLink className="size-3" />
-                  Lihat Debrief
-                </Button>
-              </Link>
-            )}
+            <div className={cn("px-4 py-2 rounded-xl border bg-white shadow-sm", isUrgent ? "border-red-200" : "border-emerald-200")}>
+              <p className="text-[10px] font-bold uppercase tracking-widest leading-none text-slate-400">Sisa Waktu</p>
+              <p className={cn("text-2xl font-bold tabular-nums mt-0.5", isUrgent ? "text-red-600" : "text-emerald-600")}>
+                {formatTime(safetyTimeLeft)}
+              </p>
+            </div>
+          </div>
+        </Alert>
+      )}
+
+      {/* Progress Tracker (Horizontal Stepper) */}
+      <div className="relative flex justify-between px-2 sm:px-8 mt-8 mb-8">
+        <div className="absolute top-[22px] left-[10%] right-[10%] h-0.5 bg-slate-200 z-0" />
+        {steps.map((step) => {
+          const isActive = activeStep === step.id;
+          const isDone = activeStep > step.id;
+          return (
+            <div key={step.id} className="relative z-10 flex flex-col items-center gap-3">
+              <div
+                className={cn(
+                  "size-12 rounded-xl flex items-center justify-center border-2 shadow-sm transition-all duration-500 bg-white",
+                  isActive
+                    ? "border-primary text-primary ring-4 ring-primary/10"
+                    : isDone
+                      ? "border-emerald-500 text-emerald-500"
+                      : "border-slate-200 text-slate-300",
+                )}
+              >
+                {isDone ? <CheckCircle2 className="size-5" /> : <step.icon className="size-5" />}
+              </div>
+              <div className="text-center">
+                <p className={cn("text-[9px] font-bold uppercase tracking-widest", isActive ? "text-primary" : isDone ? "text-emerald-600" : "text-slate-400")}>
+                  {step.time}
+                </p>
+                <p className={cn("text-[11px] font-bold mt-0.5", isActive ? "text-slate-900" : isDone ? "text-emerald-700" : "text-slate-500")}>
+                  {step.label}
+                </p>
+              </div>
+            </div>
+          );
+        })}
+      </div>
+
+      {/* Main Action Area */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        {/* Current Task Card */}
+        <Card className="lg:col-span-2 border-slate-200/60 shadow-sm rounded-xl overflow-hidden">
+          <CardHeader className="bg-slate-50/50 border-b border-slate-100 p-6">
+            <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-4">
+              <div>
+                <div className="flex items-center gap-2">
+                  <div className="size-2 bg-primary rounded-full animate-pulse" />
+                  <CardTitle className="text-lg font-bold text-slate-900">
+                    Tugas {activeStep}: {steps[activeStep - 1]?.label}
+                  </CardTitle>
+                </div>
+                <CardDescription className="text-xs text-slate-500 mt-1">
+                  Wajib berada di radius GPS Dapur sebelum lanjut.
+                </CardDescription>
+              </div>
+              <div className="bg-red-50 px-3 py-2 rounded-lg border border-red-100 flex items-center gap-3">
+                <Clock className="size-4 text-red-600" />
+                <div className="text-right">
+                  <p className="text-[9px] font-bold text-red-500 uppercase tracking-widest leading-none">Batas Waktu</p>
+                  <p className="text-sm font-bold text-red-700 mt-0.5">{steps[activeStep - 1]?.time} WIB</p>
+                </div>
+              </div>
+            </div>
+          </CardHeader>
+          <CardContent className="p-6 space-y-6">
+            <div className="relative aspect-video sm:aspect-[21/10] border-2 border-dashed border-slate-200 rounded-xl bg-slate-50/50 flex flex-col items-center justify-center gap-4 hover:border-primary/50 hover:bg-slate-50 transition-all cursor-pointer group">
+              <div className="size-16 bg-white rounded-full shadow-sm flex items-center justify-center group-hover:scale-110 transition-transform duration-500 border border-slate-100">
+                <Camera className="size-6 text-primary" />
+              </div>
+              <div className="text-center px-4">
+                <p className="text-base font-bold text-slate-900">Ambil Foto Validasi AI</p>
+                <p className="text-[11px] text-slate-500 mt-1">
+                  {activeStep === 1
+                    ? "Pastikan seluruh bahan baku masuk dalam satu frame foto."
+                    : "Foto porsi makanan lengkap (Nasi, Lauk, Sayur, Buah)."}
+                </p>
+              </div>
+            </div>
+
+            <div className="space-y-4">
+              <Button onClick={handleNextStep} className="w-full h-12 rounded-lg font-bold shadow-sm gap-2">
+                <CheckCircle2 className="size-4" />
+                Kirim & Validasi Otomatis
+              </Button>
+              <div className="flex justify-center gap-6">
+                <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest flex items-center gap-1.5">
+                  <ShieldCheck className="size-3 text-emerald-500" /> Secured by BGN-AI
+                </p>
+                <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest flex items-center gap-1.5">
+                  <MapPin className="size-3 text-blue-500" /> GPS Verified
+                </p>
+              </div>
+            </div>
           </CardContent>
         </Card>
-      </div>
 
-      {/* CP Progress */}
-      <Card className="rounded-2xl border-border bg-card">
-        <CardHeader className="pb-3">
-          <div className="flex items-center justify-between">
-            <CardTitle className="text-base font-black flex items-center gap-2">
-              <Zap className="size-4 text-primary" />
-              Progress Checkpoint Hari Ini
-            </CardTitle>
-            <Link href="/portal/checkpoints">
-              <Button variant="ghost" className="h-7 text-xs font-bold text-primary gap-1 px-2 rounded-full">
-                Kelola <ExternalLink className="size-3" />
-              </Button>
-            </Link>
-          </div>
-        </CardHeader>
-        <CardContent className="pt-0">
-          <div className="flex items-center gap-2">
-            {CP_STEPS.map((step, i) => {
-              const ev = checkpoints[step.key]
-              const done = ev?.cpStatus === "done"
-              const active = !done && (i === 0 || checkpoints[CP_STEPS[i - 1]!.key]?.cpStatus === "done")
-              return (
-                <React.Fragment key={step.key}>
-                  <div className="flex flex-col items-center gap-2 flex-1">
-                    <div className={cn(
-                      "size-12 rounded-2xl flex items-center justify-center border-2 transition-all mx-auto",
-                      done && "bg-emerald-500 border-emerald-500 text-white shadow-lg shadow-emerald-200",
-                      active && "bg-primary/10 border-primary text-primary",
-                      !done && !active && "bg-slate-100 border-slate-200 text-slate-300",
-                    )}>
-                      {done ? <CheckCircle2 className="size-5" /> : <step.Icon className="size-5" />}
+        {/* Sidebar Status */}
+        <div className="space-y-6">
+          <Card className="border-slate-200/60 shadow-sm rounded-xl">
+            <CardHeader className="p-5 border-b border-slate-100">
+              <CardTitle className="text-[10px] font-bold uppercase tracking-widest text-slate-400">Tahap Berikutnya</CardTitle>
+            </CardHeader>
+            <CardContent className="p-0">
+              {steps.map((step) => {
+                if (step.id <= activeStep) return null;
+                return (
+                  <div key={step.id} className="p-4 flex items-center gap-3 border-b border-slate-100 last:border-0 opacity-60">
+                    <div className="size-8 bg-slate-100 rounded-lg flex items-center justify-center shrink-0">
+                      <Lock className="size-3 text-slate-400" />
                     </div>
-                    <div className="text-center">
-                      <p className={cn("text-[10px] font-black", done ? "text-emerald-600" : active ? "text-primary" : "text-slate-400")}>
-                        {step.key}
-                      </p>
-                      <p className="text-[9px] text-slate-400 font-medium leading-tight">{step.label}</p>
-                      {done && ev?.completedAt && (
-                        <p className="text-[9px] text-emerald-500 font-bold">
-                          {new Date(ev.completedAt).toLocaleTimeString("id-ID", { hour: "2-digit", minute: "2-digit" })}
-                        </p>
-                      )}
+                    <div>
+                      <p className="text-[9px] font-bold text-slate-400 uppercase tracking-widest">CP {step.id}</p>
+                      <p className="text-xs font-bold text-slate-600 mt-0.5">{step.label}</p>
                     </div>
                   </div>
-                  {i < 3 && (
-                    <div className={cn("h-0.5 flex-1 rounded-full mb-6 transition-all", done ? "bg-emerald-400" : "bg-slate-200")} />
-                  )}
-                </React.Fragment>
-              )
-            })}
-          </div>
-          <p className="text-center text-[11px] text-slate-400 font-medium mt-4">
-            {doneCount}/4 checkpoint selesai
-          </p>
-        </CardContent>
-      </Card>
-
-      {/* Scoring events */}
-      <Card className="rounded-2xl border-border bg-card">
-        <CardHeader className="pb-3">
-          <CardTitle className="text-base font-black flex items-center gap-2">
-            <TrendingDown className="size-4 text-slate-500" />
-            Riwayat Skor Hari Ini
-          </CardTitle>
-        </CardHeader>
-        <CardContent className="pt-0">
-          {!scoring?.events?.length ? (
-            <div className="text-center py-6 text-slate-400">
-              <p className="text-sm font-medium">Belum ada perubahan skor hari ini</p>
-              <p className="text-xs mt-1 font-medium">Skor dimulai dari 100 dan berkurang jika ada penalti.</p>
-            </div>
-          ) : (
-            <div className="space-y-2">
-              {scoring.events.slice(0, 8).map((ev) => (
-                <div
-                  key={ev.id}
-                  className="flex items-center gap-3 p-3 rounded-xl bg-slate-50 border border-slate-100"
-                >
-                  <div className={cn(
-                    "size-8 rounded-full flex items-center justify-center shrink-0 text-xs font-black",
-                    ev.scoreDelta < 0 ? "bg-red-100 text-red-600" : "bg-emerald-100 text-emerald-600",
-                  )}>
-                    {ev.scoreDelta > 0 ? `+${ev.scoreDelta}` : ev.scoreDelta}
+                );
+              })}
+              {activeStep === 4 && (
+                <div className="p-8 text-center space-y-2">
+                  <div className="size-12 bg-emerald-50 text-emerald-600 rounded-full flex items-center justify-center mx-auto mb-2">
+                    <CheckCircle2 className="size-6" />
                   </div>
-                  <div className="flex-1 min-w-0">
-                    <p className="text-xs font-bold text-slate-700 leading-tight truncate">{ev.reason}</p>
-                    {ev.regulationRef && (
-                      <p className="text-[10px] text-slate-400 font-mono">{ev.regulationRef}</p>
-                    )}
-                  </div>
-                  <p className="text-[10px] text-slate-400 font-bold shrink-0">
-                    {new Date(ev.occurredAt).toLocaleTimeString("id-ID", { hour: "2-digit", minute: "2-digit" })}
-                  </p>
+                  <p className="text-sm font-bold text-emerald-600">Seluruh Checkpoint Selesai!</p>
                 </div>
-              ))}
-            </div>
-          )}
-        </CardContent>
-      </Card>
+              )}
+            </CardContent>
+          </Card>
+
+          {/* Need Help Card */}
+          <Card className="border-amber-200 bg-amber-50/50 shadow-sm rounded-xl">
+            <CardContent className="p-5 space-y-3">
+              <div className="flex items-center gap-2 text-amber-700">
+                <AlertTriangle className="size-4" />
+                <p className="text-xs font-bold uppercase tracking-wide">Mengalami Kendala?</p>
+              </div>
+              <p className="text-[11px] text-amber-800 leading-relaxed font-medium">
+                Jika terjadi insiden darurat, segera lapor melalui menu Pusat Kendali Insiden untuk penyesuaian pinalti.
+              </p>
+              <Button variant="outline" className="w-full h-8 text-[10px] font-bold uppercase border-amber-200 text-amber-700 hover:bg-amber-100 rounded-lg">
+                Buka Laporan Insiden
+              </Button>
+            </CardContent>
+          </Card>
+        </div>
+      </div>
     </div>
   )
 }

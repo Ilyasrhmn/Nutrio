@@ -3,4 +3,8 @@ export * from "./Hero";
 export * from "./Problem";
 export * from "./Features";
 export * from "./DashboardPreview";
+export * from "./NewsCarousel";
+export * from "./FaqAccordion";
 export * from "./Cta";
+export * from "./SmoothScroll";
+export { default as ScrollStack, ScrollStackItem } from "./ScrollStack";
