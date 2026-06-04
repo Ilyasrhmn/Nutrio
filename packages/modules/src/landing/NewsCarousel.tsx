@@ -17,21 +17,21 @@ export function NewsCarousel() {
       desc: "Lebih dari 15 keluarga petani lokal kini memasok 100% sayuran organik segar untuk program Makan Bergizi Gratis di wilayah Bogor Barat.",
       date: "24 Mei 2026",
       source: "Kemitraan Petani",
-      image: "https://images.unsplash.com/photo-1592417817098-8f3d6eb19675?auto=format&fit=crop&w=600&q=80"
+      image: "/assets/picture/PemberdayaanPetaniLokal.jpg"
     },
     {
       title: "SDN 01 Menteng Raih Penghargaan Pelopor Transparansi Higiene Pangan",
       desc: "Dengan memasang QR Code Nutrio di mading sekolah, SDN 01 Menteng terpilih sebagai percontohan nasional keterbukaan informasi gizi bagi orang tua murid.",
       date: "20 Mei 2026",
       source: "Penghargaan Sekolah",
-      image: "https://images.unsplash.com/photo-1577896851231-70ef18881754?auto=format&fit=crop&w=600&q=80"
+      image: "/assets/picture/PenghargaanSD.webp"
     },
     {
       title: "Uji Coba AI Gizi Sukses Memverifikasi 15.400 Porsi Makan Sehat",
       desc: "Implementasi teknologi pemindaian piring Nutrio AI terbukti menghemat waktu inspeksi gizi harian hingga 80% dengan akurasi menu 99%.",
       date: "15 Mei 2026",
       source: "Teknologi AI",
-      image: "https://images.unsplash.com/photo-1577219491135-ce391730fb2c?auto=format&fit=crop&w=600&q=80"
+      image: "/assets/picture/AI.jpg"
     }
   ];
 
