@@ -1,20 +1,18 @@
 "use client"
 
 import React from "react"
-import { 
-  Store, 
-  Package, 
-  ShoppingCart, 
-  TrendingUp, 
-  MessageSquare, 
-  ArrowUpRight, 
+import {
+  Store,
+  Package,
+  ShoppingCart,
+  TrendingUp,
+  MessageSquare,
   Truck,
   CheckCircle2,
   Clock,
   Plus
 } from "lucide-react"
 import { Button } from "@workspace/ui/components/button"
-import { Badge } from "@workspace/ui/components/badge"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@workspace/ui/components/table"
 import { Progress } from "@workspace/ui/components/progress"
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@workspace/ui/components/card"
@@ -58,9 +56,9 @@ export function SupplierDashboard() {
         </Card>
 
         {[
-          { label: "Pesanan Aktif (PO)", value: "24 PO", sub: "Menunggu Pengiriman", icon: ShoppingCart, color: "blue" },
-          { label: "Produk Terlaris", value: "Daging Ayam", sub: "1.2 Ton terjual", icon: Package, color: "primary" },
-          { label: "Rating Supplier", value: "4.9 / 5.0", sub: "Dari 120 Vendor", icon: CheckCircle2, color: "amber" },
+          { label: "Pesanan Aktif (PO)", value: "—", sub: "Menunggu Pengiriman", icon: ShoppingCart, color: "blue" },
+          { label: "Produk Terlaris", value: "—", sub: "Belum ada data", icon: Package, color: "primary" },
+          { label: "Rating Supplier", value: "—", sub: "Belum ada ulasan", icon: CheckCircle2, color: "amber" },
         ].map((stat, i) => (
           <Card key={i} className="border-slate-200/60 shadow-sm rounded-xl">
             <CardContent className="p-6 space-y-4">

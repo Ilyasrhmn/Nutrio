@@ -1,41 +1,97 @@
-"use client";
+"use client"
 
-import * as React from "react";
+import * as React from "react"
+import Link from "next/link"
 import {
-  Camera,
-  MapPin,
-  CheckCircle2,
-  Clock,
-  Truck,
-  School,
-  Info,
-  Lock,
-  Scan,
-  Navigation,
-  ShieldCheck,
-  Timer,
-  AlertTriangle,
-} from "lucide-react";
+  Package, ChefHat, BoxSelect, Truck,
+  CheckCircle2, TrendingDown, Wallet,
+  RefreshCw, Loader2, Zap, ExternalLink,
+  Activity,
+} from "lucide-react"
+import { Button } from "@workspace/ui/components/button"
+import { Card, CardContent, CardHeader, CardTitle } from "@workspace/ui/components/card"
+import { Badge } from "@workspace/ui/components/badge"
+import { cn } from "@workspace/ui/lib/utils"
+import { api } from "../../../../lib/api-client"
 
-import { Button } from "@workspace/ui/components/button";
-import {
-  Card,
-  CardContent,
-  CardHeader,
-  CardTitle,
-  CardDescription,
-} from "@workspace/ui/components/card";
-import {
-  Alert,
-} from "@workspace/ui/components/alert";
-import { cn } from "@workspace/ui/lib/utils";
+interface ScoreEvent {
+  id: string
+  eventType: string
+  scoreDelta: number
+  reason: string
+  regulationRef: string | null
+  occurredAt: string
+}
 
-export default function LiveCheckpointPage() {
-  const [activeStep, setActiveStep] = React.useState(1);
-  const [isCP2Done, setIsCP2Done] = React.useState(false);
-  const [safetyTimeLeft, setSafetyTimeLeft] = React.useState(14400); // 4 jam dalam detik
+interface DailyScore {
+  score: number
+  disbursementEstimate: number
+  events: ScoreEvent[]
+}
 
-  // Simulasi countdown setelah CP2 selesai
+interface CpEvent {
+  cpType: "CP1" | "CP2" | "CP3" | "CP4"
+  cpStatus: "pending" | "in_progress" | "done" | "failed" | "force_closed"
+  completedAt: string | null
+}
+
+const CP_STEPS: Array<{ key: "CP1" | "CP2" | "CP3" | "CP4"; label: string; Icon: React.ElementType }> = [
+  { key: "CP1", label: "Penerimaan", Icon: Package },
+  { key: "CP2", label: "Produksi", Icon: ChefHat },
+  { key: "CP3", label: "Pengemasan", Icon: BoxSelect },
+  { key: "CP4", label: "Distribusi", Icon: Truck },
+]
+
+function ScoreGauge({ score }: { score: number }) {
+  const color = score >= 80 ? "text-emerald-600" : score >= 60 ? "text-amber-500" : "text-red-500"
+  const bgColor = score >= 80 ? "bg-emerald-50" : score >= 60 ? "bg-amber-50" : "bg-red-50"
+  const ringColor = score >= 80 ? "ring-emerald-100" : score >= 60 ? "ring-amber-100" : "ring-red-100"
+  const label = score >= 80 ? "AMAN" : score >= 60 ? "PERINGATAN" : "KRITIS"
+  const labelColor = score >= 80 ? "bg-emerald-100 text-emerald-700" : score >= 60 ? "bg-amber-100 text-amber-700" : "bg-red-100 text-red-700"
+
+  return (
+    <div className={cn("flex flex-col items-center justify-center py-8 rounded-2xl ring-4", bgColor, ringColor)}>
+      <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-3">Skor Real-Time</p>
+      <p className={cn("text-7xl font-black leading-none tabular-nums", color)}>{score}</p>
+      <p className="text-slate-400 text-sm mt-1.5 font-medium">/ 100</p>
+      <Badge className={cn("mt-3 font-black text-xs uppercase tracking-widest border-none", labelColor)}>
+        {label}
+      </Badge>
+    </div>
+  )
+}
+
+export default function LivePage() {
+  const [scoring, setScoring] = React.useState<DailyScore | null>(null)
+  const [checkpoints, setCheckpoints] = React.useState<Partial<Record<string, CpEvent>>>({})
+  const [loading, setLoading] = React.useState(true)
+  const [lastUpdated, setLastUpdated] = React.useState<Date | null>(null)
+
+  const today = new Date().toISOString().split("T")[0]!
+
+  const fetchAll = React.useCallback(async () => {
+    try {
+      const [scoreData, cpData] = await Promise.allSettled([
+        api.get<DailyScore>("/scoring/today"),
+        api.get<CpEvent[]>("/checkpoints/today"),
+      ])
+
+      if (scoreData.status === "fulfilled" && scoreData.value) {
+        setScoring(scoreData.value)
+      }
+      if (cpData.status === "fulfilled" && cpData.value) {
+        const map: Partial<Record<string, CpEvent>> = {}
+        for (const ev of cpData.value) map[ev.cpType] = ev
+        setCheckpoints(map)
+      }
+      setLastUpdated(new Date())
+    } catch {
+      // silently ignore
+    } finally {
+      setLoading(false)
+    }
+  }, [])
+
   React.useEffect(() => {
     let timer: NodeJS.Timeout | undefined;
     if (isCP2Done && safetyTimeLeft > 0) {
@@ -261,5 +317,5 @@ export default function LiveCheckpointPage() {
         </div>
       </div>
     </div>
-  );
+  )
 }

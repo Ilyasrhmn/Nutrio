@@ -37,42 +37,9 @@ export default function SupplierChatPage() {
 
   if (!mounted) return null
 
-  const chats = [
-    {
-      id: 1,
-      name: "Budi (Vendor SPPG Jakarta)",
-      lastMsg: "Bisa kirim 200kg ayam besok pagi?",
-      time: "14:20",
-      unread: 2,
-      online: true,
-      avatar: "B"
-    },
-    {
-      id: 2,
-      name: "Siti (Mitra SPPG Bandung)",
-      lastMsg: "Terima kasih, barang sudah sampai.",
-      time: "Kemarin",
-      unread: 0,
-      online: false,
-      avatar: "S"
-    },
-    {
-      id: 3,
-      name: "Agus (Koordinator SPPG)",
-      lastMsg: "Tolong kirimkan sertifikat Halal terbaru.",
-      time: "Selasa",
-      unread: 0,
-      online: true,
-      avatar: "A"
-    }
-  ]
+  const chats: { id: number; name: string; lastMsg: string; time: string; unread: number; online: boolean; avatar: string }[] = []
 
-  const messages = [
-    { id: 1, text: "Halo, selamat siang PT Tani Makmur.", sender: "vendor", time: "14:15" },
-    { id: 2, text: "Siang Pak Budi. Ada yang bisa kami bantu?", sender: "me", time: "14:16" },
-    { id: 3, text: "Saya mau tanya stok daging ayam broiler untuk besok. Bisa kirim 200kg ke Dapur SPPG Tebet?", sender: "vendor", time: "14:18" },
-    { id: 4, text: "Bisa kirim 200kg ayam besok pagi?", sender: "vendor", time: "14:20" },
-  ]
+  const messages: { id: number; text: string; sender: string; time: string }[] = []
 
   return (
     <div className="h-[calc(100vh-2rem)] flex overflow-hidden border-t border-border">
@@ -136,14 +103,13 @@ export default function SupplierChatPage() {
         <header className="h-20 bg-card border-b border-border px-6 flex items-center justify-between">
           <div className="flex items-center gap-3">
             <Avatar className="size-10 border border-border shadow-sm">
-              <AvatarFallback className="bg-primary/10 text-primary font-bold">B</AvatarFallback>
+              <AvatarFallback className="bg-primary/10 text-primary font-bold">
+                <User className="size-4" />
+              </AvatarFallback>
             </Avatar>
             <div>
-              <h3 className="font-bold text-slate-900 text-sm">Budi (Vendor SPPG Jakarta)</h3>
-              <div className="flex items-center gap-1.5">
-                <Circle className="size-2 fill-emerald-500 text-emerald-500" />
-                <span className="text-[10px] font-bold text-emerald-600 uppercase tracking-widest">Online</span>
-              </div>
+              <h3 className="font-bold text-slate-900 text-sm">Pilih Percakapan</h3>
+              <span className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest">Belum ada chat aktif</span>
             </div>
           </div>
           <div className="flex items-center gap-2">

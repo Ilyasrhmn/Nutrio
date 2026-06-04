@@ -1,45 +1,66 @@
-"use client";
+"use client"
 
-import * as React from "react";
+import * as React from "react"
+import Link from "next/link"
 import {
-  CheckCircle2,
-  Clock,
-  Calendar,
-  Search,
-  ExternalLink,
-  Target,
-  ShieldCheck,
-  Flame,
-  Lock,
-  Zap,
-  HelpCircle,
-} from "lucide-react";
+  Package, ChefHat, BoxSelect, Truck,
+  CheckCircle2, Lock, Upload, RefreshCw,
+  Loader2, Brain, ExternalLink,
+} from "lucide-react"
+import { Button } from "@workspace/ui/components/button"
+import { Card, CardContent } from "@workspace/ui/components/card"
+import { Badge } from "@workspace/ui/components/badge"
+import { cn } from "@workspace/ui/lib/utils"
+import { useToast } from "@workspace/ui/hooks/use-toast"
+import { api } from "../../../../lib/api-client"
 
-import { Button } from "@workspace/ui/components/button";
-import { Input } from "@workspace/ui/components/input";
-import {
-  Card,
-  CardContent,
-  CardHeader,
-  CardTitle,
-  CardDescription,
-} from "@workspace/ui/components/card";
-import { Badge } from "@workspace/ui/components/badge";
-import { Progress } from "@workspace/ui/components/progress";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@workspace/ui/components/table";
-import {
-  Alert,
-  AlertDescription,
-  AlertTitle,
-} from "@workspace/ui/components/alert";
-import { cn } from "@workspace/ui/lib/utils";
+interface CpEvent {
+  id: string
+  cpType: "CP1" | "CP2" | "CP3" | "CP4"
+  cpStatus: "pending" | "in_progress" | "done" | "failed" | "force_closed"
+  photos: Array<{ fileKey: string; fileUrl: string }>
+  aiValidation: { pass: boolean; reason: string; confidence: number } | null
+  completedAt: string | null
+}
+
+type CpKey = "CP1" | "CP2" | "CP3" | "CP4"
+
+const CP_META: Record<CpKey, { label: string; Icon: React.ElementType; hint: string; deadline: string; iconBg: string; text: string; bg: string; ring: string; badgeCn: string; dashedCn: string; cardBorderActive: string }> = {
+  CP1: {
+    label: "Penerimaan Bahan Baku", Icon: Package, deadline: "sebelum 10:00",
+    hint: "Foto tumpukan bahan baku yang baru diterima dari pemasok",
+    iconBg: "bg-blue-100 text-blue-600", text: "text-blue-700", bg: "bg-blue-50",
+    ring: "ring-2 ring-blue-200", badgeCn: "bg-blue-50 text-blue-700 border-blue-100",
+    dashedCn: "border-blue-200 hover:border-blue-400 hover:bg-blue-50",
+    cardBorderActive: "border-blue-200 shadow-md shadow-blue-100/50",
+  },
+  CP2: {
+    label: "Produksi Makanan", Icon: ChefHat, deadline: "sebelum 12:00",
+    hint: "Foto makanan yang sedang atau telah selesai dimasak",
+    iconBg: "bg-orange-100 text-orange-600", text: "text-orange-700", bg: "bg-orange-50",
+    ring: "ring-2 ring-orange-200", badgeCn: "bg-orange-50 text-orange-700 border-orange-100",
+    dashedCn: "border-orange-200 hover:border-orange-400 hover:bg-orange-50",
+    cardBorderActive: "border-orange-200 shadow-md shadow-orange-100/50",
+  },
+  CP3: {
+    label: "Pengemasan & Pelabelan", Icon: BoxSelect, deadline: "sebelum 13:00",
+    hint: "Foto box makanan yang sudah dikemas dan berlabel QR",
+    iconBg: "bg-purple-100 text-purple-600", text: "text-purple-700", bg: "bg-purple-50",
+    ring: "ring-2 ring-purple-200", badgeCn: "bg-purple-50 text-purple-700 border-purple-100",
+    dashedCn: "border-purple-200 hover:border-purple-400 hover:bg-purple-50",
+    cardBorderActive: "border-purple-200 shadow-md shadow-purple-100/50",
+  },
+  CP4: {
+    label: "Distribusi & Konfirmasi", Icon: Truck, deadline: "sebelum 14:00",
+    hint: "Foto kendaraan atau proses pengiriman ke sekolah",
+    iconBg: "bg-emerald-100 text-emerald-600", text: "text-emerald-700", bg: "bg-emerald-50",
+    ring: "ring-2 ring-emerald-200", badgeCn: "bg-emerald-50 text-emerald-700 border-emerald-100",
+    dashedCn: "border-emerald-200 hover:border-emerald-400 hover:bg-emerald-50",
+    cardBorderActive: "border-emerald-200 shadow-md shadow-emerald-100/50",
+  },
+}
+
+const CP_ORDER: CpKey[] = ["CP1", "CP2", "CP3", "CP4"]
 
 export default function CheckpointsPage() {
   const [dailyScore] = React.useState(95);
@@ -326,5 +347,5 @@ export default function CheckpointsPage() {
         </div>
       </Card>
     </div>
-  );
+  )
 }

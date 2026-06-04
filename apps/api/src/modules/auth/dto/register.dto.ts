@@ -1,4 +1,4 @@
-import { IsEmail, IsEnum, IsNotEmpty, IsString, MinLength } from 'class-validator';
+import { IsEmail, IsEnum, IsNotEmpty, IsOptional, IsString, MinLength } from 'class-validator';
 import { UserRole } from '@workspace/common';
 
 export class RegisterDto {
@@ -18,4 +18,16 @@ export class RegisterDto {
   @IsEnum(UserRole, { message: 'Invalid role' })
   @IsNotEmpty()
   role: UserRole;
+
+  @IsString()
+  @IsOptional()
+  eligibilityToken?: string;
+
+  @IsString()
+  @IsOptional()
+  businessName?: string;
+
+  @IsString()
+  @IsOptional()
+  phone?: string;
 }

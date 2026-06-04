@@ -21,17 +21,33 @@ import { Button } from "@workspace/ui/components/button"
 import { Input } from "@workspace/ui/components/input"
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@workspace/ui/components/card"
 import { Badge } from "@workspace/ui/components/badge"
-import { 
-  Table, 
-  TableBody, 
-  TableCell, 
-  TableHead, 
-  TableHeader, 
-  TableRow 
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow
 } from "@workspace/ui/components/table"
 import { cn } from "@workspace/ui/lib/utils"
 
-const ReactApexChart = dynamic(() => import('react-apexcharts'), { ssr: false });
+const ReactApexChart = dynamic(() => import('react-apexcharts'), { ssr: false })
+
+interface ReportStats {
+  complianceRate: number
+  fraudPreventionRate: number
+  stats: {
+    highScore: number
+    midScore: number
+    lowScore: number
+    totalWithData: number
+    totalActive: number
+    cpDoneToday: number
+    cpTotalToday: number
+    cp3DoneToday: number
+  }
+  anomalies: { vendorId: string; vendorName: string; score: number; lastReason: string }[]
+}
 
 export default function AIReportsPage() {
   const [hoveredRow, setHoveredRow] = React.useState<number | null>(null);
@@ -56,7 +72,7 @@ export default function AIReportsPage() {
     },
     colors: ['#10b981'], // emerald-500
     stroke: { lineCap: 'round' }
-  };
+  }
 
   const fraudChartOptions: any = {
     chart: { type: 'radialBar', sparkline: { enabled: true } },
@@ -78,7 +94,17 @@ export default function AIReportsPage() {
     },
     colors: ['#8b5cf6'], // violet-500
     stroke: { lineCap: 'round' }
-  };
+  }
+
+  const scoreRiskLabel = (score: number) => {
+    if (score < 60) return { label: "Tinggi", cn: "bg-red-50 text-red-600 border-red-100" }
+    if (score < 80) return { label: "Sedang", cn: "bg-amber-50 text-amber-600 border-amber-100" }
+    return { label: "Rendah", cn: "bg-emerald-50 text-emerald-600 border-emerald-100" }
+  }
+
+  const filteredAnomalies = (data?.anomalies ?? []).filter(a =>
+    !q || a.vendorName.toLowerCase().includes(q.toLowerCase()) || a.lastReason.toLowerCase().includes(q.toLowerCase())
+  )
 
   return (
     <div className="min-h-screen bg-[#F0F3F7] animate-in fade-in duration-500 pb-12">

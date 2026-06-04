@@ -2,12 +2,12 @@
 
 import * as React from "react"
 import Link from "next/link"
-import { 
-  Search, 
-  MapPin, 
-  Star, 
-  Store, 
-  ShieldCheck, 
+import {
+  Search,
+  MapPin,
+  Star,
+  Store,
+  ShieldCheck,
   ChevronRight,
   Filter,
   Sparkles,

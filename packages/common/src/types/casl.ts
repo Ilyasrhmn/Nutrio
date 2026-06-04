@@ -37,6 +37,21 @@ export type AppSubject =
   | "SupplierShop"
   | "SupplierProducts"
   | "SupplierChat"
+  | "Eligibility"
+  | "Document"
+  | "Inspection"
+  | "Onboarding"
+  | "MissionControl"
+  | "Checkpoint"
+  | "DeliveryToken"
+  | "SchoolConfirm"
+  | "Scoring"
+  | "Debrief"
+  | "RAG"
+  | "CommandCenter"
+  | "RiskIntelligence"
+  | "Intervention"
+  | "PublicDashboard"
   | "all";
 
 export type Permission = {

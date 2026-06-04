@@ -10,7 +10,6 @@ import {
   ShieldCheck,
   ArrowLeft,
   ChevronRight,
-  Info,
   CheckCircle2,
   Package,
   Plus,
@@ -44,9 +43,8 @@ import {
 import { Button } from "@workspace/ui/components/button"
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from "@workspace/ui/components/card"
 import { Badge } from "@workspace/ui/components/badge"
-import { Avatar, AvatarFallback, AvatarImage } from "@workspace/ui/components/avatar"
+import { Avatar, AvatarFallback } from "@workspace/ui/components/avatar"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@workspace/ui/components/tabs"
-import { Separator } from "@workspace/ui/components/separator"
 import { Input } from "@workspace/ui/components/input"
 import { Alert, AlertDescription } from "@workspace/ui/components/alert"
 import { cn } from "@workspace/ui/lib/utils"
@@ -147,12 +145,52 @@ export default function SupplierMarketplacePage({ params }: { params: { supplier
   const addToCart = (product: Product) => {
     setCart(prev => {
       const existing = prev.find(item => item.id === product.id)
-      if (existing) {
-        return prev.map(item => item.id === product.id ? { ...item, qty: item.qty + 1 } : item)
-      }
+      if (existing) return prev.map(item => item.id === product.id ? { ...item, qty: item.qty + 1 } : item)
       return [...prev, { ...product, qty: 1 }]
     })
     setAddedItems(prev => [...prev, product.id])
+    setTimeout(() => setAddedItems(prev => prev.filter(id => id !== product.id)), 2000)
+    toast({ title: "Ditambahkan", description: `${product.name} masuk ke keranjang pengadaan.` })
+  }
+
+  const removeFromCart = (id: string) => setCart(prev => prev.filter(item => item.id !== id))
+
+  const totalEstimasi = cart.reduce((acc, item) => {
+    const price = item.price_per_unit ? parseFloat(item.price_per_unit) : 0
+    return acc + price * item.qty
+  }, 0)
+
+  const AUTO_REPLIES = [
+    "Halo! Terima kasih sudah menghubungi kami. Ada yang bisa kami bantu? 😊",
+    "Untuk pemesanan dalam jumlah besar, kami bisa berikan harga khusus. Bisa minta info lebih lanjut?",
+    "Pengiriman biasanya kami lakukan H+1 setelah PO dikonfirmasi. Mau tahu jadwal lebih detail?",
+    "Produk kami selalu segar karena langsung dari sumber. Ada produk spesifik yang ingin ditanyakan?",
+  ]
+
+  React.useEffect(() => {
+    if (isChatOpen && chatMessages.length === 0 && supplier) {
+      setTimeout(() => {
+        setChatMessages([{
+          id: "welcome",
+          from: "supplier",
+          text: `Halo! Selamat datang di ${supplier.business_name}. Ada yang bisa kami bantu hari ini? 😊`,
+          time: new Date(),
+        }])
+      }, 500)
+    }
+  }, [isChatOpen, supplier])
+
+  React.useEffect(() => {
+    chatBottomRef.current?.scrollIntoView({ behavior: "smooth" })
+  }, [chatMessages, isTyping])
+
+  const sendChatMessage = () => {
+    const text = chatInput.trim()
+    if (!text) return
+    const msg = { id: Date.now().toString(), from: "me" as const, text, time: new Date() }
+    setChatMessages(prev => [...prev, msg])
+    setChatInput("")
+    setIsTyping(true)
     setTimeout(() => {
       setAddedItems(prev => prev.filter(id => id !== product.id))
     }, 1500)
@@ -507,7 +545,7 @@ export default function SupplierMarketplacePage({ params }: { params: { supplier
                           </Badge>
                         ))}
                       </div>
-                    </div>
+                    )}
                   </CardContent>
                 </Card>
               </div>

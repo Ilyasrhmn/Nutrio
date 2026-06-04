@@ -22,7 +22,7 @@ export class ApiException extends Error {
 
 // --- Konfigurasi Environment ---
 // Sesuaikan base URL dengan env atau default ke lokal
-const baseURL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001';
+const baseURL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3333';
 
 // --- Instance Axios ---
 export const apiClient = axios.create({

@@ -139,6 +139,23 @@ export default class PermissionSeed {
         { action: 'update', subject: 'Settings', description: 'Can update settings' },
         { action: 'delete', subject: 'Settings', description: 'Can delete settings' },
         
+        // New module permissions (added for PRD v2 features)
+        { action: 'read', subject: 'Eligibility', description: 'Can access eligibility wizard' },
+        { action: 'read', subject: 'Document', description: 'Can view vendor documents' },
+        { action: 'read', subject: 'Inspection', description: 'Can access inspection module' },
+        { action: 'read', subject: 'Onboarding', description: 'Can access onboarding wizard' },
+        { action: 'read', subject: 'MissionControl', description: 'Can access mission control' },
+        { action: 'read', subject: 'Checkpoint', description: 'Can submit checkpoints' },
+        { action: 'read', subject: 'DeliveryToken', description: 'Can access delivery token flow' },
+        { action: 'read', subject: 'SchoolConfirm', description: 'Can confirm school delivery' },
+        { action: 'read', subject: 'Scoring', description: 'Can view scoring data' },
+        { action: 'read', subject: 'Debrief', description: 'Can view daily debrief' },
+        { action: 'read', subject: 'RAG', description: 'Can use RAG assistant' },
+        { action: 'read', subject: 'CommandCenter', description: 'Can access BGN command center' },
+        { action: 'read', subject: 'RiskIntelligence', description: 'Can view risk intelligence' },
+        { action: 'read', subject: 'Intervention', description: 'Can access intervention tools' },
+        { action: 'read', subject: 'PublicDashboard', description: 'Can view public transparency dashboard' },
+
         // Management level permissions
         { action: 'manage', subject: 'all', description: 'Full access to all resources' },
       ];
