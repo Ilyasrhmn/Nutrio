@@ -25,9 +25,16 @@ if (!process.env.DATABASE_URL) {
 export const AppDataSource = new DataSource({
   type: 'postgres',
   url: process.env.DATABASE_URL,
-  synchronize: false, // Must be false for safe migrations
-  logging: true,
+  synchronize: false,
+  logging: false, // reduce noise in serverless logs
   entities: [__dirname + '/../**/*.entity{.ts,.js}'],
   migrations: [__dirname + '/../database/migrations/*{.ts,.js}'],
   subscribers: [],
+  extra: {
+    // Serverless-friendly: single connection, short timeout, no idle keepalive
+    max: 1,
+    connectionTimeoutMillis: 10000,
+    idleTimeoutMillis: 0,
+    ssl: { rejectUnauthorized: false }, // Neon DB requires SSL; bypass cert validation
+  },
 });
