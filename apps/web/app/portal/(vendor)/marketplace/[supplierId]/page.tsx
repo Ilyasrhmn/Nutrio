@@ -37,7 +37,8 @@ import {
   Mail,
   Globe,
   ChevronDown,
-  SlidersHorizontal
+  SlidersHorizontal,
+  Info
 } from "lucide-react"
 
 import { Button } from "@workspace/ui/components/button"
@@ -49,6 +50,7 @@ import { Input } from "@workspace/ui/components/input"
 import { Alert, AlertDescription } from "@workspace/ui/components/alert"
 import { cn } from "@workspace/ui/lib/utils"
 import { useToast } from "@workspace/ui/hooks/use-toast"
+import { Separator } from "@workspace/ui/components/separator"
 
 interface Product {
   id: number;
@@ -72,6 +74,12 @@ export default function SupplierMarketplacePage({ params }: { params: { supplier
   const [addedItems, setAddedItems] = React.useState<number[]>([])
   const [activeTab, setActiveTab] = React.useState<'katalog' | 'ulasan' | 'legalitas'>('katalog')
   const [showCart, setShowCart] = React.useState(false)
+  const [chatMessages, setChatMessages] = React.useState<{ id: string; from: "me" | "supplier"; text: string; time: Date }[]>([])
+  const [chatInput, setChatInput] = React.useState("")
+  const [isTyping, setIsTyping] = React.useState(false)
+  const chatBottomRef = React.useRef<HTMLDivElement>(null)
+
+  const supplier = { business_name: "PT Tani Makmur Sejahtera" }
 
   const { toast } = useToast()
 
@@ -153,13 +161,6 @@ export default function SupplierMarketplacePage({ params }: { params: { supplier
     toast({ title: "Ditambahkan", description: `${product.name} masuk ke keranjang pengadaan.` })
   }
 
-  const removeFromCart = (id: string) => setCart(prev => prev.filter(item => item.id !== id))
-
-  const totalEstimasi = cart.reduce((acc, item) => {
-    const price = item.price_per_unit ? parseFloat(item.price_per_unit) : 0
-    return acc + price * item.qty
-  }, 0)
-
   const AUTO_REPLIES = [
     "Halo! Terima kasih sudah menghubungi kami. Ada yang bisa kami bantu? 😊",
     "Untuk pemesanan dalam jumlah besar, kami bisa berikan harga khusus. Bisa minta info lebih lanjut?",
@@ -192,12 +193,10 @@ export default function SupplierMarketplacePage({ params }: { params: { supplier
     setChatInput("")
     setIsTyping(true)
     setTimeout(() => {
-      setAddedItems(prev => prev.filter(id => id !== product.id))
+      const reply = AUTO_REPLIES[Math.floor(Math.random() * AUTO_REPLIES.length)] ?? ""
+      setChatMessages(prev => [...prev, { id: Date.now().toString(), from: "supplier" as const, text: reply, time: new Date() }])
+      setIsTyping(false)
     }, 1500)
-    toast({
-      title: "Ditambahkan ke Keranjang",
-      description: `${product.name} berhasil ditambahkan.`,
-    })
   }
 
   const removeFromCart = (id: number) => {
@@ -545,7 +544,7 @@ export default function SupplierMarketplacePage({ params }: { params: { supplier
                           </Badge>
                         ))}
                       </div>
-                    )}
+                    </div>
                   </CardContent>
                 </Card>
               </div>
