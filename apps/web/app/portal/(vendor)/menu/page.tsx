@@ -3,16 +3,10 @@
 import * as React from "react"
 import Link from "next/link"
 import { 
-  CalendarDays, 
-  Utensils, 
-  School, 
   ChefHat, 
-  Scale, 
-  Calculator, 
   ShoppingCart, 
   Save, 
   Info,
-  ChevronRight,
   TrendingUp,
   FileText,
   Plus,
@@ -24,10 +18,8 @@ import {
 import { Button } from "@workspace/ui/components/button"
 import { Input } from "@workspace/ui/components/input"
 import { Label } from "@workspace/ui/components/label"
-import { Textarea } from "@workspace/ui/components/textarea"
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@workspace/ui/components/card"
 import { Badge } from "@workspace/ui/components/badge"
-import { Progress } from "@workspace/ui/components/progress"
 import { Separator } from "@workspace/ui/components/separator"
 import { cn } from "@workspace/ui/lib/utils"
 
@@ -82,46 +74,46 @@ export default function MenuPlanningPage() {
   }
 
   return (
-    <div className="p-8 space-y-8 bg-background min-h-screen">
+    <div className="p-6 lg:p-8 space-y-6 max-w-7xl mx-auto animate-in fade-in duration-500">
       {/* Header */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+      <div className="flex flex-col md:flex-row md:items-start justify-between gap-4">
         <div className="space-y-1">
-          <h2 className="text-3xl font-black text-foreground tracking-tight flex items-center gap-3">
-            <ChefHat className="size-8 text-primary" />
+          <h1 className="text-2xl font-bold text-slate-900 tracking-tight flex items-center gap-3">
+            <ChefHat className="size-6 text-primary" />
             Penyusunan Menu & Nutrisi
-          </h2>
-          <p className="text-muted-foreground font-medium max-w-2xl text-sm leading-relaxed">
-            Rancang menu harian SPPG secara mandiri. Sistem akan menghitung nutrisi secara real-time berdasarkan takaran per porsi.
+          </h1>
+          <p className="text-slate-500 font-medium text-sm">
+            Rancang menu harian SPPG secara mandiri berdasarkan takaran per porsi.
           </p>
         </div>
-        <div className="flex items-center gap-3 bg-card border border-border px-5 py-3 rounded-2xl shadow-sm">
-          <div className="size-2 bg-emerald-500 rounded-full animate-pulse" />
-          <span className="text-sm font-bold text-foreground">Planning Phase</span>
+        <div className="flex items-center gap-2 bg-white border border-slate-200/60 px-4 py-2 rounded-xl shadow-sm">
+          <div className="size-1.5 bg-emerald-500 rounded-full animate-pulse" />
+          <span className="text-xs font-bold text-slate-700 uppercase tracking-widest">Planning Phase</span>
         </div>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
         {/* Left: Input Section */}
         <div className="lg:col-span-8 space-y-6">
-          <Card className="border-border shadow-sm bg-card rounded-[32px] overflow-hidden">
-            <CardHeader className="p-8 border-b border-border/50">
+          <Card className="border-slate-200/60 shadow-sm rounded-xl overflow-hidden">
+            <CardHeader className="p-6 border-b border-slate-100 bg-slate-50/50">
               <div className="space-y-4">
-                <div className="flex items-center gap-2">
+                <div className="flex items-center gap-2 text-slate-700">
                   <FileText className="size-4 text-primary" />
-                  <span className="text-[10px] font-black text-muted-foreground uppercase tracking-widest">Informasi Dasar</span>
+                  <span className="text-[10px] font-bold uppercase tracking-widest">Informasi Dasar</span>
                 </div>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  <div className="space-y-2">
-                    <Label className="text-xs font-bold text-foreground pl-1">Nama Menu</Label>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="space-y-1.5">
+                    <Label className="text-xs font-bold text-slate-700 pl-1">Nama Menu</Label>
                     <Input 
                       value={menuName} 
                       onChange={(e) => setMenuName(e.target.value)}
-                      className="h-12 rounded-xl border-border bg-muted/30 font-bold focus:bg-card"
+                      className="h-10 rounded-lg border-slate-200 bg-white font-semibold focus:ring-primary/20 text-sm"
                     />
                   </div>
-                  <div className="space-y-2">
-                    <Label className="text-xs font-bold text-foreground pl-1">Target Porsi (Demand Zona)</Label>
-                    <div className="flex items-center gap-3 h-12 bg-muted/30 border border-border rounded-xl px-4 font-black text-primary">
+                  <div className="space-y-1.5">
+                    <Label className="text-xs font-bold text-slate-700 pl-1">Target Porsi (Demand Zona)</Label>
+                    <div className="flex items-center gap-2 h-10 bg-slate-100/50 border border-slate-200 rounded-lg px-3 font-bold text-primary text-sm">
                       <Users className="size-4" />
                       {totalPortions} Porsi
                     </div>
@@ -129,45 +121,45 @@ export default function MenuPlanningPage() {
                 </div>
               </div>
             </CardHeader>
-            <CardContent className="p-8 space-y-6">
-              <div className="flex items-center justify-between">
+            <CardContent className="p-6 space-y-4">
+              <div className="flex items-center justify-between pb-2 border-b border-slate-100">
                 <div className="flex items-center gap-2">
                   <Zap className="size-4 text-amber-500" />
-                  <span className="text-[10px] font-black text-muted-foreground uppercase tracking-widest">Komposisi Bahan Baku (Per Porsi)</span>
+                  <span className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">Komposisi Bahan (Per Porsi)</span>
                 </div>
-                <Button variant="ghost" size="sm" onClick={addIngredient} className="h-8 text-[10px] font-black uppercase text-primary hover:bg-primary/5 gap-1">
+                <Button variant="ghost" size="sm" onClick={addIngredient} className="h-8 text-[10px] font-bold uppercase text-primary hover:bg-primary/5 gap-1 rounded-lg">
                   <Plus className="size-3" /> Tambah Bahan
                 </Button>
               </div>
 
               <div className="space-y-3">
                 {ingredients.map((ing) => (
-                  <div key={ing.id} className="flex items-center gap-4 animate-in slide-in-from-left-2 duration-300">
+                  <div key={ing.id} className="flex items-center gap-3 animate-in slide-in-from-bottom-2 duration-300">
                     <div className="flex-1">
                       <select 
                         value={ing.name}
                         onChange={(e) => updateIngredient(ing.id, 'name', e.target.value)}
-                        className="w-full h-11 rounded-xl border border-border bg-muted/20 px-4 text-sm font-bold text-foreground focus:ring-2 focus:ring-primary/20 outline-none"
+                        className="w-full h-10 rounded-lg border border-slate-200 bg-white px-3 text-sm font-semibold text-slate-700 focus:ring-2 focus:ring-primary/20 outline-none"
                       >
                         {Object.keys(NUTRI_STANDARDS).map(name => (
                           <option key={name} value={name}>{name}</option>
                         ))}
                       </select>
                     </div>
-                    <div className="relative w-32">
+                    <div className="relative w-28">
                       <Input 
                         type="number"
                         value={ing.weight}
                         onChange={(e) => updateIngredient(ing.id, 'weight', parseInt(e.target.value) || 0)}
-                        className="h-11 rounded-xl border-border bg-muted/20 pr-10 font-black text-right"
+                        className="h-10 rounded-lg border-slate-200 bg-white pr-8 font-bold text-right text-sm focus:ring-primary/20"
                       />
-                      <span className="absolute right-3 top-1/2 -translate-y-1/2 text-[10px] font-bold text-muted-foreground uppercase">gr</span>
+                      <span className="absolute right-3 top-1/2 -translate-y-1/2 text-[10px] font-bold text-slate-400 uppercase">gr</span>
                     </div>
                     <Button 
                       variant="ghost" 
                       size="icon" 
                       onClick={() => removeIngredient(ing.id)}
-                      className="size-11 rounded-xl text-muted-foreground hover:text-destructive hover:bg-destructive/5"
+                      className="size-10 rounded-lg text-slate-400 hover:text-red-600 hover:bg-red-50"
                     >
                       <Trash2 className="size-4" />
                     </Button>
@@ -177,44 +169,44 @@ export default function MenuPlanningPage() {
             </CardContent>
           </Card>
 
-          <div className="flex items-center justify-end gap-3">
-             <Button variant="ghost" className="rounded-full h-12 px-8 font-bold text-muted-foreground hover:text-primary">
+          <div className="flex flex-col sm:flex-row items-center justify-end gap-3 pt-2">
+             <Button variant="ghost" className="w-full sm:w-auto rounded-lg h-10 px-6 font-bold text-slate-500 hover:text-slate-900 hover:bg-white">
                Batal
              </Button>
-             <Link href="/portal/operasional/kalkulasi-bahan">
-               <Button className="rounded-full h-12 px-10 font-black shadow-xl shadow-primary/20 gap-3">
-                 <Save className="size-5" />
-                 Simpan & Lanjut ke Kalkulasi Logistik
+             <Link href="/portal/operasional/kalkulasi-bahan" className="w-full sm:w-auto">
+               <Button className="w-full sm:w-auto rounded-lg h-10 px-6 font-bold shadow-sm gap-2">
+                 <Save className="size-4" />
+                 Simpan & Kalkulasi Logistik
                </Button>
              </Link>
           </div>
         </div>
 
-        {/* Right: Nutrition Sidebar (Sticky) */}
-        <div className="lg:col-span-4 sticky top-8">
-          <Card className="border-border shadow-xl bg-card rounded-[32px] overflow-hidden">
-            <CardHeader className="p-8 bg-slate-900 text-white">
-              <div className="flex items-center gap-2 mb-2">
-                <Target className="size-4 text-emerald-400" />
-                <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Nutri-Score Analysis</span>
+        {/* Right: Nutrition Sidebar */}
+        <div className="lg:col-span-4 sticky top-24">
+          <Card className="border-slate-200/60 shadow-sm rounded-xl overflow-hidden bg-white">
+            <CardHeader className="p-6 bg-gradient-to-br from-slate-900 to-slate-800 text-white border-b border-slate-800">
+              <div className="flex items-center gap-2 mb-1">
+                <Target className="size-3.5 text-emerald-400" />
+                <span className="text-[10px] font-bold text-slate-300 uppercase tracking-widest">Nutri-Score Analysis</span>
               </div>
-              <div className="space-y-1">
-                <h3 className="text-3xl font-black tracking-tight">{totals.kcal} <span className="text-sm font-bold opacity-50 uppercase tracking-tighter">kcal</span></h3>
-                <p className="text-[11px] font-bold text-slate-400">Hasil estimasi nutrisi per porsi</p>
+              <div className="space-y-0.5">
+                <h3 className="text-3xl font-bold tracking-tight">{totals.kcal} <span className="text-xs font-semibold opacity-60 uppercase tracking-widest">kcal</span></h3>
+                <p className="text-[10px] text-slate-400 font-medium">Hasil estimasi nutrisi per porsi</p>
               </div>
             </CardHeader>
-            <CardContent className="p-8 space-y-8">
+            <CardContent className="p-6 space-y-6">
               {/* Kalori Progress */}
-              <div className="space-y-3">
-                <div className="flex items-center justify-between text-[11px] font-black uppercase tracking-widest">
-                  <span className="text-muted-foreground">Kalori (Target: {targetKcal})</span>
+              <div className="space-y-2">
+                <div className="flex items-center justify-between text-[10px] font-bold uppercase tracking-widest">
+                  <span className="text-slate-500">Kalori (Target: {targetKcal})</span>
                   <span className={cn(
-                    totals.kcal >= targetKcal ? "text-emerald-500" : "text-amber-500"
+                    totals.kcal >= targetKcal ? "text-emerald-600" : "text-amber-600"
                   )}>
-                    {totals.kcal >= targetKcal ? "Target Tercapai" : `Kurang ${targetKcal - totals.kcal}`}
+                    {totals.kcal >= targetKcal ? "Tercapai" : `Kurang ${targetKcal - totals.kcal}`}
                   </span>
                 </div>
-                <div className="relative h-4 w-full bg-muted rounded-full overflow-hidden">
+                <div className="relative h-2 w-full bg-slate-100 rounded-full overflow-hidden">
                   <div 
                     className={cn(
                       "absolute inset-y-0 left-0 transition-all duration-700 rounded-full",
@@ -222,21 +214,21 @@ export default function MenuPlanningPage() {
                     )}
                     style={{ width: `${kcalProgress}%` }}
                   />
-                  <div className="absolute top-0 left-[100%] border-l border-white h-full" style={{ left: '100%' }} />
+                  <div className="absolute top-0 border-l-2 border-white h-full z-10" style={{ left: '100%' }} />
                 </div>
               </div>
 
               {/* Protein Progress */}
-              <div className="space-y-3">
-                <div className="flex items-center justify-between text-[11px] font-black uppercase tracking-widest">
-                  <span className="text-muted-foreground">Protein (Target: {targetProtein}g)</span>
+              <div className="space-y-2">
+                <div className="flex items-center justify-between text-[10px] font-bold uppercase tracking-widest">
+                  <span className="text-slate-500">Protein (Target: {targetProtein}g)</span>
                   <span className={cn(
-                    totals.protein >= targetProtein ? "text-emerald-500" : "text-amber-500"
+                    totals.protein >= targetProtein ? "text-emerald-600" : "text-amber-600"
                   )}>
                     {totals.protein >= targetProtein ? "Aman" : `${totals.protein}g / ${targetProtein}g`}
                   </span>
                 </div>
-                <div className="relative h-4 w-full bg-muted rounded-full overflow-hidden">
+                <div className="relative h-2 w-full bg-slate-100 rounded-full overflow-hidden">
                   <div 
                     className={cn(
                       "absolute inset-y-0 left-0 transition-all duration-700 rounded-full",
@@ -247,30 +239,30 @@ export default function MenuPlanningPage() {
                 </div>
               </div>
 
-              <Separator className="bg-border/50" />
+              <Separator className="bg-slate-100" />
 
-              <div className="p-4 rounded-2xl bg-primary/5 border border-primary/10 space-y-3">
+              <div className="p-4 rounded-xl bg-slate-50 border border-slate-100 space-y-3">
                 <div className="flex items-center gap-2">
-                  <TrendingUp className="size-4 text-primary" />
-                  <span className="text-[10px] font-black text-primary uppercase">Rangkuman Produksi</span>
+                  <TrendingUp className="size-3.5 text-primary" />
+                  <span className="text-[10px] font-bold text-slate-600 uppercase tracking-widest">Rangkuman Produksi</span>
                 </div>
                 <div className="space-y-2">
                   <div className="flex justify-between text-xs">
-                    <span className="text-muted-foreground font-medium">Total Porsi</span>
-                    <span className="font-black text-foreground">{totalPortions}</span>
+                    <span className="text-slate-500 font-medium">Total Porsi</span>
+                    <span className="font-bold text-slate-900">{totalPortions}</span>
                   </div>
                   <div className="flex justify-between text-xs">
-                    <span className="text-muted-foreground font-medium">Beban Bahan Baku</span>
-                    <span className="font-black text-foreground">
+                    <span className="text-slate-500 font-medium">Beban Bahan Baku</span>
+                    <span className="font-bold text-slate-900">
                       {Math.round(ingredients.reduce((acc, curr) => acc + curr.weight, 0) * totalPortions / 1000)} kg
                     </span>
                   </div>
                 </div>
               </div>
 
-              <div className="flex items-center gap-2 text-[10px] font-bold text-muted-foreground italic leading-relaxed">
-                <Info className="size-3 shrink-0" />
-                Data nutrisi dihitung berdasarkan porsi standar SPPG 2026.
+              <div className="flex items-start gap-2 text-[10px] font-medium text-slate-400 italic leading-relaxed bg-white/50">
+                <Info className="size-3.5 shrink-0 text-slate-300 mt-0.5" />
+                Data nutrisi dihitung berdasarkan porsi standar SPPG 2026 yang telah divalidasi oleh AI.
               </div>
             </CardContent>
           </Card>
