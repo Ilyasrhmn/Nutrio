@@ -49,11 +49,7 @@ interface StockItem {
 export default function StockOpnamePage() {
   const { toast } = useToast()
   
-  const [stockItems, setStockItems] = React.useState<StockItem[]>([
-    { id: "1", category: "Sembako", name: "Beras Putih (Premium)", qty: 5, unit: "kg", condition: "Layak Pakai" },
-    { id: "2", category: "Daging & Unggas", name: "Daging Ayam Fillet", qty: 2.5, unit: "kg", condition: "Layak Pakai" },
-    { id: "3", category: "Sayur & Buah", name: "Tomat Merah", qty: 1.2, unit: "kg", condition: "Rusak" },
-  ])
+  const [stockItems, setStockItems] = React.useState<StockItem[]>([])
 
   const handleUpdateField = (id: string, field: keyof StockItem, value: any) => {
     setStockItems(prev => prev.map(item => 

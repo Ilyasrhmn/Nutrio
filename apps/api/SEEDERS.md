@@ -12,10 +12,13 @@ Menggunakan **typeorm-extension** untuk CLI yang lebih mirip Sequelize.
 | `admin@bgn.go.id` | `Admin123!` | Administrator BGN Pusat |
 
 ### Vendor (Mitra SPPG)
-| Email | Password | Role |
-|-------|----------|------|
-| `vendor@sppg.go.id` | `Vendor123!` | Mitra SPPG Jakarta |
-| `vendor2@sppg.go.id` | `Vendor123!` | Mitra SPPG Bandung |
+| Email | Password | Role | Status |
+|-------|----------|------|--------|
+| `vendor@sppg.go.id` | `Vendor123!` | Mitra SPPG Jakarta | `ACTIVE` — 30-day history, CP1-4, deliveries, POs |
+| `vendor2@sppg.go.id` | `Vendor123!` | Mitra SPPG Bandung | `INSPECTION_SCHEDULED` — mid-onboarding |
+| `vendor3@sppg.go.id` | `Vendor123!` | Mitra SPPG Surabaya | `PREPARING_DOCS` |
+| `vendor4@sppg.go.id` | `Vendor123!` | Mitra SPPG Medan | `UNDER_REVIEW` |
+| `vendor5@sppg.go.id` | `Vendor123!` | Mitra SPPG Yogyakarta | `ONBOARDING` |
 
 ### Inspector (Pengawas)
 | Email | Password | Role |
@@ -77,12 +80,12 @@ npm run seed:generate -- product-seeder
 Setelah menjalankan seeder, Anda dapat login dengan salah satu user di atas.
 
 **Contoh Login sebagai Admin:**
-1. Buka halaman login: `http://localhost:3001/login`
+1. Buka halaman login: `http://localhost:3333/login`
 2. Email: `admin@bgn.go.id`
 3. Password: `Admin123!`
 
 **Contoh Login sebagai Vendor:**
-1. Buka halaman login: `http://localhost:3001/login`
+1. Buka halaman login: `http://localhost:3333/login`
 2. Email: `vendor@sppg.go.id`
 3. Password: `Vendor123!`
 

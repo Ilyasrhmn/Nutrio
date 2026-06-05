@@ -21,17 +21,47 @@ import { Button } from "@workspace/ui/components/button"
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@workspace/ui/components/card"
 import { Badge } from "@workspace/ui/components/badge"
 import { Progress } from "@workspace/ui/components/progress"
-import { 
-  Table, 
-  TableBody, 
-  TableCell, 
-  TableHead, 
-  TableHeader, 
-  TableRow 
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow
 } from "@workspace/ui/components/table"
 import { cn } from "@workspace/ui/lib/utils"
 
 const ReactApexChart = dynamic(() => import('react-apexcharts'), { ssr: false });
+
+interface FundSummary {
+  totalAlokasi: number;
+  totalTersalurkan: number;
+  sisaAnggaran: number;
+  realisasiPct: number;
+  trendData: { date: string; amount: number }[];
+}
+
+interface FundTransaction {
+  id: string;
+  vendorName: string;
+  paidAt: string | null;
+  amount: number;
+  status: string;
+  invoiceNumber: string | null;
+}
+
+function formatRupiah(value: number) {
+  if (value === 0) return '—';
+  return new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', maximumFractionDigits: 0 }).format(value);
+}
+
+const STATUS_LABEL: Record<string, { label: string; variant: 'default' | 'secondary' | 'destructive' | 'outline' }> = {
+  paid:    { label: 'Lunas',   variant: 'default' },
+  pending: { label: 'Pending', variant: 'secondary' },
+  failed:  { label: 'Gagal',   variant: 'destructive' },
+  expired: { label: 'Expired', variant: 'outline' },
+  refunded:{ label: 'Refund',  variant: 'outline' },
+};
 
 export default function FundTrackingPage() {
   const [hoveredRow, setHoveredRow] = React.useState<number | null>(null);
@@ -53,10 +83,7 @@ export default function FundTrackingPage() {
     fill: {
       type: 'gradient',
       gradient: {
-        shadeIntensity: 1,
-        opacityFrom: 0.45,
-        opacityTo: 0.05,
-        stops: [20, 100],
+        shadeIntensity: 1, opacityFrom: 0.45, opacityTo: 0.05, stops: [20, 100],
         colorStops: [
           { offset: 0, color: '#10b981', opacity: 0.4 },
           { offset: 100, color: '#10b981', opacity: 0.05 }

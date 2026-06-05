@@ -48,6 +48,8 @@ import { useAuth } from "@/hooks/use-auth";
 import { useUserMenu } from "@/hooks/use-user-menu";
 import { MenuTree } from "@workspace/common";
 import { AppSubject } from "@/lib/casl";
+import { NotificationBell } from "@/components/notification-bell";
+import { RAGDrawer } from "@/components/rag-drawer";
 
 const ICON_MAP: Record<string, any> = {
   LayoutDashboard,
@@ -163,6 +165,7 @@ export default function PortalLayout({
               </p>
             </div>
           </div>
+          <NotificationBell />
         </div>
 
         {/* Navigation */}

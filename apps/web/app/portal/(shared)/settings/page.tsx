@@ -24,6 +24,14 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@work
 import { Avatar, AvatarFallback, AvatarImage } from "@workspace/ui/components/avatar"
 import { cn } from "@workspace/ui/lib/utils"
 
+interface UserProfile {
+  fullName: string
+  email: string
+  role: string
+  phone: string | null
+  lastLoginAt: string | null
+}
+
 export default function SettingsPage() {
   const [activeTab, setActiveTab] = React.useState("profile");
   const [copied, setCopied] = React.useState(false);

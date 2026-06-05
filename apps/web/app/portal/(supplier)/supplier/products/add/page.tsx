@@ -2,21 +2,19 @@
 
 import * as React from "react"
 import { useRouter } from "next/navigation"
-import { 
-  Package, 
-  ArrowLeft, 
-  Save, 
-  Plus, 
-  Trash2, 
+import {
+  Package,
+  ArrowLeft,
+  Save,
+  Plus,
   Info,
-  ChevronRight
 } from "lucide-react"
 
 import { Button } from "@workspace/ui/components/button"
 import { Input } from "@workspace/ui/components/input"
 import { Label } from "@workspace/ui/components/label"
 import { Textarea } from "@workspace/ui/components/textarea"
-import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from "@workspace/ui/components/card"
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@workspace/ui/components/card"
 import {
   Select,
   SelectContent,
@@ -33,26 +31,45 @@ export default function AddProductPage() {
   const { toast } = useToast()
   const [isSubmitting, setIsSubmitting] = React.useState(false)
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const [name, setName] = React.useState("")
+  const [category, setCategory] = React.useState("")
+  const [description, setDescription] = React.useState("")
+  const [price, setPrice] = React.useState("")
+  const [unit, setUnit] = React.useState("kg")
+  const [capacity, setCapacity] = React.useState("")
+
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
+    if (!name.trim() || !category || !unit) {
+      toast({ title: "Lengkapi nama, kategori, dan satuan produk", variant: "destructive" })
+      return
+    }
     setIsSubmitting(true)
-    
-    // Simulate API Call
-    setTimeout(() => {
-      setIsSubmitting(false)
+    try {
+      const { api } = await import("@/lib/api-client")
+      await api.post("/suppliers/me/products", {
+        name: name.trim(),
+        category,
+        unit,
+        description: description.trim() || undefined,
+        pricePerUnit: price ? parseFloat(price) : undefined,
+        stockAvailable: capacity ? parseFloat(capacity) : undefined,
+      })
       toast({
         title: "Produk Berhasil Ditambahkan",
         description: "Produk baru Anda telah masuk ke katalog dan siap dilihat Vendor.",
       })
       router.push("/portal/supplier/products")
-    }, 1500)
+    } catch {
+      toast({ title: "Gagal menyimpan produk", variant: "destructive" })
+      setIsSubmitting(false)
+    }
   }
 
   return (
     <div className="p-8 space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500 max-w-5xl mx-auto">
-      {/* Top Breadcrumb & Header */}
       <div className="flex flex-col gap-4">
-        <button 
+        <button
           onClick={() => router.back()}
           className="flex items-center gap-2 text-muted-foreground hover:text-primary font-bold text-xs uppercase tracking-widest transition-colors w-fit"
         >
@@ -73,8 +90,8 @@ export default function AddProductPage() {
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-        {/* Main Form Section */}
-        <div className="lg:col-span-2 space-y-8">
+        {/* Main Form */}
+        <form onSubmit={handleSubmit} className="lg:col-span-2 space-y-8">
           <Card className="border-border shadow-sm rounded-3xl overflow-hidden">
             <CardHeader className="bg-slate-50/50 border-b border-border/50 p-8">
               <div className="flex items-center gap-3">
@@ -90,20 +107,27 @@ export default function AddProductPage() {
             <CardContent className="p-8 space-y-6">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div className="space-y-2">
-                  <Label htmlFor="name" className="font-bold text-xs uppercase tracking-widest text-slate-500">Nama Produk</Label>
-                  <Input id="name" placeholder="Misal: Ayam Broiler Segar" className="rounded-xl h-11 border-slate-200" required />
+                  <Label htmlFor="name" className="font-bold text-xs uppercase tracking-widest text-slate-500">Nama Produk *</Label>
+                  <Input
+                    id="name"
+                    placeholder="Misal: Ayam Broiler Segar"
+                    className="rounded-xl h-11 border-slate-200"
+                    value={name}
+                    onChange={(e) => setName(e.target.value)}
+                    required
+                  />
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="category" className="font-bold text-xs uppercase tracking-widest text-slate-500">Kategori</Label>
-                  <Select required>
+                  <Label htmlFor="category" className="font-bold text-xs uppercase tracking-widest text-slate-500">Kategori *</Label>
+                  <Select value={category} onValueChange={setCategory} required>
                     <SelectTrigger className="rounded-xl h-11 border-slate-200">
                       <SelectValue placeholder="Pilih Kategori" />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="daging">Daging & Unggas</SelectItem>
-                      <SelectItem value="sayur">Sayur & Buah</SelectItem>
-                      <SelectItem value="sembako">Sembako</SelectItem>
-                      <SelectItem value="bumbu">Bumbu Dapur</SelectItem>
+                      <SelectItem value="Daging & Unggas">Daging & Unggas</SelectItem>
+                      <SelectItem value="Sayur & Buah">Sayur & Buah</SelectItem>
+                      <SelectItem value="Sembako">Sembako</SelectItem>
+                      <SelectItem value="Bumbu Dapur">Bumbu Dapur</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
@@ -111,10 +135,12 @@ export default function AddProductPage() {
 
               <div className="space-y-2">
                 <Label htmlFor="description" className="font-bold text-xs uppercase tracking-widest text-slate-500">Deskripsi & Spesifikasi</Label>
-                <Textarea 
-                  id="description" 
+                <Textarea
+                  id="description"
                   placeholder="Ceritakan tentang grade, ukuran, standar kesegaran, atau jenis kemasan..."
                   className="min-h-[150px] rounded-xl resize-none border-slate-200"
+                  value={description}
+                  onChange={(e) => setDescription(e.target.value)}
                 />
               </div>
 
@@ -123,12 +149,20 @@ export default function AddProductPage() {
                   <Label htmlFor="price" className="font-bold text-xs uppercase tracking-widest text-slate-500">Harga Satuan (Rp)</Label>
                   <div className="relative">
                     <span className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 font-bold text-sm">Rp</span>
-                    <Input id="price" type="number" placeholder="Contoh: 32000" className="pl-10 rounded-xl h-11 border-slate-200" required />
+                    <Input
+                      id="price"
+                      type="number"
+                      min="0"
+                      placeholder="Contoh: 32000"
+                      className="pl-10 rounded-xl h-11 border-slate-200"
+                      value={price}
+                      onChange={(e) => setPrice(e.target.value)}
+                    />
                   </div>
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="unit" className="font-bold text-xs uppercase tracking-widest text-slate-500">Satuan</Label>
-                  <Select defaultValue="kg">
+                  <Label htmlFor="unit" className="font-bold text-xs uppercase tracking-widest text-slate-500">Satuan *</Label>
+                  <Select value={unit} onValueChange={setUnit} required>
                     <SelectTrigger className="rounded-xl h-11 border-slate-200">
                       <SelectValue placeholder="Pilih Satuan" />
                     </SelectTrigger>
@@ -156,31 +190,25 @@ export default function AddProductPage() {
                 </div>
               </div>
             </CardHeader>
-            <CardContent className="p-8 pt-0 space-y-6">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6 text-left">
-                <div className="space-y-2">
-                  <Label htmlFor="capacity" className="font-bold text-xs uppercase tracking-widest text-slate-500">Kapasitas Produksi Harian</Label>
-                  <Input id="capacity" placeholder="Contoh: 500 kg" className="rounded-xl h-11 border-slate-200" required />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="lead-time" className="font-bold text-xs uppercase tracking-widest text-slate-500">Waktu Pemesanan (Lead Time)</Label>
-                  <Select defaultValue="h1">
-                    <SelectTrigger className="rounded-xl h-11 border-slate-200">
-                      <SelectValue placeholder="Pilih Waktu" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="h0">Hari yang Sama (H+0)</SelectItem>
-                      <SelectItem value="h1">H+1 Pemesanan</SelectItem>
-                      <SelectItem value="h2">H+2 Pemesanan</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
+            <CardContent className="p-8 pt-0">
+              <div className="space-y-2">
+                <Label htmlFor="capacity" className="font-bold text-xs uppercase tracking-widest text-slate-500">Kapasitas Produksi Harian</Label>
+                <Input
+                  id="capacity"
+                  type="number"
+                  min="0"
+                  placeholder="Contoh: 500"
+                  className="rounded-xl h-11 border-slate-200"
+                  value={capacity}
+                  onChange={(e) => setCapacity(e.target.value)}
+                />
+                <p className="text-[10px] text-muted-foreground">Dalam satuan yang dipilih di atas ({unit}).</p>
               </div>
             </CardContent>
           </Card>
-        </div>
+        </form>
 
-        {/* Media & Action Section */}
+        {/* Side: Photo & Status */}
         <div className="space-y-8">
           <Card className="border-border shadow-sm rounded-3xl overflow-hidden">
             <CardHeader className="pb-4">
@@ -197,7 +225,7 @@ export default function AddProductPage() {
                   <p className="text-[10px] text-muted-foreground uppercase font-black mt-1">PNG, JPG up to 5MB</p>
                 </div>
               </div>
-              
+
               <div className="flex items-start gap-3 p-4 bg-emerald-50 rounded-2xl border border-emerald-100">
                 <Info className="size-5 text-emerald-500 shrink-0 mt-0.5" />
                 <p className="text-[11px] text-emerald-700 font-medium leading-relaxed">

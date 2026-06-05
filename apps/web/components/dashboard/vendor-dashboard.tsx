@@ -1,14 +1,13 @@
 "use client"
 
 import React from "react"
-import { 
-  CookingPot, 
-  Users, 
-  ShieldCheck, 
-  Package, 
-  CheckCircle2, 
-  Clock, 
-  ArrowRight, 
+import {
+  CookingPot,
+  Users,
+  ShieldCheck,
+  Package,
+  CheckCircle2,
+  Clock,
   Wallet,
   AlertTriangle,
   ChevronRight,
@@ -20,7 +19,61 @@ import { Progress } from "@workspace/ui/components/progress"
 import { Card, CardContent, CardHeader, CardTitle } from "@workspace/ui/components/card"
 import { cn } from "@workspace/ui/lib/utils"
 
+interface CheckpointEvent {
+  id: string
+  cpType: 'CP1' | 'CP2' | 'CP3' | 'CP4'
+  cpStatus: 'pending' | 'in_progress' | 'done' | 'failed' | 'force_closed'
+  completedAt: string | null
+}
+
+interface TodayScore {
+  score: number
+  targetPorsi?: number
+}
+
+const CP_LABELS: Record<string, string> = {
+  CP1: 'Bahan Masuk',
+  CP2: 'Proses Masak',
+  CP3: 'Porsi Siap',
+  CP4: 'Distribusi',
+}
+
+const CP_WINDOWS: Record<string, string> = {
+  CP1: '06:00',
+  CP2: '10:00',
+  CP3: '12:00',
+  CP4: '13:00',
+}
+
 export function VendorDashboard() {
+  const [checkpoints, setCheckpoints] = React.useState<CheckpointEvent[]>([])
+  const [scoreData, setScoreData] = React.useState<TodayScore | null>(null)
+  const [targetPorsi, setTargetPorsi] = React.useState<number | null>(null)
+
+  React.useEffect(() => {
+    import("@/lib/api-client").then(({ api }) => {
+      api.get<CheckpointEvent[]>('/checkpoints/today')
+        .then((r) => setCheckpoints(r ?? []))
+        .catch(() => {})
+      api.get<TodayScore>('/scoring/today')
+        .then((r) => setScoreData(r))
+        .catch(() => {})
+      api.get<{ targetPorsi?: number }[]>('/public/sppg/search?limit=1')
+        .then((r) => setTargetPorsi((r[0] as any)?.targetPorsi ?? null))
+        .catch(() => {})
+    })
+  }, [])
+
+  const cpStatus = (cpType: string) => {
+    const cp = checkpoints.find(c => c.cpType === cpType)
+    if (!cp) return 'waiting'
+    if (cp.cpStatus === 'done') return 'done'
+    if (cp.cpStatus === 'in_progress') return 'current'
+    return 'waiting'
+  }
+
+  const doneCount = checkpoints.filter(c => c.cpStatus === 'done').length
+
   return (
     <div className="p-6 lg:p-8 space-y-6 animate-in fade-in duration-500">
       {/* Header Area */}

@@ -1,7 +1,7 @@
 import { ConflictException, Injectable, UnauthorizedException } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository, IsNull } from 'typeorm';
+import { Repository, IsNull, DataSource } from 'typeorm';
 import * as bcrypt from 'bcrypt';
 import * as crypto from 'crypto';
 import { ConfigService } from '@nestjs/config';
@@ -27,9 +27,23 @@ export class AuthService {
     private readonly configService: ConfigService,
     private readonly rolesService: RolesService,
     private readonly abilityFactory: CaslAbilityFactory,
+    private readonly dataSource: DataSource,
     @InjectRepository(RefreshToken)
     private readonly refreshTokenRepository: Repository<RefreshToken>,
   ) {}
+
+  async getMe(userId: string) {
+    const user = await this.usersService.findById(userId);
+    if (!user) throw new UnauthorizedException('User not found');
+    return {
+      id: user.id,
+      email: user.email,
+      fullName: user.fullName,
+      role: user.roleLegacy,
+      phone: user.phone,
+      lastLoginAt: user.lastLoginAt,
+    };
+  }
 
   async register(registerDto: RegisterDto) {
     const existingUser = await this.usersService.findByEmail(registerDto.email);
@@ -54,12 +68,37 @@ export class AuthService {
       roleLegacy: registerDto.role, // Keep for backward compatibility
     });
 
+    let vendorId: string | undefined;
+
+    if (registerDto.role === UserRole.VENDOR) {
+      const businessName = registerDto.businessName || registerDto.fullName;
+      const ownerName = registerDto.fullName;
+      const phone = registerDto.phone || '000000000';
+
+      const vendorResult: Array<{ id: string }> = await this.dataSource.query(
+        `INSERT INTO vendors (user_id, business_name, owner_name, phone, address_street, address_city, address_province, lifecycle_status)
+         VALUES ($1, $2, $3, $4, 'TBD', 'TBD', 'Indonesia', 'REGISTERED')
+         RETURNING id`,
+        [user.id, businessName, ownerName, phone],
+      );
+
+      vendorId = vendorResult[0]?.id;
+
+      if (registerDto.eligibilityToken && vendorId) {
+        await this.dataSource.query(
+          `UPDATE eligibility_sessions SET vendor_id = $1 WHERE session_token = $2::uuid AND vendor_id IS NULL`,
+          [vendorId, registerDto.eligibilityToken],
+        );
+      }
+    }
+
     // Transform response to not include role object
     const { passwordHash: _, role, ...result } = user;
     return {
       ...result,
       // Return role as string for frontend compatibility
       role: registerDto.role,
+      ...(vendorId ? { vendorId } : {}),
     };
   }
 

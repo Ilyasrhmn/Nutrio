@@ -75,13 +75,21 @@ function defineVendorAbilities(
   can("read", "Audit");
   can("read", "Operasional"); // New Parent
   can("read", "Menu");
-  can("read", "OperasionalJadwal");
-  can("read", "OperasionalKalkulasi");
-  can("read", "OperasionalKitchen");
-  can("read", "OperasionalStock");
   can("read", "Settings");
   cannot("read", "Map");
   cannot("read", "MenuAdmin");
+  cannot("read", "OperasionalJadwal");
+  cannot("read", "OperasionalKalkulasi");
+  cannot("read", "OperasionalKitchen");
+  cannot("read", "OperasionalStock");
+  can("read", "Eligibility");
+  can("read", "Onboarding");
+  can("read", "MissionControl");
+  can("read", "Checkpoint");
+  can("read", "DeliveryToken");
+  can("read", "Scoring");
+  can("read", "Debrief");
+  can("read", "RAG");
 }
 
 function defineSupplierAbilities(
@@ -121,6 +129,8 @@ function defineInspectorAbilities(
   cannot("read", "Funds");
   cannot("read", "Menu");
   cannot("read", "Marketplace");
+  can("read", "Inspection");
+  can("read", "Document");
 }
 
 function defineCoordinatorAbilities(
@@ -139,6 +149,8 @@ function defineCoordinatorAbilities(
   cannot("read", "Funds");
   cannot("read", "Menu");
   cannot("read", "Marketplace");
+  can("read", "Checkpoint");
+  can("read", "Scoring");
 }
 
 function defineDinkesAbilities(
@@ -154,6 +166,9 @@ function defineDinkesAbilities(
   cannot("read", "Funds");
   cannot("read", "Menu");
   cannot("read", "Marketplace");
+  can("read", "CommandCenter");
+  can("read", "RiskIntelligence");
+  can("read", "PublicDashboard");
 }
 
 function definePublicAbilities(
@@ -169,4 +184,6 @@ function definePublicAbilities(
   cannot("read", "Marketplace");
   cannot("read", "Audit");
   cannot("read", "Reports");
+  can("read", "PublicDashboard");
+  can("read", "Eligibility");
 }

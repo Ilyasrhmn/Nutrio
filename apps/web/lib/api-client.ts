@@ -21,8 +21,12 @@ export class ApiException extends Error {
 }
 
 // --- Konfigurasi Environment ---
-// Sesuaikan base URL dengan env atau default ke lokal
-const baseURL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001';
+// In production the API is on a different domain → route through Next.js proxy
+// (/api-proxy/*) to avoid CORS. Locally, hit the API directly.
+const rawApiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3333';
+const isCrossOrigin =
+  rawApiUrl.startsWith('http') && !rawApiUrl.includes('localhost') && !rawApiUrl.includes('127.0.0.1');
+const baseURL = isCrossOrigin ? '/api-proxy' : rawApiUrl;
 
 // --- Instance Axios ---
 export const apiClient = axios.create({

@@ -44,40 +44,11 @@ export function FloatingAIButton() {
   const [isMaximized, setIsMaximized] = useState(false)
   const [showDocs, setShowDocs] = useState(true)
   
-  // DUMMY DATA: Simulasi Konsultasi Nyata
   const [messages, setMessages] = useState<Message[]>([
-    { 
-      role: "assistant", 
+    {
+      role: "assistant",
       content: "Halo! Saya Asisten AI Juknis. Ada yang bisa saya bantu terkait operasional MBG hari ini?",
     },
-    {
-      role: "user",
-      content: "Saya mau tanya soal standar porsi protein untuk SD.",
-    },
-    {
-      role: "assistant",
-      content: "Berdasarkan Juknis BGN No. 2/2024, porsi protein hewani untuk siswa SD minimal adalah 40 gram. Berikut adalah dokumen referensinya.",
-      sources: ["Juknis BGN Hal. 14"],
-      attachment: {
-        type: "document",
-        url: "#",
-        name: "STANDAR_GIZI_MBG_2026.pdf"
-      }
-    },
-    {
-      role: "user",
-      content: "Oke, kalau foto masakan saya seperti ini apakah sudah sesuai standar CP3?",
-      attachment: {
-        type: "image",
-        url: "https://images.unsplash.com/photo-1546069901-ba9599a7e63c?q=80&w=500&auto=format&fit=crop",
-        name: "foto_masakan_senin.jpg"
-      }
-    },
-    {
-      role: "assistant",
-      content: "Analisa Vision menunjukkan porsi Anda sudah lengkap (Karbo, Protein, Sayur). Namun, uap panas tidak terlihat jelas. Sesuai SOP v3.1, foto CP3 harus menunjukkan uap untuk membuktikan makanan baru matang. Harap perhatikan pencahayaan saat memotret.",
-      sources: ["SOP Dokumentasi Bab 5"]
-    }
   ])
   
   const [input, setInput] = useState("")
