@@ -2,31 +2,28 @@
 
 import * as React from "react"
 import Link from "next/link"
-import {
-  Search,
-  MapPin,
-  Star,
-  Store,
-  ShieldCheck,
-  ChevronRight,
+import { useAuth } from "@/hooks/use-auth"
+import { 
+  Search, 
+  MapPin, 
+  Star, 
+  Store, 
+  ShieldCheck, 
   Filter,
   Sparkles,
-  TrendingUp,
   Clock,
   Truck,
   BadgeCheck,
   Heart,
-  Eye,
   Package,
   Flame,
-  Zap,
   ArrowRight,
   ChevronDown
 } from "lucide-react"
 
 import { Button } from "@workspace/ui/components/button"
 import { Input } from "@workspace/ui/components/input"
-import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from "@workspace/ui/components/card"
+import { Card } from "@workspace/ui/components/card"
 import { Badge } from "@workspace/ui/components/badge"
 import {
   Select,
@@ -35,7 +32,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@workspace/ui/components/select"
-import { Alert, AlertDescription, AlertTitle } from "@workspace/ui/components/alert"
 import { cn } from "@workspace/ui/lib/utils"
 
 const categories = [
@@ -48,9 +44,93 @@ const categories = [
 ]
 
 export default function MarketplaceHomePage() {
+  const { user } = useAuth()
   const [searchFocused, setSearchFocused] = React.useState(false)
   const [activeCategory, setActiveCategory] = React.useState("all")
   const [likedSuppliers, setLikedSuppliers] = React.useState<string[]>([])
+  const [mounted, setMounted] = React.useState(false)
+
+  React.useEffect(() => {
+    setMounted(true)
+  }, [])
+
+  // Dynamic Theme based on Role
+  const roleName = (user?.role || "Admin").toLowerCase()
+  
+  const getTheme = () => {
+    if (roleName.includes("supplier")) {
+      return {
+        gradient: "from-orange-900 via-orange-800 to-slate-900",
+        badge: "bg-orange-500/20 text-orange-100 border-orange-500/30",
+        iconPulse: "bg-orange-400",
+        iconBox: "bg-orange-500/20",
+        iconColor: "text-orange-300",
+        iconColorDark: "text-orange-600",
+        focusRing: "focus:ring-orange-500/20",
+        buttonPrimary: "bg-orange-600 hover:bg-orange-700",
+        buttonPrimaryActive: "bg-orange-600 text-white shadow-md shadow-orange-500/20",
+        textPrimary: "text-orange-600",
+        textDark: "text-orange-900",
+        textMedium: "text-orange-700",
+        bgLight: "bg-orange-50",
+        borderLight: "border-orange-100",
+        shadowFocus: "ring-orange-500/30",
+        hoverText: "group-hover:text-orange-700",
+        badgeSolid: "bg-orange-500",
+        borderFocus: "focus:border-orange-500",
+        itemFocus: "focus:bg-orange-50 focus:text-orange-900"
+      };
+    }
+    
+    if (roleName.includes("vendor") || roleName.includes("mitra") || roleName.includes("dapur")) {
+      return {
+        gradient: "from-teal-900 via-teal-800 to-slate-900",
+        badge: "bg-teal-500/20 text-teal-100 border-teal-500/30",
+        iconPulse: "bg-emerald-400",
+        iconBox: "bg-teal-500/20",
+        iconColor: "text-teal-300",
+        iconColorDark: "text-teal-600",
+        focusRing: "focus:ring-teal-500/20",
+        buttonPrimary: "bg-teal-600 hover:bg-teal-700",
+        buttonPrimaryActive: "bg-teal-600 text-white shadow-md shadow-teal-500/20",
+        textPrimary: "text-teal-600",
+        textDark: "text-teal-900",
+        textMedium: "text-teal-700",
+        bgLight: "bg-teal-50",
+        borderLight: "border-teal-100",
+        shadowFocus: "ring-teal-500/30",
+        hoverText: "group-hover:text-teal-700",
+        badgeSolid: "bg-teal-500",
+        borderFocus: "focus:border-teal-500",
+        itemFocus: "focus:bg-teal-50 focus:text-teal-900"
+      };
+    }
+  
+    // Admin default (Indigo/Blue)
+    return {
+      gradient: "from-indigo-900 via-indigo-800 to-slate-900",
+      badge: "bg-indigo-500/20 text-indigo-100 border-indigo-500/30",
+      iconPulse: "bg-indigo-400",
+      iconBox: "bg-indigo-500/20",
+      iconColor: "text-indigo-300",
+      iconColorDark: "text-indigo-600",
+      focusRing: "focus:ring-indigo-500/20",
+      buttonPrimary: "bg-indigo-600 hover:bg-indigo-700",
+      buttonPrimaryActive: "bg-indigo-600 text-white shadow-md shadow-indigo-500/20",
+      textPrimary: "text-indigo-600",
+      textDark: "text-indigo-900",
+      textMedium: "text-indigo-700",
+      bgLight: "bg-indigo-50",
+      borderLight: "border-indigo-100",
+      shadowFocus: "ring-indigo-500/30",
+      hoverText: "group-hover:text-indigo-700",
+      badgeSolid: "bg-indigo-500",
+      borderFocus: "focus:border-indigo-500",
+      itemFocus: "focus:bg-indigo-50 focus:text-indigo-900"
+    };
+  };
+
+  const theme = getTheme()
 
   const toggleLike = (id: string) => {
     setLikedSuppliers(prev => 
@@ -74,7 +154,7 @@ export default function MarketplaceHomePage() {
       responseTime: "< 15 menit",
       deliveryAccuracy: "98%",
       initials: "TM",
-      color: "from-rose-500 to-orange-500",
+      color: "from-teal-600 to-emerald-500",
       isOfficial: true,
       isTopSeller: true,
       image: "https://images.unsplash.com/photo-1604503468506-a8da13d82791?q=80&w=400&auto=format&fit=crop"
@@ -94,7 +174,7 @@ export default function MarketplaceHomePage() {
       responseTime: "< 10 menit",
       deliveryAccuracy: "99%",
       initials: "KS",
-      color: "from-blue-500 to-cyan-500",
+      color: "from-cyan-600 to-teal-500",
       isOfficial: true,
       isTopSeller: false,
       image: "https://images.unsplash.com/photo-1563636619-e9143da7973b?q=80&w=400&auto=format&fit=crop"
@@ -114,7 +194,7 @@ export default function MarketplaceHomePage() {
       responseTime: "< 30 menit",
       deliveryAccuracy: "96%",
       initials: "GB",
-      color: "from-amber-500 to-yellow-500",
+      color: "from-emerald-600 to-teal-600",
       isOfficial: false,
       isTopSeller: true,
       image: "https://images.unsplash.com/photo-1586201375761-83865001e31c?q=80&w=400&auto=format&fit=crop"
@@ -134,7 +214,7 @@ export default function MarketplaceHomePage() {
       responseTime: "< 20 menit",
       deliveryAccuracy: "95%",
       initials: "FG",
-      color: "from-emerald-500 to-green-500",
+      color: "from-teal-500 to-cyan-500",
       isOfficial: true,
       isTopSeller: false,
       image: "https://images.unsplash.com/photo-1540420773420-3366772f4999?q=80&w=400&auto=format&fit=crop"
@@ -154,69 +234,81 @@ export default function MarketplaceHomePage() {
       responseTime: "< 25 menit",
       deliveryAccuracy: "97%",
       initials: "RP",
-      color: "from-purple-500 to-pink-500",
+      color: "from-cyan-500 to-emerald-500",
       isOfficial: false,
       isTopSeller: false,
       image: "https://images.unsplash.com/photo-1596040033229-a9821ebd058d?q=80&w=400&auto=format&fit=crop"
     }
   ]
 
+  if (!mounted) {
+    return <div className="h-screen bg-[#F1F3F6] flex items-center justify-center animate-pulse text-slate-400">Memuat direktori...</div>
+  }
+
   return (
-    <div className="min-h-screen bg-[#F1F3F6]">
+    <div className="pb-12 animate-in fade-in duration-500">
       {/* Hero Search Section */}
       <div className="relative overflow-hidden">
-        <div className="absolute inset-0 bg-gradient-to-br from-primary via-primary/95 to-indigo-700" />
-        <div className="absolute inset-0 opacity-[0.05]" style={{ backgroundImage: 'url("data:image/svg+xml,%3Csvg width=\'60\' height=\'60\' viewBox=\'0 0 60 60\' xmlns=\'http://www.w3.org/2000/svg\'%3E%3Cg fill=\'none\' fill-rule=\'evenodd\'%3E%3Cg fill=\'%23ffffff\' fill-opacity=\'1\'%3E%3Cpath d=\'M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z\'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E")' }} />
+        <div className={cn("absolute inset-0 bg-gradient-to-br", theme.gradient)} />
+        <div className="absolute inset-0 bg-[linear-gradient(to_right,#ffffff0a_1px,transparent_1px),linear-gradient(to_bottom,#ffffff0a_1px,transparent_1px)] bg-[size:24px_24px]" />
         
-        <div className="relative max-w-7xl mx-auto px-6 pt-8 pb-12">
-          <div className="flex items-center justify-between mb-8">
-            <div>
-              <h1 className="text-2xl md:text-3xl font-extrabold text-white tracking-tight">
+        <div className="relative max-w-7xl mx-auto px-6 pt-10 pb-16">
+          <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-6 mb-10">
+            <div className="space-y-3">
+              <Badge className={cn("border font-bold uppercase tracking-widest text-[10px] px-3 py-1 rounded-full backdrop-blur-sm", theme.badge)}>
+                <span className={cn("size-1.5 rounded-full animate-pulse mr-2 inline-block", theme.iconPulse)} /> BGN Verified Directory
+              </Badge>
+              <h1 className="text-3xl md:text-4xl font-extrabold text-white tracking-tight">
                 Direktori Supplier MBG
               </h1>
-              <p className="text-white/70 text-sm font-medium mt-1">
-                Temukan mitra pemasok tervalidasi di sekitar dapur Anda
+              <p className="text-white/80 text-sm md:text-base font-medium mt-1 max-w-xl leading-relaxed">
+                Temukan mitra pemasok tervalidasi di sekitar dapur Anda untuk menjamin kualitas gizi dan ketepatan waktu.
               </p>
             </div>
-            <div className="hidden md:flex items-center gap-2 bg-white/10 backdrop-blur-md rounded-full px-4 py-2 border border-white/10">
-              <MapPin className="size-3.5 text-white/80" />
-              <span className="text-xs font-semibold text-white/90">Sleman, DI Yogyakarta</span>
+            <div className="hidden md:flex items-center gap-3 bg-black/20 backdrop-blur-md rounded-2xl p-4 border border-white/10 shrink-0">
+              <div className={cn("size-10 rounded-xl flex items-center justify-center", theme.iconBox)}>
+                <MapPin className={cn("size-5", theme.iconColor)} />
+              </div>
+              <div>
+                <p className={cn("text-[10px] font-bold uppercase tracking-widest", theme.iconColor)}>Titik Dapur (GPS)</p>
+                <p className="text-sm font-bold text-white mt-0.5">Sleman, DI Yogyakarta</p>
+              </div>
             </div>
           </div>
 
-          {/* Search Bar - Tokopedia style */}
+          {/* Search Bar - Premium style */}
           <div className={cn(
-            "relative max-w-3xl transition-all duration-300",
+            "relative max-w-4xl transition-all duration-500",
             searchFocused ? "scale-[1.02]" : ""
           )}>
             <div className={cn(
-              "flex items-center bg-white rounded-xl overflow-hidden shadow-xl transition-all duration-300",
-              searchFocused ? "ring-2 ring-white/50 shadow-2xl" : "shadow-lg"
+              "flex items-center bg-white rounded-2xl overflow-hidden shadow-xl transition-all duration-500 p-1.5",
+              searchFocused ? `ring-4 ${theme.shadowFocus} shadow-2xl` : "shadow-lg"
             )}>
-              <div className="flex-1 relative">
-                <Search className="absolute left-4 top-1/2 -translate-y-1/2 size-4 text-slate-400" />
+              <div className="flex-1 relative flex items-center">
+                <Search className="absolute left-4 size-5 text-slate-400" />
                 <Input 
-                  className="pl-11 h-12 border-none shadow-none bg-transparent text-sm font-medium placeholder:text-slate-400 focus-visible:ring-0" 
-                  placeholder="Cari nama supplier, komoditas, atau produk..." 
+                  className="pl-12 h-14 border-none shadow-none bg-transparent text-base font-bold placeholder:text-slate-400 focus-visible:ring-0" 
+                  placeholder="Cari daging ayam, beras, sayur, atau nama supplier..." 
                   onFocus={() => setSearchFocused(true)}
                   onBlur={() => setSearchFocused(false)}
                 />
               </div>
               <div className="flex items-center gap-2 pr-2">
-                <div className="h-7 w-px bg-slate-200" />
+                <div className="h-8 w-px bg-slate-200 mx-2" />
                 <Select defaultValue="sleman">
-                  <SelectTrigger className="w-[130px] h-9 rounded-lg bg-slate-50 border-none shadow-none text-xs font-semibold text-slate-600 focus:ring-0">
-                    <MapPin className="size-3 text-primary mr-1" />
+                  <SelectTrigger className={cn("w-[140px] h-12 rounded-xl bg-slate-50 border-none shadow-none text-sm font-bold text-slate-700 hover:bg-slate-100 transition-all", theme.focusRing)}>
+                    <MapPin className={cn("size-4 mr-2", theme.iconColorDark)} />
                     <SelectValue placeholder="Lokasi" />
                   </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="sleman">Sleman</SelectItem>
-                    <SelectItem value="bantul">Bantul</SelectItem>
-                    <SelectItem value="kulonprogo">Kulon Progo</SelectItem>
+                  <SelectContent className="rounded-xl border-slate-200 shadow-xl">
+                    <SelectItem value="sleman" className={cn("rounded-lg font-bold text-sm py-3 cursor-pointer", theme.itemFocus)}>Sleman</SelectItem>
+                    <SelectItem value="bantul" className={cn("rounded-lg font-bold text-sm py-3 cursor-pointer", theme.itemFocus)}>Bantul</SelectItem>
+                    <SelectItem value="kulonprogo" className={cn("rounded-lg font-bold text-sm py-3 cursor-pointer", theme.itemFocus)}>Kulon Progo</SelectItem>
                   </SelectContent>
                 </Select>
-                <Button className="h-9 px-5 rounded-lg font-bold text-xs gap-1.5 shadow-md shadow-primary/20">
-                  <Search className="size-3.5" />
+                <Button className={cn("h-12 px-8 rounded-xl font-bold text-sm gap-2 shadow-md text-white ml-2 transition-all", theme.buttonPrimary)}>
+                  <Search className="size-4" />
                   Cari
                 </Button>
               </div>
@@ -224,89 +316,89 @@ export default function MarketplaceHomePage() {
           </div>
 
           {/* Quick Stats */}
-          <div className="flex flex-wrap items-center gap-4 mt-5">
-            <div className="flex items-center gap-2 text-white/60 text-xs font-medium">
-              <BadgeCheck className="size-3.5" />
-              <span><strong className="text-white/90">127</strong> supplier terverifikasi</span>
+          <div className="flex flex-wrap items-center gap-6 mt-8">
+            <div className="flex items-center gap-2 text-white/60 text-xs font-semibold">
+              <BadgeCheck className="size-4 text-emerald-400" />
+              <span><strong className="text-white">127</strong> supplier terverifikasi</span>
             </div>
-            <div className="w-px h-3 bg-white/20" />
-            <div className="flex items-center gap-2 text-white/60 text-xs font-medium">
-              <Package className="size-3.5" />
-              <span><strong className="text-white/90">2,340</strong> produk tersedia</span>
+            <div className="w-px h-4 bg-white/20" />
+            <div className="flex items-center gap-2 text-white/60 text-xs font-semibold">
+              <Package className={cn("size-4", theme.iconPulse)} />
+              <span><strong className="text-white">2,340</strong> produk tersedia</span>
             </div>
-            <div className="w-px h-3 bg-white/20" />
-            <div className="flex items-center gap-2 text-white/60 text-xs font-medium">
-              <Truck className="size-3.5" />
-              <span>Pengiriman <strong className="text-white/90">same-day</strong></span>
+            <div className="w-px h-4 bg-white/20" />
+            <div className="flex items-center gap-2 text-white/60 text-xs font-semibold">
+              <Truck className="size-4 text-amber-400" />
+              <span>Pengiriman <strong className="text-white">same-day</strong></span>
             </div>
           </div>
         </div>
       </div>
 
       {/* Category Pills */}
-      <div className="max-w-7xl mx-auto px-6 -mt-4 relative z-10">
-        <div className="bg-white rounded-2xl shadow-sm border border-slate-100 p-3 flex items-center gap-2 overflow-x-auto">
+      <div className="max-w-7xl mx-auto px-6 -mt-8 relative z-10">
+        <div className="bg-white rounded-2xl shadow-md border border-slate-200/60 p-2 flex items-center gap-2 overflow-x-auto ring-1 ring-slate-100">
           {categories.map((cat) => (
             <button
               key={cat.value}
               onClick={() => setActiveCategory(cat.value)}
               className={cn(
-                "flex items-center gap-2 px-4 py-2.5 rounded-xl text-xs font-semibold whitespace-nowrap transition-all duration-200",
+                "flex items-center gap-2 px-5 py-3 rounded-xl text-xs font-bold whitespace-nowrap transition-all duration-300",
                 activeCategory === cat.value
-                  ? "bg-primary text-white shadow-md shadow-primary/20"
-                  : "bg-slate-50 text-slate-600 hover:bg-slate-100"
+                  ? theme.buttonPrimaryActive
+                  : "bg-slate-50 text-slate-600 hover:bg-slate-100 hover:text-slate-900"
               )}
             >
-              <cat.icon className="size-3.5" />
+              <cat.icon className="size-4" />
               {cat.label}
             </button>
           ))}
           <div className="flex-1" />
-          <Button variant="outline" size="sm" className="h-9 rounded-xl border-slate-200 text-slate-600 font-semibold text-xs gap-1.5 shrink-0">
-            <Filter className="size-3" />
+          <Button variant="outline" className="h-10 rounded-xl border-slate-200 text-slate-700 font-bold text-xs gap-2 shrink-0 px-5 hover:bg-slate-50 mr-2">
+            <Filter className={cn("size-4", theme.iconColorDark)} />
             Filter
-            <ChevronDown className="size-3" />
+            <ChevronDown className="size-4 opacity-50" />
           </Button>
         </div>
       </div>
 
       {/* AI Location Notice */}
-      <div className="max-w-7xl mx-auto px-6 mt-4">
-        <div className="flex items-center gap-3 bg-gradient-to-r from-indigo-50 to-blue-50 border border-indigo-100/50 rounded-xl px-4 py-3">
-          <div className="size-8 bg-primary/10 rounded-lg flex items-center justify-center shrink-0">
-            <Sparkles className="size-4 text-primary" />
+      <div className="max-w-7xl mx-auto px-6 mt-8">
+        <div className={cn("flex flex-col sm:flex-row sm:items-center gap-4 border rounded-2xl px-6 py-4 shadow-sm", theme.bgLight, theme.borderLight)}>
+          <div className={cn("size-10 bg-white rounded-full flex items-center justify-center shrink-0 shadow-sm border", theme.borderLight)}>
+            <Sparkles className={cn("size-5", theme.iconColorDark)} />
           </div>
-          <p className="text-xs text-slate-600 font-medium">
-            <span className="font-bold text-primary">Rekomendasi AI:</span>{" "}
-            Menampilkan <strong>5 supplier terdekat</strong> dari titik koordinat dapur SPPG Anda di Sleman, diurutkan berdasarkan jarak dan rating.
+          <p className={cn("text-sm font-medium leading-relaxed", theme.textDark)}>
+            <span className={cn("font-extrabold uppercase tracking-wide mr-2", theme.textMedium)}>Rekomendasi AI:</span>
+            Menampilkan <strong className={cn("font-bold", theme.textDark)}>5 supplier terdekat</strong> dari titik koordinat dapur SPPG Anda di Sleman, diurutkan berdasarkan jarak dan rating.
           </p>
         </div>
       </div>
 
       {/* Supplier Grid - 5 cards */}
-      <div className="max-w-7xl mx-auto px-6 mt-6 pb-12">
-        <div className="flex items-center justify-between mb-5">
-          <div className="flex items-center gap-2">
-            <h2 className="text-lg font-bold text-slate-900">Supplier Terdekat</h2>
-            <Badge className="bg-primary/10 text-primary border-none font-bold text-[10px] px-2">
+      <div className="max-w-7xl mx-auto px-6 mt-8 pb-12">
+        <div className="flex items-center justify-between mb-6">
+          <div className="flex items-center gap-3">
+            <h2 className="text-xl font-bold text-slate-900">Supplier Terdekat</h2>
+            <Badge className={cn("border-none font-bold text-[10px] px-2 py-0.5 uppercase tracking-widest shadow-sm", theme.bgLight, theme.textMedium)}>
               {suppliers.length} supplier
             </Badge>
           </div>
           <Select defaultValue="nearest">
-            <SelectTrigger className="w-[160px] h-9 rounded-lg border-slate-200 text-xs font-semibold">
+            <SelectTrigger className={cn("w-[180px] h-10 rounded-xl border-slate-200 text-xs font-bold transition-all hover:bg-slate-50 focus:ring-2", theme.focusRing, theme.borderFocus)}>
               <SelectValue />
             </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="nearest">Terdekat</SelectItem>
-              <SelectItem value="rating">Rating Tertinggi</SelectItem>
-              <SelectItem value="reviews">Ulasan Terbanyak</SelectItem>
-              <SelectItem value="newest">Terbaru</SelectItem>
+            <SelectContent className="rounded-xl border-slate-200 shadow-xl">
+              <SelectItem value="nearest" className={cn("rounded-lg font-bold text-sm py-3 cursor-pointer", theme.itemFocus)}>Terdekat</SelectItem>
+              <SelectItem value="rating" className={cn("rounded-lg font-bold text-sm py-3 cursor-pointer", theme.itemFocus)}>Rating Tertinggi</SelectItem>
+              <SelectItem value="reviews" className={cn("rounded-lg font-bold text-sm py-3 cursor-pointer", theme.itemFocus)}>Ulasan Terbanyak</SelectItem>
+              <SelectItem value="newest" className={cn("rounded-lg font-bold text-sm py-3 cursor-pointer", theme.itemFocus)}>Terbaru</SelectItem>
             </SelectContent>
           </Select>
         </div>
 
-        {/* Responsive grid: 2 cols on md, 3 on lg, then last 2 cards on new row for 5 cards */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-4">
+        {/* Responsive grid */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
           {suppliers.map((supplier, index) => (
             <Link 
               key={supplier.id} 
@@ -314,7 +406,7 @@ export default function MarketplaceHomePage() {
               className="group block"
             >
               <Card className={cn(
-                "overflow-hidden border border-slate-200/80 bg-white hover:shadow-xl hover:shadow-slate-200/50 hover:-translate-y-1 transition-all duration-300 rounded-2xl h-full flex flex-col",
+                "overflow-hidden border-none ring-1 ring-slate-200/60 bg-white hover:shadow-xl hover:shadow-slate-200/50 hover:-translate-y-1 transition-all duration-300 rounded-2xl h-full flex flex-col",
                 "animate-in fade-in slide-in-from-bottom-3",
               )} style={{ animationDelay: `${index * 80}ms`, animationFillMode: 'both' }}>
                 {/* Image */}
@@ -325,19 +417,19 @@ export default function MarketplaceHomePage() {
                     className="object-cover w-full h-full group-hover:scale-110 transition-transform duration-700 ease-out" 
                   />
                   {/* Gradient overlay */}
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-transparent" />
+                  <div className="absolute inset-0 bg-gradient-to-t from-slate-900/60 via-transparent to-transparent" />
                   
                   {/* Top badges */}
-                  <div className="absolute top-2 left-2 flex flex-wrap gap-1">
+                  <div className="absolute top-3 left-3 flex flex-wrap gap-1.5">
                     {supplier.isOfficial && (
-                      <Badge className="bg-primary text-white border-none font-bold text-[8px] px-1.5 py-0.5 gap-0.5 shadow-lg">
-                        <BadgeCheck className="size-2.5" />
+                      <Badge className={cn("text-white border-none font-bold text-[9px] px-2 py-0.5 gap-1 shadow-md uppercase tracking-widest", theme.badgeSolid)}>
+                        <BadgeCheck className="size-3" />
                         Official
                       </Badge>
                     )}
                     {supplier.isTopSeller && (
-                      <Badge className="bg-gradient-to-r from-amber-500 to-orange-500 text-white border-none font-bold text-[8px] px-1.5 py-0.5 gap-0.5 shadow-lg">
-                        <Flame className="size-2.5" />
+                      <Badge className="bg-amber-500 text-white border-none font-bold text-[9px] px-2 py-0.5 gap-1 shadow-md uppercase tracking-widest">
+                        <Flame className="size-3" />
                         Top Seller
                       </Badge>
                     )}
@@ -347,69 +439,69 @@ export default function MarketplaceHomePage() {
                   <button 
                     onClick={(e) => { e.preventDefault(); toggleLike(supplier.id) }}
                     className={cn(
-                      "absolute top-2 right-2 size-7 rounded-full flex items-center justify-center transition-all duration-200 shadow-md",
+                      "absolute top-3 right-3 size-8 rounded-full flex items-center justify-center transition-all duration-300 shadow-md",
                       likedSuppliers.includes(supplier.id) 
-                        ? "bg-red-500 text-white" 
-                        : "bg-white/90 backdrop-blur-sm text-slate-400 hover:text-red-500"
+                        ? "bg-red-500 text-white scale-110" 
+                        : "bg-white/90 backdrop-blur-sm text-slate-400 hover:text-red-500 hover:scale-110"
                     )}
                   >
-                    <Heart className={cn("size-3.5", likedSuppliers.includes(supplier.id) && "fill-current")} />
+                    <Heart className={cn("size-4", likedSuppliers.includes(supplier.id) && "fill-current")} />
                   </button>
 
                   {/* Bottom info overlay */}
-                  <div className="absolute bottom-2 left-2 right-2 flex items-center gap-1.5">
-                    <Badge className="bg-white/95 backdrop-blur-md text-slate-700 border-none font-semibold text-[9px] px-1.5 py-0.5 shadow-sm">
-                      <MapPin className="size-2.5 text-primary mr-0.5" />
+                  <div className="absolute bottom-3 left-3 right-3 flex items-center gap-2">
+                    <Badge className="bg-white/95 backdrop-blur-md text-slate-900 border-none font-bold text-[10px] px-2 py-1 shadow-sm gap-1 rounded-lg">
+                      <MapPin className={cn("size-3", theme.iconColorDark)} />
                       {supplier.distance}
                     </Badge>
-                    <Badge className="bg-white/95 backdrop-blur-md text-slate-700 border-none font-semibold text-[9px] px-1.5 py-0.5 shadow-sm">
-                      <Package className="size-2.5 text-slate-400 mr-0.5" />
+                    <Badge className="bg-white/95 backdrop-blur-md text-slate-900 border-none font-bold text-[10px] px-2 py-1 shadow-sm gap-1 rounded-lg">
+                      <Package className="size-3 text-slate-500" />
                       {supplier.products} produk
                     </Badge>
                   </div>
                 </div>
 
                 {/* Content */}
-                <div className="p-3 flex-1 flex flex-col">
+                <div className="p-5 flex-1 flex flex-col">
                   {/* Store name with avatar */}
-                  <div className="flex items-start gap-2 mb-2">
+                  <div className="flex items-start gap-3 mb-3">
                     <div className={cn(
-                      "size-8 rounded-lg bg-gradient-to-br flex items-center justify-center text-white text-[10px] font-black shrink-0 shadow-md",
+                      "size-10 rounded-xl bg-gradient-to-br flex items-center justify-center text-white text-xs font-black shrink-0 shadow-md",
                       supplier.color
                     )}>
                       {supplier.initials}
                     </div>
                     <div className="flex-1 min-w-0">
-                      <h3 className="text-sm font-bold text-slate-900 leading-tight group-hover:text-primary transition-colors line-clamp-2">
+                      <h3 className={cn("text-base font-bold text-slate-900 leading-tight transition-colors line-clamp-2", theme.hoverText)}>
                         {supplier.name}
                       </h3>
-                      <p className="text-[10px] text-slate-400 font-medium mt-0.5">
-                        {supplier.location}
+                      <p className="text-[11px] text-slate-500 font-semibold mt-1 flex items-center gap-1">
+                        <Store className="size-3" /> {supplier.location}
                       </p>
                     </div>
                   </div>
 
                   {/* Rating & Sales */}
-                  <div className="flex items-center gap-2 mb-2">
-                    <div className="flex items-center gap-1 bg-amber-50 rounded-md px-1.5 py-0.5">
-                      <Star className="size-2.5 text-amber-500 fill-amber-500" />
-                      <span className="text-[10px] font-bold text-amber-700">{supplier.rating}</span>
+                  <div className="flex items-center gap-2 mb-4 bg-slate-50 border border-slate-100 rounded-lg p-2">
+                    <div className="flex items-center gap-1">
+                      <Star className="size-3.5 text-amber-500 fill-amber-500" />
+                      <span className="text-xs font-extrabold text-slate-900">{supplier.rating}</span>
                     </div>
-                    <span className="text-[10px] text-slate-400">({supplier.reviews} ulasan)</span>
-                    <span className="text-[10px] text-slate-300">|</span>
-                    <span className="text-[10px] text-slate-500 font-medium">{supplier.sold} terjual</span>
+                    <span className="text-[10px] text-slate-400 font-medium">({supplier.reviews} ulasan)</span>
+                    <span className="text-[10px] text-slate-300 mx-1">•</span>
+                    <span className="text-[10px] text-slate-600 font-bold bg-slate-200/50 px-1.5 py-0.5 rounded-md">{supplier.sold} terjual</span>
                   </div>
 
                   {/* Category badge */}
-                  <div className="flex flex-wrap gap-1 mb-2">
+                  <div className="flex flex-wrap gap-1.5 mb-3">
                     {supplier.badges.map((badge, idx) => (
                       <Badge key={idx} variant="outline" className={cn(
-                        "text-[8px] font-semibold px-1.5 py-0 h-4 border-none",
+                        "text-[9px] font-bold px-2 py-0.5 border-none uppercase tracking-widest rounded-md",
                         badge.includes("Verified") || badge.includes("Certified")
-                          ? "bg-emerald-50 text-emerald-600" 
-                          : "bg-slate-50 text-slate-500"
+                          ? "bg-emerald-50 text-emerald-700" 
+                          : "bg-slate-100 text-slate-600"
                       )}>
-                        {(badge.includes("Verified") || badge.includes("Certified")) && <ShieldCheck className="size-2 mr-0.5" />}
+                        {(badge.includes("Verified") || badge.includes("Certified")) && <ShieldCheck className="size-3 mr-1" />}
                         {badge}
                       </Badge>
                     ))}
@@ -419,13 +511,13 @@ export default function MarketplaceHomePage() {
                   <div className="flex-1" />
 
                   {/* Footer Stats */}
-                  <div className="flex items-center justify-between pt-2 border-t border-slate-100 mt-auto">
-                    <div className="flex items-center gap-1 text-[9px] text-slate-400 font-medium">
-                      <Clock className="size-2.5" />
+                  <div className="flex items-center justify-between pt-4 border-t border-slate-100 mt-4">
+                    <div className="flex items-center gap-1.5 text-[10px] text-slate-500 font-bold uppercase tracking-widest">
+                      <Clock className="size-3.5 text-slate-400" />
                       Respon {supplier.responseTime}
                     </div>
-                    <div className="flex items-center gap-1 text-[9px] font-semibold text-primary">
-                      <Truck className="size-2.5" />
+                    <div className={cn("flex items-center gap-1.5 text-[10px] font-extrabold px-2 py-1 rounded-md uppercase tracking-widest", theme.bgLight, theme.textMedium)}>
+                      <Truck className={cn("size-3.5", theme.iconColorDark)} />
                       {supplier.deliveryAccuracy}
                     </div>
                   </div>
@@ -436,10 +528,10 @@ export default function MarketplaceHomePage() {
         </div>
 
         {/* Load More */}
-        <div className="flex justify-center mt-8">
-          <Button variant="outline" className="rounded-full px-8 h-11 font-semibold text-sm gap-2 border-slate-200 text-slate-600 hover:bg-white shadow-sm">
+        <div className="flex justify-center mt-12">
+          <Button variant="outline" className="rounded-xl px-8 h-12 font-bold text-sm gap-2 border-slate-200 text-slate-700 hover:bg-slate-50 hover:text-slate-900 shadow-sm transition-all group">
             Lihat Semua Supplier
-            <ArrowRight className="size-4" />
+            <ArrowRight className="size-4 group-hover:translate-x-1 transition-transform" />
           </Button>
         </div>
       </div>
