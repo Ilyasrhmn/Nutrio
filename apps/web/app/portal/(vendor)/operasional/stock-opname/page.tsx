@@ -87,10 +87,10 @@ export default function StockOpnamePage() {
   }
 
   return (
-    <div className="p-6 lg:p-8 space-y-8 max-w-7xl mx-auto animate-in fade-in duration-500">
+    <div className="min-h-screen bg-[#F4F7FA] px-4 sm:px-6 lg:px-12 py-8 space-y-8 max-w-[1400px] mx-auto animate-in fade-in duration-500">
       
       {/* 1. Deep Teal Hero Banner */}
-      <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-teal-900 via-teal-800 to-slate-900 shadow-lg border border-teal-700/50">
+      <div className="relative overflow-hidden rounded-[32px] bg-gradient-to-br from-teal-900 via-teal-800 to-teal-950 shadow-2xl border border-teal-700/50">
         <div className="absolute top-0 right-0 p-8 opacity-10 pointer-events-none">
           <Warehouse className="size-40" />
         </div>
@@ -279,7 +279,7 @@ export default function StockOpnamePage() {
 
           <Button 
             onClick={handleSave}
-            className="w-full md:w-auto h-14 rounded-xl px-10 font-bold text-sm uppercase tracking-widest shadow-md bg-teal-900 hover:bg-teal-950 text-white gap-3 active:scale-95 transition-all"
+            className="w-full md:w-auto h-14 rounded-xl px-10 font-bold text-sm uppercase tracking-widest shadow-lg bg-teal-600 hover:bg-teal-700 text-white gap-3 active:scale-95 transition-all"
           >
             <ClipboardCheck className="size-5" />
             Kunci & Simpan Opname Hari Ini

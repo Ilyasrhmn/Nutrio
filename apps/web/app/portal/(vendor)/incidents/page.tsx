@@ -19,7 +19,12 @@ import {
   Send,
   Upload,
   Truck,
-  Zap
+  Zap,
+  Phone,
+  ChevronRight,
+  History,
+  Activity,
+  MessageSquare
 } from "lucide-react";
 
 import { Button } from "@workspace/ui/components/button";
@@ -87,10 +92,10 @@ export default function IncidentsPage() {
   };
 
   return (
-    <div className="p-6 lg:p-8 space-y-8 max-w-7xl mx-auto animate-in fade-in duration-500">
+    <div className="min-h-screen bg-[#F4F7FA] px-4 sm:px-6 lg:px-12 py-8 space-y-8 max-w-[1400px] mx-auto animate-in fade-in duration-500">
       
       {/* 1. Deep Teal Hero Banner */}
-      <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-teal-900 via-teal-800 to-slate-900 shadow-lg border border-teal-700/50">
+      <div className="relative overflow-hidden rounded-[32px] bg-gradient-to-br from-teal-900 via-teal-800 to-teal-950 shadow-2xl border border-teal-700/50">
         <div className="absolute top-0 right-0 p-8 opacity-10 pointer-events-none">
           <ShieldAlert className="size-40" />
         </div>
@@ -110,17 +115,17 @@ export default function IncidentsPage() {
       </div>
 
       <Tabs defaultValue="operational" className="space-y-8">
-        <TabsList className="bg-white border border-slate-200/60 p-1.5 rounded-xl h-auto w-full md:w-fit flex gap-2 shadow-sm mx-auto md:mx-0">
+        <TabsList className="bg-white/60 backdrop-blur-xl border border-white/40 p-2 rounded-[24px] h-auto w-full md:w-fit flex gap-2 shadow-lg shadow-teal-900/5 mx-auto md:mx-0">
           <TabsTrigger
             value="operational"
-            className="flex-1 md:flex-none rounded-lg py-3 px-8 gap-2.5 data-[state=active]:bg-teal-50 data-[state=active]:text-teal-700 data-[state=active]:shadow-none font-bold text-sm transition-all"
+            className="flex-1 md:flex-none rounded-full py-3 px-8 gap-2.5 data-[state=active]:bg-white data-[state=active]:text-teal-700 data-[state=active]:shadow-md data-[state=active]:border-transparent border-transparent font-extrabold text-sm transition-all"
           >
             <Truck className="size-4.5" />
             Kendala Lapangan
           </TabsTrigger>
           <TabsTrigger
             value="technical"
-            className="flex-1 md:flex-none rounded-lg py-3 px-8 gap-2.5 data-[state=active]:bg-teal-50 data-[state=active]:text-teal-700 data-[state=active]:shadow-none font-bold text-sm transition-all"
+            className="flex-1 md:flex-none rounded-full py-3 px-8 gap-2.5 data-[state=active]:bg-white data-[state=active]:text-teal-700 data-[state=active]:shadow-md data-[state=active]:border-transparent border-transparent font-extrabold text-sm transition-all"
           >
             <Settings className="size-4.5" />
             Kendala Teknis
@@ -242,7 +247,7 @@ export default function IncidentsPage() {
 
           {/* Side Info for Op */}
           <div className="space-y-6">
-            <Card className="border-none shadow-sm rounded-2xl bg-white ring-1 ring-slate-200/60 overflow-hidden">
+            <Card className="bg-white/95 backdrop-blur-xl border border-white/40 shadow-xl shadow-teal-900/5 rounded-[24px] hover:-translate-y-1 transition-all duration-300 overflow-hidden">
               <CardHeader className="p-6 border-b border-slate-50 bg-slate-50/50">
                 <div className="flex items-center gap-2 text-slate-700">
                   <ShieldAlert className="size-5" />
@@ -255,6 +260,66 @@ export default function IncidentsPage() {
                 <p className="text-sm leading-relaxed text-slate-600 font-medium">
                   Laporan darurat wajib dilakukan maksimal <b>15 menit</b> setelah kendala terjadi di lapangan. Sistem BGN-AI secara otomatis memverifikasi kecocokan visual (foto) dengan koordinat GPS Anda.
                 </p>
+              </CardContent>
+            </Card>
+
+            <Card className="bg-white/95 backdrop-blur-xl border border-white/40 shadow-xl shadow-red-900/5 rounded-[24px] hover:-translate-y-1 transition-all duration-300 overflow-hidden">
+              <CardHeader className="p-6 border-b border-red-50 bg-red-50/50">
+                <div className="flex items-center gap-2 text-red-700">
+                  <AlertTriangle className="size-5" />
+                  <CardTitle className="text-xs font-bold uppercase tracking-widest">
+                    Kontak Darurat BGN
+                  </CardTitle>
+                </div>
+              </CardHeader>
+              <CardContent className="p-6 space-y-4">
+                <div className="flex items-center justify-between p-3 rounded-xl bg-slate-50 border border-slate-100">
+                  <div className="flex items-center gap-3">
+                    <div className="size-8 rounded-full bg-red-100 flex items-center justify-center text-red-600">
+                      <Phone className="size-4" />
+                    </div>
+                    <div>
+                      <p className="text-xs font-bold text-slate-900">Hotline Pusat</p>
+                      <p className="text-[10px] text-slate-500 font-semibold">1-500-BGN (24/7)</p>
+                    </div>
+                  </div>
+                  <Button size="sm" variant="outline" className="h-8 rounded-lg text-xs font-bold border-slate-200">Hubungi</Button>
+                </div>
+              </CardContent>
+            </Card>
+
+            <Card className="bg-white/95 backdrop-blur-xl border border-white/40 shadow-xl shadow-teal-900/5 rounded-[24px] hover:-translate-y-1 transition-all duration-300 overflow-hidden">
+              <CardHeader className="p-6 border-b border-slate-50 bg-slate-50/50">
+                <div className="flex items-center gap-2 text-slate-700">
+                  <History className="size-5" />
+                  <CardTitle className="text-xs font-bold uppercase tracking-widest">
+                    Riwayat Laporan Terakhir
+                  </CardTitle>
+                </div>
+              </CardHeader>
+              <CardContent className="p-0">
+                <div className="divide-y divide-slate-100">
+                  <div className="p-4 flex items-center justify-between hover:bg-slate-50 transition-colors cursor-pointer">
+                    <div className="flex items-center gap-3">
+                      <div className="size-2 rounded-full bg-emerald-500" />
+                      <div>
+                        <p className="text-xs font-bold text-slate-900">Ban Kendaraan Bocor</p>
+                        <p className="text-[10px] font-semibold text-slate-500">12 Feb 2026 • Verified</p>
+                      </div>
+                    </div>
+                    <ChevronRight className="size-4 text-slate-400" />
+                  </div>
+                  <div className="p-4 flex items-center justify-between hover:bg-slate-50 transition-colors cursor-pointer">
+                    <div className="flex items-center gap-3">
+                      <div className="size-2 rounded-full bg-emerald-500" />
+                      <div>
+                        <p className="text-xs font-bold text-slate-900">Mesin Mogok</p>
+                        <p className="text-[10px] font-semibold text-slate-500">05 Jan 2026 • Verified</p>
+                      </div>
+                    </div>
+                    <ChevronRight className="size-4 text-slate-400" />
+                  </div>
+                </div>
               </CardContent>
             </Card>
           </div>
@@ -402,7 +467,7 @@ export default function IncidentsPage() {
 
           {/* Side Info for Tech */}
           <div className="space-y-6">
-            <Card className="border-none shadow-md rounded-2xl bg-gradient-to-br from-slate-900 to-slate-800 text-white overflow-hidden">
+            <Card className="border-none shadow-md rounded-[24px] bg-gradient-to-br from-slate-900 to-slate-800 text-white overflow-hidden hover:-translate-y-1 transition-all duration-300">
               <CardHeader className="p-6 border-b border-slate-700/50">
                 <div className="flex items-center gap-2">
                   <ShieldCheck className="size-5 text-teal-400" />
@@ -415,6 +480,32 @@ export default function IncidentsPage() {
                 <p className="text-sm leading-relaxed text-slate-300 font-medium">
                   Data diagnostik perangkat keras Anda akan <b>dienkripsi ujung-ke-ujung (E2E)</b>. Data tersebut murni hanya digunakan oleh teknisi untuk membantu penyelesaian bug aplikasi dan tidak akan pernah digunakan untuk melacak aktivitas pribadi Anda di luar jam operasional.
                 </p>
+              </CardContent>
+            </Card>
+
+            <Card className="bg-white/95 backdrop-blur-xl border border-white/40 shadow-xl shadow-teal-900/5 rounded-[24px] hover:-translate-y-1 transition-all duration-300 overflow-hidden">
+              <CardHeader className="p-6 border-b border-slate-50 bg-slate-50/50">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2 text-slate-700">
+                    <Activity className="size-5" />
+                    <CardTitle className="text-xs font-bold uppercase tracking-widest">
+                      Live IT Support
+                    </CardTitle>
+                  </div>
+                  <div className="flex items-center gap-1.5">
+                    <div className="size-2 bg-emerald-500 rounded-full animate-pulse" />
+                    <span className="text-[10px] font-bold text-emerald-600 uppercase">Online</span>
+                  </div>
+                </div>
+              </CardHeader>
+              <CardContent className="p-6 space-y-4">
+                <p className="text-xs text-slate-500 font-medium leading-relaxed">
+                  Tim teknisi sedang bersiaga. Rata-rata waktu respon saat ini adalah <span className="font-bold text-slate-900">3 menit</span>.
+                </p>
+                <Button className="w-full bg-slate-900 text-white hover:bg-slate-800 rounded-xl h-10 text-xs font-bold gap-2">
+                  <MessageSquare className="size-4" />
+                  Live Chat IT
+                </Button>
               </CardContent>
             </Card>
           </div>

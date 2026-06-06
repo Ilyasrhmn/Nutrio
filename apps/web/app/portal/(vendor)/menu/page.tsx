@@ -81,10 +81,10 @@ export default function MenuPlanningPage() {
   }
 
   return (
-    <div className="p-6 lg:p-8 space-y-6 max-w-7xl mx-auto animate-in fade-in duration-500">
+    <div className="p-6 lg:p-8 space-y-6 max-w-[1400px] mx-auto animate-in fade-in duration-500">
       
       {/* 1. Deep Teal Hero Banner */}
-      <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-teal-900 via-teal-800 to-slate-900 shadow-lg border border-teal-700/50">
+      <div className="relative overflow-hidden rounded-[32px] bg-gradient-to-br from-teal-900 via-teal-800 to-teal-950 shadow-2xl border border-teal-700/50">
         <div className="absolute top-0 right-0 p-8 opacity-10 pointer-events-none">
           <ChefHat className="size-40" />
         </div>
@@ -132,7 +132,7 @@ export default function MenuPlanningPage() {
                 </div>
               </div>
             </CardHeader>
-            <CardContent className="p-6 space-y-4">
+            <CardContent className="p-6 md:p-8 space-y-4">
               <div className="flex items-center justify-between pb-4 border-b border-slate-100">
                 <div className="flex items-center gap-2">
                   <Zap className="size-4 text-amber-500" />

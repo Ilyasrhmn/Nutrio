@@ -24,10 +24,10 @@ import { cn } from "@workspace/ui/lib/utils"
 
 export function VendorDashboard() {
   return (
-    <div className="p-6 lg:p-8 space-y-8 max-w-7xl mx-auto animate-in fade-in duration-500">
+    <div className="min-h-screen bg-[#F4F7FA] px-4 sm:px-6 lg:px-12 py-8 space-y-8 max-w-[1400px] mx-auto animate-in fade-in duration-500">
       
       {/* 1. Operational Hero Banner (Deep Teal Glassmorphism) */}
-      <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-teal-900 via-teal-800 to-slate-900 shadow-lg border border-teal-700/50">
+      <div className="relative overflow-hidden rounded-[32px] bg-gradient-to-br from-teal-900 via-teal-800 to-teal-950 shadow-2xl border border-teal-700/50">
         <div className="absolute top-0 right-0 p-8 opacity-10 pointer-events-none">
           <CookingPot className="size-40" />
         </div>
@@ -65,8 +65,8 @@ export function VendorDashboard() {
       {/* 2. Top Bento Stats Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5">
         {/* Main Revenue Card */}
-        <Card className="border-none shadow-sm rounded-2xl bg-teal-50">
-          <CardContent className="p-6">
+        <Card className="bg-teal-50/90 backdrop-blur-xl border border-teal-100 shadow-xl shadow-teal-900/5 rounded-[24px] hover:-translate-y-1 transition-all duration-300">
+          <CardContent className="p-6 md:p-8">
             <div className="flex items-center justify-between mb-4">
               <div className="size-10 bg-teal-100/80 rounded-xl flex items-center justify-center text-teal-700">
                 <Wallet className="size-5" />
@@ -90,7 +90,7 @@ export function VendorDashboard() {
           { label: "Kapasitas Stok", value: "82%", sub: "Aman 3 hari kedepan", icon: Package, iconBg: "bg-amber-50", iconColor: "text-amber-600" },
         ].map((stat, i) => (
           <Card key={i} className="border-slate-200/60 shadow-sm rounded-2xl bg-white hover:border-slate-300 transition-colors">
-            <CardContent className="p-6">
+            <CardContent className="p-6 md:p-8">
               <div className="flex items-center justify-between mb-4">
                 <div className={cn("size-10 rounded-xl flex items-center justify-center", stat.iconBg, stat.iconColor)}>
                   <stat.icon className="size-5" />
@@ -113,7 +113,7 @@ export function VendorDashboard() {
         <div className="xl:col-span-2 space-y-6">
           
           {/* Horizontal Checkpoint Timeline */}
-          <Card className="border-slate-200/60 shadow-sm rounded-2xl overflow-hidden bg-white">
+          <Card className="bg-white/95 backdrop-blur-xl border border-white/40 shadow-xl shadow-teal-900/5 rounded-[24px] hover:-translate-y-1 transition-all duration-300 overflow-hidden bg-white">
             <CardHeader className="border-b border-slate-100 p-6 flex flex-row items-center justify-between bg-slate-50/50">
               <div>
                 <CardTitle className="text-base font-bold text-slate-900">Timeline Kepatuhan SOP</CardTitle>
@@ -158,7 +158,7 @@ export function VendorDashboard() {
           </Card>
 
           {/* Daily Menu & Logistics */}
-          <Card className="border-slate-200/60 shadow-sm rounded-2xl overflow-hidden bg-white">
+          <Card className="bg-white/95 backdrop-blur-xl border border-white/40 shadow-xl shadow-teal-900/5 rounded-[24px] hover:-translate-y-1 transition-all duration-300 overflow-hidden bg-white">
             <CardHeader className="border-b border-slate-100 p-6 flex flex-row items-center justify-between">
               <div>
                 <CardTitle className="text-base font-bold text-slate-900">Logistik Menu Harian</CardTitle>
@@ -249,7 +249,7 @@ export function VendorDashboard() {
 
           {/* Quick Help Card */}
           <Card className="border-none shadow-md rounded-2xl overflow-hidden bg-gradient-to-br from-teal-800 to-teal-900 text-white">
-            <CardContent className="p-6">
+            <CardContent className="p-6 md:p-8">
               <div className="size-12 bg-white/10 rounded-xl flex items-center justify-center mb-5">
                 <ShieldCheck className="size-6 text-teal-300" />
               </div>

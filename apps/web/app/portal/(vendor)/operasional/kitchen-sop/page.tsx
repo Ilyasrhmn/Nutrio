@@ -78,10 +78,10 @@ export default function KitchenSopPage() {
   const progressPercent = Math.round((completedCount / tasks.length) * 100);
 
   return (
-    <div className="p-6 lg:p-8 space-y-8 max-w-7xl mx-auto animate-in fade-in duration-500">
+    <div className="min-h-screen bg-[#F4F7FA] px-4 sm:px-6 lg:px-12 py-8 space-y-8 max-w-[1400px] mx-auto animate-in fade-in duration-500">
       
       {/* 1. Deep Teal Hero Banner (Screen Only) */}
-      <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-teal-900 via-teal-800 to-slate-900 shadow-lg border border-teal-700/50 print:hidden">
+      <div className="relative overflow-hidden rounded-[32px] bg-gradient-to-br from-teal-900 via-teal-800 to-teal-950 shadow-2xl border border-teal-700/50 print:hidden">
         <div className="absolute top-0 right-0 p-8 opacity-10 pointer-events-none">
           <ChefHat className="size-40" />
         </div>
@@ -121,7 +121,7 @@ export default function KitchenSopPage() {
 
       {/* 2. Bento Box Production Info (Screen Only) */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6 print:hidden">
-        <Card className="bg-white border-none shadow-sm rounded-2xl ring-1 ring-slate-200/60 flex items-center p-6 gap-5">
+        <Card className="bg-white/95 backdrop-blur-xl border border-white/40 shadow-xl shadow-teal-900/5 rounded-[24px] hover:-translate-y-1 transition-all duration-300 overflow-hidden flex items-center p-6 gap-5">
           <div className="size-14 bg-teal-50 rounded-2xl flex items-center justify-center text-teal-600 shadow-sm border border-teal-100 shrink-0">
             <ClipboardList className="size-6" />
           </div>
@@ -131,7 +131,7 @@ export default function KitchenSopPage() {
           </div>
         </Card>
         
-        <Card className="bg-white border-none shadow-sm rounded-2xl ring-1 ring-slate-200/60 flex items-center p-6 gap-5">
+        <Card className="bg-white/95 backdrop-blur-xl border border-white/40 shadow-xl shadow-teal-900/5 rounded-[24px] hover:-translate-y-1 transition-all duration-300 overflow-hidden flex items-center p-6 gap-5">
           <div className="size-14 bg-amber-50 rounded-2xl flex items-center justify-center text-amber-600 shadow-sm border border-amber-100 shrink-0">
             <ChefHat className="size-6" />
           </div>
@@ -141,7 +141,7 @@ export default function KitchenSopPage() {
           </div>
         </Card>
 
-        <Card className="bg-white border-none shadow-sm rounded-2xl ring-1 ring-slate-200/60 flex items-center p-6 gap-5">
+        <Card className="bg-white/95 backdrop-blur-xl border border-white/40 shadow-xl shadow-teal-900/5 rounded-[24px] hover:-translate-y-1 transition-all duration-300 overflow-hidden flex items-center p-6 gap-5">
           <div className="size-14 bg-indigo-50 rounded-2xl flex items-center justify-center text-indigo-600 shadow-sm border border-indigo-100 shrink-0">
             <Timer className="size-6" />
           </div>
@@ -165,17 +165,11 @@ export default function KitchenSopPage() {
               key={index}
               onClick={() => toggleTask(index)}
               className={cn(
-                "group relative overflow-hidden bg-white border-none shadow-sm ring-1 ring-slate-200/60 rounded-2xl p-6 transition-all duration-300 cursor-pointer hover:shadow-md hover:-translate-y-0.5",
-                task.completed ? "ring-emerald-500/50 bg-emerald-50/30" : "hover:ring-teal-500/30"
+                "group relative overflow-hidden bg-white/95 backdrop-blur-xl border border-white/40 shadow-xl shadow-teal-900/5 hover:-translate-y-1 transition-all duration-300 rounded-[24px] p-6 md:p-8 cursor-pointer",
+                task.completed ? "ring-emerald-500/50 bg-emerald-50/30 border-l-4 border-l-emerald-500 rounded-l-[4px]" : task.isUrgent ? "border-l-4 border-l-red-500 rounded-l-[4px] hover:ring-teal-500/30" : "hover:ring-teal-500/30"
               )}
             >
-              {/* Highlight strip for urgent */}
-              {task.isUrgent && !task.completed && (
-                <div className="absolute left-0 top-0 bottom-0 w-1.5 bg-red-500" />
-              )}
-              {task.completed && (
-                <div className="absolute left-0 top-0 bottom-0 w-1.5 bg-emerald-500" />
-              )}
+              {/* Status strips are now integrated into the border left */}
 
               <div className="flex flex-col md:flex-row md:items-center gap-6">
                 {/* Time & Status Column */}

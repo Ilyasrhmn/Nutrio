@@ -157,13 +157,13 @@ export default function MarketplaceHomePage() {
   ]
 
   return (
-    <div className="pb-12 animate-in fade-in duration-500">
+    <div className="min-h-screen bg-[#F4F7FA] pb-16 animate-in fade-in duration-500">
       {/* Hero Search Section */}
       <div className="relative overflow-hidden">
-        <div className="absolute inset-0 bg-gradient-to-br from-teal-900 via-teal-800 to-slate-900" />
+        <div className="absolute inset-0 bg-gradient-to-br from-teal-900 via-teal-800 to-teal-950" />
         <div className="absolute inset-0 bg-[linear-gradient(to_right,#ffffff0a_1px,transparent_1px),linear-gradient(to_bottom,#ffffff0a_1px,transparent_1px)] bg-[size:24px_24px]" />
         
-        <div className="relative max-w-7xl mx-auto px-6 pt-10 pb-16">
+        <div className="relative max-w-[1400px] mx-auto px-6 md:px-12 pt-10 pb-16">
           <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-6 mb-10">
             <div className="space-y-3">
               <Badge className="bg-teal-500/20 text-teal-100 border border-teal-500/30 font-bold uppercase tracking-widest text-[10px] px-3 py-1 rounded-full backdrop-blur-sm">
@@ -247,7 +247,7 @@ export default function MarketplaceHomePage() {
       </div>
 
       {/* Category Pills */}
-      <div className="max-w-7xl mx-auto px-6 -mt-8 relative z-10">
+      <div className="max-w-[1400px] mx-auto px-6 md:px-12 -mt-8 relative z-10">
         <div className="bg-white rounded-2xl shadow-md border border-slate-200/60 p-2 flex items-center gap-2 overflow-x-auto ring-1 ring-slate-100">
           {categories.map((cat) => (
             <button
@@ -274,7 +274,7 @@ export default function MarketplaceHomePage() {
       </div>
 
       {/* AI Location Notice */}
-      <div className="max-w-7xl mx-auto px-6 mt-8">
+      <div className="max-w-[1400px] mx-auto px-6 md:px-12 mt-8">
         <div className="flex flex-col sm:flex-row sm:items-center gap-4 bg-teal-50 border border-teal-100 rounded-2xl px-6 py-4 shadow-sm">
           <div className="size-10 bg-white rounded-full flex items-center justify-center shrink-0 shadow-sm border border-teal-100">
             <Sparkles className="size-5 text-teal-600" />
@@ -287,7 +287,7 @@ export default function MarketplaceHomePage() {
       </div>
 
       {/* Supplier Grid - 5 cards */}
-      <div className="max-w-7xl mx-auto px-6 mt-8 pb-12">
+      <div className="max-w-[1400px] mx-auto px-6 md:px-12 mt-8 pb-12">
         <div className="flex items-center justify-between mb-6">
           <div className="flex items-center gap-3">
             <h2 className="text-xl font-bold text-slate-900">Supplier Terdekat</h2>
@@ -317,7 +317,7 @@ export default function MarketplaceHomePage() {
               className="group block"
             >
               <Card className={cn(
-                "overflow-hidden border-none ring-1 ring-slate-200/60 bg-white hover:shadow-xl hover:shadow-slate-200/50 hover:-translate-y-1 transition-all duration-300 rounded-2xl h-full flex flex-col",
+                "overflow-hidden bg-white/95 backdrop-blur-xl border border-white/40 shadow-xl shadow-teal-900/5 hover:-translate-y-1 transition-all duration-300 rounded-[24px] h-full flex flex-col",
                 "animate-in fade-in slide-in-from-bottom-3",
               )} style={{ animationDelay: `${index * 80}ms`, animationFillMode: 'both' }}>
                 {/* Image */}

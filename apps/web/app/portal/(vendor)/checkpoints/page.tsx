@@ -120,10 +120,10 @@ export default function CheckpointsPage() {
   ];
 
   return (
-    <div className="p-6 lg:p-8 space-y-8 max-w-7xl mx-auto animate-in fade-in duration-500">
+    <div className="min-h-screen bg-[#F4F7FA] px-4 sm:px-6 lg:px-12 py-8 space-y-8 max-w-[1400px] mx-auto animate-in fade-in duration-500">
       
       {/* 1. Deep Teal Hero Banner */}
-      <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-teal-900 via-teal-800 to-slate-900 shadow-lg border border-teal-700/50">
+      <div className="relative overflow-hidden rounded-[32px] bg-gradient-to-br from-teal-900 via-teal-800 to-teal-950 shadow-2xl border border-teal-700/50">
         <div className="absolute top-0 right-0 p-8 opacity-10 pointer-events-none">
           <Activity className="size-40" />
         </div>
@@ -179,7 +179,7 @@ export default function CheckpointsPage() {
       {/* Metric Cards Grid */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         <Card className={cn("border-none shadow-sm rounded-2xl relative overflow-hidden bg-white", isKritis ? "ring-2 ring-red-500" : "ring-1 ring-slate-200/60")}>
-          <CardContent className="p-6 space-y-4">
+          <CardContent className="p-6 md:p-8 space-y-4">
             <div className="flex items-center justify-between">
               <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest flex items-center gap-1.5">
                 Skor Operasional <HelpCircle className="size-3 cursor-help" />
@@ -206,7 +206,7 @@ export default function CheckpointsPage() {
         </Card>
 
         <Card className={cn("border-none shadow-sm rounded-2xl bg-white", isKritis ? "ring-2 ring-red-500 bg-red-50/50" : "ring-1 ring-slate-200/60 bg-teal-50/30")}>
-          <CardContent className="p-6 space-y-4">
+          <CardContent className="p-6 md:p-8 space-y-4">
             <div className="flex items-center justify-between">
               <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Status Smart Contract</p>
               <ShieldCheck className={cn("size-5", isKritis ? "text-red-500" : "text-emerald-500")} />
@@ -224,8 +224,8 @@ export default function CheckpointsPage() {
           </CardContent>
         </Card>
 
-        <Card className="border-none shadow-sm rounded-2xl bg-white ring-1 ring-slate-200/60">
-          <CardContent className="p-6 space-y-4">
+        <Card className="bg-white/95 backdrop-blur-xl border border-white/40 shadow-xl shadow-teal-900/5 rounded-[24px] hover:-translate-y-1 transition-all duration-300 overflow-hidden">
+          <CardContent className="p-6 md:p-8 space-y-4">
             <div className="flex items-center justify-between">
               <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Progress Bonus Gold</p>
               <Zap className="size-5 text-orange-500" />

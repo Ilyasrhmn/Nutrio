@@ -75,10 +75,10 @@ export default function AuditPage() {
   ]
 
   return (
-    <div className="p-6 lg:p-8 space-y-8 max-w-7xl mx-auto animate-in fade-in duration-500">
+    <div className="min-h-screen bg-[#F4F7FA] px-4 sm:px-6 lg:px-12 py-8 space-y-8 max-w-[1400px] mx-auto animate-in fade-in duration-500">
       
       {/* 1. Deep Teal Hero Banner */}
-      <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-teal-900 via-teal-800 to-slate-900 shadow-lg border border-teal-700/50">
+      <div className="relative overflow-hidden rounded-[32px] bg-gradient-to-br from-teal-900 via-teal-800 to-teal-950 shadow-2xl border border-teal-700/50">
         <div className="absolute top-0 right-0 p-8 opacity-10 pointer-events-none">
           <ShieldCheck className="size-48" />
         </div>
@@ -117,7 +117,7 @@ export default function AuditPage() {
 
       {/* 2. Stats Bento Box */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-        <Card className="bg-white border-none shadow-sm rounded-2xl ring-1 ring-slate-200/60 p-6 flex flex-col justify-center">
+        <Card className="bg-white/95 backdrop-blur-xl border border-white/40 shadow-xl shadow-teal-900/5 rounded-[24px] hover:-translate-y-1 transition-all duration-300 overflow-hidden p-6 flex flex-col justify-center">
           <div className="flex items-center gap-3 mb-2">
             <div className="size-8 rounded-full bg-emerald-50 text-emerald-600 flex items-center justify-center">
               <CheckCircle2 className="size-4" />
@@ -127,7 +127,7 @@ export default function AuditPage() {
           <p className="text-3xl font-black text-slate-900">1,248</p>
         </Card>
 
-        <Card className="bg-white border-none shadow-sm rounded-2xl ring-1 ring-slate-200/60 p-6 flex flex-col justify-center">
+        <Card className="bg-white/95 backdrop-blur-xl border border-white/40 shadow-xl shadow-teal-900/5 rounded-[24px] hover:-translate-y-1 transition-all duration-300 overflow-hidden p-6 flex flex-col justify-center">
           <div className="flex items-center gap-3 mb-2">
             <div className="size-8 rounded-full bg-red-50 text-red-600 flex items-center justify-center">
               <XCircle className="size-4" />
@@ -137,7 +137,7 @@ export default function AuditPage() {
           <p className="text-3xl font-black text-slate-900">24</p>
         </Card>
 
-        <Card className="bg-white border-none shadow-sm rounded-2xl ring-1 ring-slate-200/60 p-6 flex flex-col justify-center">
+        <Card className="bg-white/95 backdrop-blur-xl border border-white/40 shadow-xl shadow-teal-900/5 rounded-[24px] hover:-translate-y-1 transition-all duration-300 overflow-hidden p-6 flex flex-col justify-center">
           <div className="flex items-center gap-3 mb-2">
             <div className="size-8 rounded-full bg-amber-50 text-amber-600 flex items-center justify-center">
               <AlertTriangle className="size-4" />
@@ -147,7 +147,7 @@ export default function AuditPage() {
           <p className="text-3xl font-black text-slate-900">8</p>
         </Card>
         
-        <Card className="bg-white border-none shadow-sm rounded-2xl ring-1 ring-slate-200/60 p-6 flex flex-col justify-center bg-[url('https://www.transparenttextures.com/patterns/cubes.png')] bg-teal-50">
+        <Card className="bg-white/95 backdrop-blur-xl border border-white/40 shadow-xl shadow-teal-900/5 rounded-[24px] hover:-translate-y-1 transition-all duration-300 overflow-hidden p-6 flex flex-col justify-center bg-[url('https://www.transparenttextures.com/patterns/cubes.png')] bg-teal-50">
           <div className="flex items-center justify-between mb-2">
             <p className="text-[10px] font-bold text-teal-700 uppercase tracking-widest">Health Score BGN</p>
             <ShieldCheck className="size-5 text-teal-600" />

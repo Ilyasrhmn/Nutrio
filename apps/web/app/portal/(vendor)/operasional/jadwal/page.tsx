@@ -197,10 +197,10 @@ export default function JadwalDistribusiPage() {
   const activeDay = scheduleData[activeDayIdx] ?? scheduleData[0]!;
 
   return (
-    <div className="p-6 lg:p-8 space-y-8 max-w-7xl mx-auto animate-in fade-in duration-500">
+    <div className="min-h-screen bg-[#F4F7FA] px-4 sm:px-6 lg:px-12 py-8 space-y-8 max-w-[1400px] mx-auto animate-in fade-in duration-500">
       
       {/* 1. Deep Teal Hero Banner */}
-      <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-teal-900 via-teal-800 to-slate-900 shadow-lg border border-teal-700/50">
+      <div className="relative overflow-hidden rounded-[32px] bg-gradient-to-br from-teal-900 via-teal-800 to-teal-950 shadow-2xl border border-teal-700/50">
         <div className="absolute top-0 right-0 p-8 opacity-10 pointer-events-none">
           <CalendarDays className="size-40" />
         </div>
@@ -221,8 +221,8 @@ export default function JadwalDistribusiPage() {
 
       {/* 2. Demand Insight Cards */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-        <Card className="bg-white border-none shadow-sm rounded-2xl ring-1 ring-slate-200/60">
-          <CardContent className="p-6 flex items-center gap-4">
+        <Card className="bg-white/95 backdrop-blur-xl border border-white/40 shadow-xl shadow-teal-900/5 rounded-[24px] hover:-translate-y-1 transition-all duration-300 overflow-hidden">
+          <CardContent className="p-6 md:p-8 flex items-center gap-4">
             <div className="size-14 bg-teal-50 rounded-2xl flex items-center justify-center text-teal-600 shadow-sm border border-teal-100">
               <Users className="size-6" />
             </div>
@@ -238,8 +238,8 @@ export default function JadwalDistribusiPage() {
           </CardContent>
         </Card>
 
-        <Card className="bg-white border-none shadow-sm rounded-2xl ring-1 ring-slate-200/60">
-          <CardContent className="p-6 flex items-center gap-4">
+        <Card className="bg-white/95 backdrop-blur-xl border border-white/40 shadow-xl shadow-teal-900/5 rounded-[24px] hover:-translate-y-1 transition-all duration-300 overflow-hidden">
+          <CardContent className="p-6 md:p-8 flex items-center gap-4">
             <div className="size-14 bg-emerald-50 rounded-2xl flex items-center justify-center text-emerald-600 shadow-sm border border-emerald-100">
               <TrendingUp className="size-6" />
             </div>
@@ -254,8 +254,8 @@ export default function JadwalDistribusiPage() {
           </CardContent>
         </Card>
 
-        <Card className="bg-white border-none shadow-sm rounded-2xl ring-1 ring-slate-200/60">
-          <CardContent className="p-6 flex items-center gap-4">
+        <Card className="bg-white/95 backdrop-blur-xl border border-white/40 shadow-xl shadow-teal-900/5 rounded-[24px] hover:-translate-y-1 transition-all duration-300 overflow-hidden">
+          <CardContent className="p-6 md:p-8 flex items-center gap-4">
             <div className="size-14 bg-amber-50 rounded-2xl flex items-center justify-center text-amber-600 shadow-sm border border-amber-100">
               <MapPin className="size-6" />
             </div>
@@ -268,8 +268,8 @@ export default function JadwalDistribusiPage() {
           </CardContent>
         </Card>
 
-        <Card className="bg-white border-none shadow-sm rounded-2xl ring-1 ring-slate-200/60">
-          <CardContent className="p-6 flex items-center gap-4">
+        <Card className="bg-white/95 backdrop-blur-xl border border-white/40 shadow-xl shadow-teal-900/5 rounded-[24px] hover:-translate-y-1 transition-all duration-300 overflow-hidden">
+          <CardContent className="p-6 md:p-8 flex items-center gap-4">
             <div className="size-14 bg-slate-50 rounded-2xl flex items-center justify-center text-slate-600 shadow-sm border border-slate-200">
               <LayoutDashboard className="size-6" />
             </div>
@@ -439,7 +439,7 @@ export default function JadwalDistribusiPage() {
                   key={sIdx}
                   className="border-none ring-1 ring-slate-200/60 shadow-sm bg-white rounded-2xl overflow-hidden hover:ring-2 hover:ring-teal-500/50 transition-all group"
                 >
-                  <CardContent className="p-6 flex flex-col justify-between h-full space-y-5">
+                  <CardContent className="p-6 md:p-8 flex flex-col justify-between h-full space-y-5">
                     <div className="flex items-start justify-between">
                       <div className="space-y-1.5">
                         <h4 className="font-extrabold text-slate-900 text-base group-hover:text-teal-700 transition-colors">

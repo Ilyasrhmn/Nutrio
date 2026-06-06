@@ -25,9 +25,9 @@ import { cn } from "@workspace/ui/lib/utils"
 
 export default function SOPPage() {
   return (
-    <div className="p-6 lg:p-8 space-y-8 max-w-7xl mx-auto animate-in fade-in duration-500">
+    <div className="min-h-screen bg-[#F4F7FA] px-4 sm:px-6 lg:px-12 py-8 space-y-8 max-w-[1400px] mx-auto animate-in fade-in duration-500">
       {/* 1. Deep Teal Hero Banner */}
-      <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-teal-900 via-teal-800 to-slate-900 shadow-lg border border-teal-700/50">
+      <div className="relative overflow-hidden rounded-[32px] bg-gradient-to-br from-teal-900 via-teal-800 to-teal-950 shadow-2xl border border-teal-700/50">
         <div className="absolute top-0 right-0 p-8 opacity-10 pointer-events-none">
           <BookOpen className="size-40" />
         </div>
@@ -55,16 +55,16 @@ export default function SOPPage() {
       </div>
 
       <Tabs defaultValue="penalty" className="space-y-8">
-        <TabsList className="bg-white border border-slate-200/60 p-2 rounded-2xl h-auto flex flex-wrap sm:flex-nowrap gap-2 shadow-sm w-full">
-          <TabsTrigger value="penalty" className="flex-1 rounded-xl py-3.5 gap-2 data-[state=active]:bg-teal-600 data-[state=active]:text-white data-[state=active]:shadow-md transition-all font-bold text-xs uppercase tracking-widest text-slate-500">
+        <TabsList className="bg-white/60 backdrop-blur-xl border border-white/40 p-2 rounded-[24px] h-auto flex flex-wrap sm:flex-nowrap gap-2 shadow-lg shadow-teal-900/5 w-full">
+          <TabsTrigger value="penalty" className="flex-1 rounded-full py-3.5 gap-2 data-[state=active]:bg-teal-600 data-[state=active]:text-white data-[state=active]:shadow-md data-[state=active]:border-transparent border-transparent transition-all font-bold text-xs uppercase tracking-widest text-slate-500">
             <Target className="size-4" />
             Kamus Pinalti
           </TabsTrigger>
-          <TabsTrigger value="ai-photo" className="flex-1 rounded-xl py-3.5 gap-2 data-[state=active]:bg-teal-600 data-[state=active]:text-white data-[state=active]:shadow-md transition-all font-bold text-xs uppercase tracking-widest text-slate-500">
+          <TabsTrigger value="ai-photo" className="flex-1 rounded-full py-3.5 gap-2 data-[state=active]:bg-teal-600 data-[state=active]:text-white data-[state=active]:shadow-md data-[state=active]:border-transparent border-transparent transition-all font-bold text-xs uppercase tracking-widest text-slate-500">
             <Camera className="size-4" />
             Panduan Foto AI
           </TabsTrigger>
-          <TabsTrigger value="flow" className="flex-1 rounded-xl py-3.5 gap-2 data-[state=active]:bg-teal-600 data-[state=active]:text-white data-[state=active]:shadow-md transition-all font-bold text-xs uppercase tracking-widest text-slate-500">
+          <TabsTrigger value="flow" className="flex-1 rounded-full py-3.5 gap-2 data-[state=active]:bg-teal-600 data-[state=active]:text-white data-[state=active]:shadow-md data-[state=active]:border-transparent border-transparent transition-all font-bold text-xs uppercase tracking-widest text-slate-500">
             <Timer className="size-4" />
             Alur Checkpoint
           </TabsTrigger>
@@ -82,7 +82,7 @@ export default function SOPPage() {
                   Kategori Pelanggaran Waktu
                 </CardTitle>
               </CardHeader>
-              <CardContent className="p-6 md:p-8 space-y-4">
+              <CardContent className="p-6 md:p-8 md:p-8 space-y-4">
                 {[
                   { label: "Telat Ringan (1 - 15m)", point: "-2 Poin", color: "text-amber-700", bg: "bg-amber-50", border: "border-amber-200" },
                   { label: "Telat Sedang (16 - 30m)", point: "-5 Poin", color: "text-orange-700", bg: "bg-orange-50", border: "border-orange-200" },
@@ -106,7 +106,7 @@ export default function SOPPage() {
                   Mekanisme Reward (Streak)
                 </CardTitle>
               </CardHeader>
-              <CardContent className="p-6 md:p-8 space-y-5">
+              <CardContent className="p-6 md:p-8 md:p-8 space-y-5">
                 <div className="p-5 rounded-2xl bg-emerald-50 border border-emerald-100 space-y-3 relative overflow-hidden group hover:border-emerald-300 transition-colors">
                   <div className="absolute -right-4 -top-4 opacity-10 group-hover:scale-110 transition-transform">
                     <Target className="size-24" />
@@ -160,11 +160,11 @@ export default function SOPPage() {
                     <div className="absolute inset-0 flex items-center justify-center bg-emerald-500/5">
                       <Camera className="size-16 text-emerald-600/20" />
                     </div>
-                    <div className="absolute bottom-4 left-4 right-4 bg-white/95 backdrop-blur-md p-4 rounded-xl border border-emerald-100 shadow-sm">
-                      <p className="text-xs font-bold text-emerald-800 leading-relaxed text-center">
-                        Seluruh bahan baku terlihat jelas, cahaya terang, dan difoto dari atas (Top-Down).
-                      </p>
-                    </div>
+                  </div>
+                  <div className="bg-emerald-50 p-4 rounded-xl border border-emerald-100 shadow-sm mt-4">
+                    <p className="text-xs font-bold text-emerald-800 leading-relaxed text-center">
+                      Seluruh bahan baku terlihat jelas, cahaya terang, dan difoto dari atas (Top-Down).
+                    </p>
                   </div>
                 </div>
               </CardContent>
@@ -181,11 +181,11 @@ export default function SOPPage() {
                     <div className="absolute inset-0 flex items-center justify-center bg-red-500/5">
                       <Camera className="size-16 text-red-600/20" />
                     </div>
-                    <div className="absolute bottom-4 left-4 right-4 bg-white/95 backdrop-blur-md p-4 rounded-xl border border-red-100 shadow-sm">
-                      <p className="text-xs font-bold text-red-800 leading-relaxed text-center">
-                        Foto blur, bahan baku menumpuk, atau mencoba memfoto layar monitor (FRAUD DETECTED).
-                      </p>
-                    </div>
+                  </div>
+                  <div className="bg-red-50 p-4 rounded-xl border border-red-100 shadow-sm mt-4">
+                    <p className="text-xs font-bold text-red-800 leading-relaxed text-center">
+                      Foto blur, bahan baku menumpuk, atau mencoba memfoto layar monitor (FRAUD DETECTED).
+                    </p>
                   </div>
                 </div>
               </CardContent>
@@ -212,19 +212,19 @@ export default function SOPPage() {
 
         {/* Tab 3: Alur Checkpoint */}
         <TabsContent value="flow" className="space-y-8 animate-in fade-in slide-in-from-bottom-4">
-          <Card className="bg-white border-none shadow-sm rounded-2xl ring-1 ring-slate-200/60 p-8 md:p-12">
-            <div className="relative space-y-12 before:absolute before:left-[39px] before:top-4 before:bottom-4 before:w-1 before:bg-slate-100">
+          <Card className="bg-white/95 backdrop-blur-xl border border-white/40 shadow-xl shadow-teal-900/5 rounded-[24px] hover:-translate-y-1 transition-all duration-300 overflow-hidden p-8 md:p-12">
+            <div className="relative space-y-12 before:absolute before:left-[27px] before:top-4 before:bottom-4 before:w-1 before:bg-slate-100">
               {[
                 { id: 1, title: "Preparation & Validasi Bahan", time: "02:00 WIB", desc: "Vendor memfoto seluruh bahan baku. AI mencocokkan jumlah bahan dengan porsi yang akan dimasak." },
                 { id: 2, title: "Portioning & QC Organoleptik", time: "05:00 - 06:30 WIB", desc: "Vendor mengisi checklist rasa/warna dan memfoto kotak makan sampel. Di sini Countdown 4 Jam dimulai!" },
                 { id: 3, title: "Dispatch Armada", time: "07:30 WIB", desc: "Supir klik 'Berangkat'. GPS mulai memantau rute dan menghitung ETA ke sekolah tujuan." },
                 { id: 4, title: "Handover & QC Sekolah", time: "Saat Tiba", desc: "Guru scan QR Code supir. Dana Smart Contract cair otomatis setelah verifikasi selesai." },
               ].map((step, i) => (
-                <div key={i} className="relative pl-24 group">
-                  <div className="absolute left-0 size-20 bg-white rounded-2xl border-4 border-slate-100 shadow-sm flex items-center justify-center font-black text-2xl text-slate-300 group-hover:border-teal-500 group-hover:text-teal-600 transition-all z-10 group-hover:scale-110">
+                <div key={i} className="relative pl-20 group">
+                  <div className="absolute left-0 size-14 bg-white rounded-2xl border-4 border-slate-100 shadow-sm flex items-center justify-center font-black text-xl text-slate-300 group-hover:border-teal-500 group-hover:text-teal-600 transition-all z-10 group-hover:scale-110">
                     {step.id}
                   </div>
-                  <div className="space-y-3 pt-2">
+                  <div className="space-y-3 pt-0.5">
                     <div className="flex flex-col sm:flex-row sm:items-center gap-3">
                       <h4 className="text-xl font-black text-slate-900 tracking-tight">{step.title}</h4>
                       <Badge className="bg-teal-50 text-teal-700 border-none font-bold text-[10px] px-3 py-1 uppercase tracking-widest">{step.time}</Badge>

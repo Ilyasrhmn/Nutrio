@@ -68,10 +68,10 @@ export default function LiveCheckpointPage() {
   };
 
   return (
-    <div className="p-6 lg:p-8 space-y-8 max-w-7xl mx-auto animate-in fade-in duration-500">
+    <div className="min-h-screen bg-[#F4F7FA] px-4 sm:px-6 lg:px-12 py-8 space-y-8 max-w-[1400px] mx-auto animate-in fade-in duration-500">
       
       {/* 1. Deep Teal Hero Banner */}
-      <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-teal-900 via-teal-800 to-slate-900 shadow-lg border border-teal-700/50">
+      <div className="relative overflow-hidden rounded-[32px] bg-gradient-to-br from-teal-900 via-teal-800 to-teal-950 shadow-2xl border border-teal-700/50">
         <div className="absolute top-0 right-0 p-8 opacity-10 pointer-events-none">
           <Camera className="size-40" />
         </div>
@@ -132,36 +132,38 @@ export default function LiveCheckpointPage() {
       )}
 
       {/* Progress Tracker (Horizontal Stepper) */}
-      <div className="relative flex justify-between px-2 sm:px-8 py-4">
-        <div className="absolute top-[28px] left-[10%] right-[10%] h-1 bg-slate-100 rounded-full z-0" />
-        {steps.map((step) => {
-          const isActive = activeStep === step.id;
-          const isDone = activeStep > step.id;
-          return (
-            <div key={step.id} className="relative z-10 flex flex-col items-center gap-3">
-              <div
-                className={cn(
-                  "size-14 rounded-full flex items-center justify-center border-4 shadow-sm transition-all duration-500 bg-white",
-                  isActive
-                    ? "border-teal-600 text-teal-700 ring-4 ring-teal-50"
-                    : isDone
-                      ? "border-emerald-500 text-emerald-500"
-                      : "border-slate-200 text-slate-300",
-                )}
-              >
-                {isDone ? <CheckCircle2 className="size-6" /> : <step.icon className="size-5" />}
+      <div className="relative px-2 sm:px-8 py-4">
+        <div className="absolute top-[32px] left-[12%] right-[12%] h-1 bg-slate-200 rounded-full z-0" />
+        <div className="grid grid-cols-4 relative z-10">
+          {steps.map((step) => {
+            const isActive = activeStep === step.id;
+            const isDone = activeStep > step.id;
+            return (
+              <div key={step.id} className="flex flex-col items-center gap-3">
+                <div
+                  className={cn(
+                    "size-16 rounded-full flex items-center justify-center border-4 shadow-sm transition-all duration-500 bg-white",
+                    isActive
+                      ? "border-teal-600 text-teal-700 ring-4 ring-teal-50"
+                      : isDone
+                        ? "border-emerald-500 text-emerald-500"
+                        : "border-slate-200 text-slate-300",
+                  )}
+                >
+                  {isDone ? <CheckCircle2 className="size-6" /> : <step.icon className="size-6" />}
+                </div>
+                <div className="text-center mt-2">
+                  <p className={cn("text-[10px] sm:text-xs font-bold uppercase tracking-widest", isActive ? "text-teal-600" : isDone ? "text-emerald-600" : "text-slate-400")}>
+                    {step.time}
+                  </p>
+                  <p className={cn("text-[10px] sm:text-sm font-extrabold mt-0.5", isActive ? "text-slate-900" : isDone ? "text-slate-700" : "text-slate-400")}>
+                    {step.label}
+                  </p>
+                </div>
               </div>
-              <div className="text-center mt-1">
-                <p className={cn("text-[10px] font-bold uppercase tracking-widest", isActive ? "text-teal-600" : isDone ? "text-emerald-600" : "text-slate-400")}>
-                  {step.time}
-                </p>
-                <p className={cn("text-[11px] font-extrabold mt-0.5", isActive ? "text-slate-900" : isDone ? "text-slate-700" : "text-slate-400")}>
-                  {step.label}
-                </p>
-              </div>
-            </div>
-          );
-        })}
+            );
+          })}
+        </div>
       </div>
 
       {/* Main Action Area */}
@@ -224,7 +226,7 @@ export default function LiveCheckpointPage() {
 
         {/* Sidebar Status */}
         <div className="space-y-6">
-          <Card className="border-none shadow-sm rounded-2xl bg-white ring-1 ring-slate-200/60 overflow-hidden">
+          <Card className="bg-white/95 backdrop-blur-xl border border-white/40 shadow-xl shadow-teal-900/5 rounded-[24px] hover:-translate-y-1 transition-all duration-300 overflow-hidden overflow-hidden">
             <CardHeader className="p-6 border-b border-slate-50 bg-slate-50/50">
               <CardTitle className="text-[10px] font-bold uppercase tracking-widest text-slate-400">Tahap Berikutnya</CardTitle>
             </CardHeader>
@@ -257,7 +259,7 @@ export default function LiveCheckpointPage() {
 
           {/* Need Help Card */}
           <Card className="border-none shadow-sm rounded-2xl bg-amber-50 ring-1 ring-amber-200">
-            <CardContent className="p-6 space-y-4">
+            <CardContent className="p-6 md:p-8 space-y-4">
               <div className="flex items-center gap-2 text-amber-700">
                 <AlertTriangle className="size-5" />
                 <p className="text-sm font-bold uppercase tracking-wide">Mengalami Kendala?</p>

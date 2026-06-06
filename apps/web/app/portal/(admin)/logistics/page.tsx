@@ -82,7 +82,7 @@ export default function LogisticsPage() {
         <div className="absolute inset-0 bg-[linear-gradient(to_right,#ffffff12_1px,transparent_1px),linear-gradient(to_bottom,#ffffff12_1px,transparent_1px)] bg-[size:24px_24px]" />
         <div className="absolute -bottom-24 -right-24 size-96 bg-blue-400/30 blur-[100px] rounded-full pointer-events-none" />
         
-        <div className="relative z-10 max-w-7xl mx-auto space-y-6">
+        <div className="relative z-10 max-w-[1400px] mx-auto space-y-6">
           <div className="flex flex-col md:flex-row md:items-start justify-between gap-6">
             <div className="space-y-3">
               <Badge className="bg-white/10 text-blue-50 border border-white/20 hover:bg-white/20 font-bold uppercase tracking-widest text-[10px] px-3 py-1 rounded-full">
@@ -114,7 +114,7 @@ export default function LogisticsPage() {
       </div>
 
       {/* MAIN CONTENT (Overlapping Hero) */}
-      <div className="relative z-20 max-w-7xl mx-auto px-6 lg:px-12 -mt-20 space-y-8 pb-12">
+      <div className="relative z-20 max-w-[1400px] mx-auto px-6 lg:px-12 -mt-20 space-y-8 pb-12">
         
         {/* Metric Cards */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
@@ -123,7 +123,7 @@ export default function LogisticsPage() {
             <div className="absolute top-0 right-0 p-6 opacity-[0.03] group-hover:scale-110 transition-transform duration-500 pointer-events-none">
               <Truck className="size-32" />
             </div>
-            <CardContent className="p-6 md:p-8 relative">
+            <CardContent className="p-6 md:p-8 md:p-8 relative">
               <div className="flex items-start justify-between">
                 <div className="space-y-3">
                   <p className="text-[11px] font-bold text-slate-500 uppercase tracking-widest">Sedang Berjalan</p>
@@ -143,7 +143,7 @@ export default function LogisticsPage() {
             <div className="absolute top-0 right-0 p-6 opacity-[0.03] group-hover:scale-110 transition-transform duration-500 pointer-events-none">
               <AlertTriangle className="size-32" />
             </div>
-            <CardContent className="p-6 md:p-8 relative">
+            <CardContent className="p-6 md:p-8 md:p-8 relative">
               <div className="flex items-start justify-between">
                 <div className="space-y-3">
                   <p className="text-[11px] font-bold text-slate-500 uppercase tracking-widest">Risiko Terlambat</p>
@@ -165,7 +165,7 @@ export default function LogisticsPage() {
             <div className="absolute top-0 right-0 p-6 opacity-[0.03] group-hover:scale-110 transition-transform duration-500 pointer-events-none">
               <CheckCircle2 className="size-32" />
             </div>
-            <CardContent className="p-6 md:p-8 relative">
+            <CardContent className="p-6 md:p-8 md:p-8 relative">
               <div className="flex items-start justify-between">
                 <div className="space-y-3">
                   <p className="text-[11px] font-bold text-slate-500 uppercase tracking-widest">Tervalidasi (Hari Ini)</p>
@@ -199,7 +199,7 @@ export default function LogisticsPage() {
                 <MoreHorizontal className="size-4" />
               </Button>
             </CardHeader>
-            <CardContent className="p-6 lg:p-8 flex-1">
+            <CardContent className="p-6 md:p-8 lg:p-8 flex-1">
               <div className="relative space-y-10 pl-8 border-l-2 border-slate-100 ml-4">
                 
                 {/* Step 1 */}
