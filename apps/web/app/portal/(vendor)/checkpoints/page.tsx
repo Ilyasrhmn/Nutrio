@@ -1,73 +1,46 @@
-"use client"
+"use client";
 
-import * as React from "react"
-import Link from "next/link"
+import * as React from "react";
 import {
-  Package, ChefHat, BoxSelect, Truck,
-  CheckCircle2, Lock, Upload, RefreshCw,
-  Loader2, Brain, ExternalLink, Clock,
-  Flame, Calendar, Zap, HelpCircle, Target, ShieldCheck, Search,
-} from "lucide-react"
-import { Button } from "@workspace/ui/components/button"
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@workspace/ui/components/card"
-import { Badge } from "@workspace/ui/components/badge"
-import { Alert, AlertTitle, AlertDescription } from "@workspace/ui/components/alert"
-import { Input } from "@workspace/ui/components/input"
-import { Progress } from "@workspace/ui/components/progress"
+  CheckCircle2,
+  Clock,
+  Calendar,
+  Search,
+  ExternalLink,
+  Target,
+  ShieldCheck,
+  Flame,
+  Lock,
+  Zap,
+  HelpCircle,
+  Activity
+} from "lucide-react";
+
+import { Button } from "@workspace/ui/components/button";
+import { Input } from "@workspace/ui/components/input";
 import {
-  Table, TableBody, TableCell, TableHead, TableHeader, TableRow
-} from "@workspace/ui/components/table"
-import { cn } from "@workspace/ui/lib/utils"
-import { useToast } from "@workspace/ui/hooks/use-toast"
-import { api } from "../../../../lib/api-client"
-
-interface CpEvent {
-  id: string
-  cpType: "CP1" | "CP2" | "CP3" | "CP4"
-  cpStatus: "pending" | "in_progress" | "done" | "failed" | "force_closed"
-  photos: Array<{ fileKey: string; fileUrl: string }>
-  aiValidation: { pass: boolean; reason: string; confidence: number } | null
-  completedAt: string | null
-}
-
-type CpKey = "CP1" | "CP2" | "CP3" | "CP4"
-
-const CP_META: Record<CpKey, { label: string; Icon: React.ElementType; hint: string; deadline: string; iconBg: string; text: string; bg: string; ring: string; badgeCn: string; dashedCn: string; cardBorderActive: string }> = {
-  CP1: {
-    label: "Penerimaan Bahan Baku", Icon: Package, deadline: "sebelum 10:00",
-    hint: "Foto tumpukan bahan baku yang baru diterima dari pemasok",
-    iconBg: "bg-blue-100 text-blue-600", text: "text-blue-700", bg: "bg-blue-50",
-    ring: "ring-2 ring-blue-200", badgeCn: "bg-blue-50 text-blue-700 border-blue-100",
-    dashedCn: "border-blue-200 hover:border-blue-400 hover:bg-blue-50",
-    cardBorderActive: "border-blue-200 shadow-md shadow-blue-100/50",
-  },
-  CP2: {
-    label: "Produksi Makanan", Icon: ChefHat, deadline: "sebelum 12:00",
-    hint: "Foto makanan yang sedang atau telah selesai dimasak",
-    iconBg: "bg-orange-100 text-orange-600", text: "text-orange-700", bg: "bg-orange-50",
-    ring: "ring-2 ring-orange-200", badgeCn: "bg-orange-50 text-orange-700 border-orange-100",
-    dashedCn: "border-orange-200 hover:border-orange-400 hover:bg-orange-50",
-    cardBorderActive: "border-orange-200 shadow-md shadow-orange-100/50",
-  },
-  CP3: {
-    label: "Pengemasan & Pelabelan", Icon: BoxSelect, deadline: "sebelum 13:00",
-    hint: "Foto box makanan yang sudah dikemas dan berlabel QR",
-    iconBg: "bg-purple-100 text-purple-600", text: "text-purple-700", bg: "bg-purple-50",
-    ring: "ring-2 ring-purple-200", badgeCn: "bg-purple-50 text-purple-700 border-purple-100",
-    dashedCn: "border-purple-200 hover:border-purple-400 hover:bg-purple-50",
-    cardBorderActive: "border-purple-200 shadow-md shadow-purple-100/50",
-  },
-  CP4: {
-    label: "Distribusi & Konfirmasi", Icon: Truck, deadline: "sebelum 14:00",
-    hint: "Foto kendaraan atau proses pengiriman ke sekolah",
-    iconBg: "bg-emerald-100 text-emerald-600", text: "text-emerald-700", bg: "bg-emerald-50",
-    ring: "ring-2 ring-emerald-200", badgeCn: "bg-emerald-50 text-emerald-700 border-emerald-100",
-    dashedCn: "border-emerald-200 hover:border-emerald-400 hover:bg-emerald-50",
-    cardBorderActive: "border-emerald-200 shadow-md shadow-emerald-100/50",
-  },
-}
-
-const CP_ORDER: CpKey[] = ["CP1", "CP2", "CP3", "CP4"]
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+  CardDescription,
+} from "@workspace/ui/components/card";
+import { Badge } from "@workspace/ui/components/badge";
+import { Progress } from "@workspace/ui/components/progress";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@workspace/ui/components/table";
+import {
+  Alert,
+  AlertDescription,
+  AlertTitle,
+} from "@workspace/ui/components/alert";
+import { cn } from "@workspace/ui/lib/utils";
 
 export default function CheckpointsPage() {
   const [dailyScore] = React.useState(95);
@@ -147,68 +120,83 @@ export default function CheckpointsPage() {
   ];
 
   return (
-    <div className="p-6 lg:p-8 space-y-6 max-w-7xl mx-auto animate-in fade-in duration-500">
-      {/* Header & Badges */}
-      <div className="flex flex-col md:flex-row md:items-end justify-between gap-4">
-        <div>
-          <h1 className="text-2xl font-bold text-slate-900 tracking-tight">Pemantauan Skor & Kepatuhan AI</h1>
-          <p className="text-slate-500 text-sm mt-1">Kalkulasi real-time kepatuhan SOP harian dan akumulasi pinalti vendor.</p>
+    <div className="p-6 lg:p-8 space-y-8 max-w-7xl mx-auto animate-in fade-in duration-500">
+      
+      {/* 1. Deep Teal Hero Banner */}
+      <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-teal-900 via-teal-800 to-slate-900 shadow-lg border border-teal-700/50">
+        <div className="absolute top-0 right-0 p-8 opacity-10 pointer-events-none">
+          <Activity className="size-40" />
         </div>
-        <div className="flex items-center gap-3">
-          <div className="flex items-center gap-2 px-4 py-2 bg-white border border-slate-200/60 rounded-xl shadow-sm">
-            <Flame className="size-5 text-orange-500 animate-bounce" />
-            <div className="flex flex-col">
-              <p className="text-[10px] font-bold text-slate-400 uppercase leading-none">Streak Aktif</p>
-              <p className="text-sm font-bold text-orange-600 leading-tight mt-0.5">{streakDays} Hari</p>
+        <div className="absolute inset-0 bg-[linear-gradient(to_right,#ffffff0a_1px,transparent_1px),linear-gradient(to_bottom,#ffffff0a_1px,transparent_1px)] bg-[size:24px_24px]" />
+        
+        <div className="relative p-8 flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
+          <div className="space-y-3">
+            <Badge className="bg-teal-500/20 text-teal-100 border border-teal-500/30 font-bold uppercase tracking-widest text-[10px] px-3 py-1 rounded-full backdrop-blur-sm">
+              <span className="size-1.5 rounded-full bg-emerald-400 animate-pulse mr-2 inline-block" /> Real-time Compliance
+            </Badge>
+            <h1 className="text-3xl font-bold text-white tracking-tight">Kepatuhan Checkpoint SOP</h1>
+            <p className="text-teal-100/80 text-sm max-w-xl leading-relaxed">
+              Kalkulasi real-time kepatuhan SOP harian dan akumulasi pinalti operasional dapur Anda.
+            </p>
+          </div>
+          
+          <div className="flex bg-black/20 backdrop-blur-md rounded-2xl border border-white/10 p-4 gap-6 shrink-0">
+            <div>
+              <p className="text-[10px] font-bold text-teal-200 uppercase tracking-widest">Streak Aktif</p>
+              <p className="text-orange-400 font-bold flex items-center gap-2 mt-1 text-sm">
+                <Flame className="size-4 animate-bounce" /> {streakDays} Hari
+              </p>
+            </div>
+            <div className="w-px bg-white/10" />
+            <div>
+              <Button variant="outline" className="h-10 bg-white/5 border-white/20 text-white hover:bg-white/10 hover:text-white rounded-xl text-xs font-bold px-4">
+                <Calendar className="size-4 mr-2" /> Riwayat
+              </Button>
             </div>
           </div>
-          <Button variant="outline" className="rounded-xl h-10 border-slate-200 text-slate-600 gap-2 font-semibold">
-            <Calendar className="size-4" />
-            Riwayat
-          </Button>
         </div>
       </div>
 
       {/* Warning Banner */}
       {isKritis ? (
-        <Alert variant="destructive" className="border-red-200 shadow-sm bg-red-50/50 rounded-xl">
-          <Lock className="size-4" />
-          <AlertTitle className="text-xs font-bold uppercase tracking-widest">Sistem Terkunci: Skor Rendah</AlertTitle>
-          <AlertDescription className="font-semibold text-red-800 text-xs">
-            Skor Anda berada di bawah 75. Tombol Pencairan Dana telah dibekukan otomatis. Hubungi Admin BGN untuk Manual Review.
+        <Alert variant="destructive" className="border-red-200 shadow-sm bg-red-50 rounded-2xl p-5">
+          <Lock className="size-5" />
+          <AlertTitle className="text-sm font-bold uppercase tracking-widest">Sistem Terkunci: Skor Rendah</AlertTitle>
+          <AlertDescription className="font-semibold text-red-800 text-xs mt-1">
+            Skor Anda berada di bawah 75. Pencairan Dana telah dibekukan otomatis. Hubungi Admin BGN untuk Manual Review.
           </AlertDescription>
         </Alert>
       ) : (
-        <Alert className="border-amber-200 shadow-sm bg-amber-50/50 rounded-xl text-amber-900">
-          <Zap className="size-4 text-amber-600" />
-          <AlertTitle className="text-xs font-bold uppercase tracking-widest text-amber-900">Informasi Sistem</AlertTitle>
-          <AlertDescription className="font-medium text-amber-800 text-xs">
-            Skor Operasional Harian akan direset setiap pukul 00:00. Pertahankan skor di atas 75 untuk menjaga akses Smart Contract tetap aktif.
+        <Alert className="border-amber-200 shadow-sm bg-amber-50 rounded-2xl text-amber-900 p-5">
+          <Zap className="size-5 text-amber-600" />
+          <AlertTitle className="text-sm font-bold uppercase tracking-widest text-amber-900">Informasi Sistem</AlertTitle>
+          <AlertDescription className="font-semibold text-amber-800 text-xs mt-1">
+            Skor Operasional Harian direset setiap pukul 00:00. Pertahankan skor {">"}75 untuk akses Smart Contract.
           </AlertDescription>
         </Alert>
       )}
 
       {/* Metric Cards Grid */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        <Card className={cn("border-slate-200/60 shadow-sm rounded-xl relative overflow-hidden", isKritis && "border-red-200 ring-1 ring-red-500")}>
+        <Card className={cn("border-none shadow-sm rounded-2xl relative overflow-hidden bg-white", isKritis ? "ring-2 ring-red-500" : "ring-1 ring-slate-200/60")}>
           <CardContent className="p-6 space-y-4">
             <div className="flex items-center justify-between">
               <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest flex items-center gap-1.5">
                 Skor Operasional <HelpCircle className="size-3 cursor-help" />
               </p>
-              <Target className={cn("size-5", isKritis ? "text-red-500" : "text-primary")} />
+              <Target className={cn("size-5", isKritis ? "text-red-500" : "text-teal-600")} />
             </div>
             <div className="space-y-3">
               <div className="flex items-baseline gap-1">
-                <h3 className={cn("text-4xl font-bold tracking-tight", isKritis ? "text-red-600" : "text-slate-900")}>
+                <h3 className={cn("text-4xl font-extrabold tracking-tighter", isKritis ? "text-red-600" : "text-slate-900")}>
                   {dailyScore}
                 </h3>
-                <span className="text-sm font-medium text-slate-400">/ 100</span>
+                <span className="text-sm font-bold text-slate-400">/ 100</span>
               </div>
               <div className="space-y-2">
-                <Progress value={dailyScore} className={cn("h-2", isKritis ? "bg-red-100" : "bg-slate-100")} />
+                <Progress value={dailyScore} className={cn("h-2", isKritis ? "bg-red-100 [&>div]:bg-red-500" : "bg-slate-100 [&>div]:bg-teal-500")} />
                 <div className="flex justify-between items-center">
-                  <p className="text-[10px] text-slate-400 font-bold uppercase">Batas Kritis: 75</p>
+                  <p className="text-[10px] text-slate-400 font-bold uppercase tracking-widest">Batas Kritis: 75</p>
                   {isKritis && <Badge className="bg-red-600 text-[9px] h-4 border-none hover:bg-red-700">LOCKED</Badge>}
                 </div>
               </div>
@@ -217,49 +205,49 @@ export default function CheckpointsPage() {
           {isKritis && <div className="absolute inset-0 bg-red-500/5 pointer-events-none" />}
         </Card>
 
-        <Card className={cn("border-slate-200/60 shadow-sm rounded-xl border-l-4", isKritis ? "border-l-red-500" : "border-l-emerald-500")}>
+        <Card className={cn("border-none shadow-sm rounded-2xl bg-white", isKritis ? "ring-2 ring-red-500 bg-red-50/50" : "ring-1 ring-slate-200/60 bg-teal-50/30")}>
           <CardContent className="p-6 space-y-4">
             <div className="flex items-center justify-between">
               <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Status Smart Contract</p>
               <ShieldCheck className={cn("size-5", isKritis ? "text-red-500" : "text-emerald-500")} />
             </div>
-            <div className="space-y-2">
+            <div className="space-y-2 mt-4">
               <div className="flex items-center gap-2">
-                <h3 className={cn("text-2xl font-bold", isKritis ? "text-red-600" : "text-slate-900")}>
+                <h3 className={cn("text-2xl font-bold tracking-tight", isKritis ? "text-red-600" : "text-slate-900")}>
                   {isKritis ? "MANUAL REVIEW" : "OTOMATIS (CAIR)"}
                 </h3>
               </div>
-              <p className="text-xs text-slate-500 font-medium">
-                {isKritis ? "Dana dibekukan hingga review admin selesai." : "Pencairan dana otomatis diaktifkan untuk besok."}
+              <p className="text-xs text-slate-500 font-semibold leading-relaxed">
+                {isKritis ? "Dana dibekukan hingga review admin selesai." : "Pencairan dana otomatis diaktifkan untuk besok pagi."}
               </p>
             </div>
           </CardContent>
         </Card>
 
-        <Card className="border-slate-200/60 shadow-sm rounded-xl">
+        <Card className="border-none shadow-sm rounded-2xl bg-white ring-1 ring-slate-200/60">
           <CardContent className="p-6 space-y-4">
             <div className="flex items-center justify-between">
               <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Progress Bonus Gold</p>
               <Zap className="size-5 text-orange-500" />
             </div>
-            <div className="space-y-3">
-              <div className="flex items-center gap-3">
-                <div className="flex -space-x-1.5">
+            <div className="space-y-4">
+              <div className="flex items-center gap-4">
+                <div className="flex -space-x-2">
                   {[1, 2, 3, 4, 5].map((i) => (
                     <div
                       key={i}
                       className={cn(
-                        "size-7 rounded-full border-2 border-white flex items-center justify-center text-[10px] font-bold shadow-sm",
+                        "size-8 rounded-full border-2 border-white flex items-center justify-center text-[10px] font-bold shadow-sm",
                         i <= streakDays ? "bg-orange-500 text-white" : "bg-slate-100 text-slate-400",
                       )}
                     >
-                      {i <= streakDays ? <CheckCircle2 className="size-3.5" /> : i}
+                      {i <= streakDays ? <CheckCircle2 className="size-4" /> : i}
                     </div>
                   ))}
                 </div>
-                <p className="text-xs font-bold text-slate-900">1 Hari Lagi!</p>
+                <p className="text-xs font-bold text-slate-900 bg-orange-50 text-orange-700 px-2 py-1 rounded-md">1 Hari Lagi!</p>
               </div>
-              <p className="text-[10px] text-slate-500 font-medium leading-relaxed">
+              <p className="text-[11px] text-slate-500 font-semibold leading-relaxed">
                 Pertahankan skor {">"}95 selama 5 hari berturut-turut untuk mendapatkan status <b>Vendor Gold</b> (+1% Margin).
               </p>
             </div>
@@ -268,36 +256,44 @@ export default function CheckpointsPage() {
       </div>
 
       {/* Live Checkpoint Tracker */}
-      <Card className="border-slate-200/60 shadow-sm rounded-xl">
-        <CardHeader className="p-6 border-b border-slate-100 flex flex-row items-center justify-between">
+      <Card className="border-none shadow-sm rounded-2xl overflow-hidden bg-white ring-1 ring-slate-200/60">
+        <CardHeader className="p-6 border-b border-slate-50 bg-slate-50/50 flex flex-row items-center justify-between">
           <div>
-            <CardTitle className="text-base font-bold text-slate-900">Status Checkpoint Hari Ini (Shift Pagi)</CardTitle>
-            <CardDescription className="text-xs text-slate-500 mt-1">Sistem validasi otomatis berbasis AI Visual & GPS.</CardDescription>
+            <CardTitle className="text-lg font-bold text-slate-900">Status Checkpoint Hari Ini</CardTitle>
+            <CardDescription className="text-xs font-semibold text-slate-500 mt-1">Sistem validasi otomatis berbasis AI Visual & GPS.</CardDescription>
           </div>
-          <Badge variant="outline" className="bg-primary/5 text-primary border-primary/20 font-bold px-3 py-1 text-[10px] uppercase">
+          <Badge className="bg-teal-50 text-teal-700 border-none hover:bg-teal-100 font-bold px-3 py-1 text-[10px] uppercase shadow-sm">
             Live Monitoring
           </Badge>
         </CardHeader>
-        <CardContent className="p-8">
-          <div className="relative flex flex-col md:flex-row justify-between gap-8 md:gap-4 max-w-4xl mx-auto">
+        <CardContent className="p-10">
+          <div className="relative flex flex-col md:flex-row justify-between gap-8 md:gap-4 max-w-5xl mx-auto">
             {/* Connection Line */}
-            <div className="absolute top-[26px] left-[10%] right-[10%] h-0.5 bg-slate-100 hidden md:block" />
+            <div className="absolute top-[26px] left-[10%] right-[10%] h-1 bg-slate-100 rounded-full hidden md:block">
+              <div className="absolute top-0 left-0 h-full bg-teal-500 rounded-full w-[40%]" />
+            </div>
 
             {checkpoints.map((cp, idx) => (
-              <div key={idx} className="relative z-10 flex flex-row md:flex-col items-center gap-4 flex-1 text-left md:text-center">
-                <div className={cn("size-12 rounded-xl flex items-center justify-center border-2 bg-white shadow-sm transition-all", cp.borderColor)}>
-                  <cp.icon className={cn("size-5", cp.color)} />
+              <div key={idx} className="relative z-10 flex flex-row md:flex-col items-center gap-5 flex-1 text-left md:text-center w-full md:w-32">
+                <div className={cn(
+                  "size-14 rounded-full flex items-center justify-center border-4 bg-white shadow-sm transition-all shrink-0", 
+                  cp.status === 'Selesai' ? "border-teal-500 text-teal-600" :
+                  cp.status.includes('Terlambat') ? "border-red-500 text-red-600" : "border-slate-200 text-slate-400"
+                )}>
+                  <cp.icon className="size-6" />
                 </div>
-                <div className="flex flex-col md:items-center gap-1 mt-1">
+                <div className="flex flex-col md:items-center gap-1.5 w-full">
                   <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">{cp.time}</span>
-                  <p className="text-sm font-bold text-slate-900 leading-tight">{cp.label}</p>
-                  <p className={cn("text-[10px] font-bold uppercase", cp.color)}>{cp.status}</p>
+                  <p className="text-sm font-extrabold text-slate-900 leading-tight">{cp.label}</p>
+                  <p className={cn("text-[10px] font-bold uppercase mt-0.5", 
+                    cp.status === 'Selesai' ? "text-teal-600" :
+                    cp.status.includes('Terlambat') ? "text-red-600" : "text-slate-400"
+                  )}>{cp.status}</p>
                   <Badge
-                    variant={cp.statusVariant as any}
                     className={cn(
-                      "mt-1 text-[9px] font-bold px-2 py-0.5 rounded-full border-none",
-                      cp.statusVariant === "success" ? "bg-emerald-100 text-emerald-700" : 
-                      cp.statusVariant === "destructive" ? "bg-red-100 text-red-700" : "bg-slate-100 text-slate-500",
+                      "mt-2 text-[9px] font-bold px-2 py-0.5 rounded-md border-none uppercase tracking-widest",
+                      cp.statusVariant === "success" ? "bg-emerald-50 text-emerald-700" : 
+                      cp.statusVariant === "destructive" ? "bg-red-50 text-red-700" : "bg-slate-100 text-slate-500",
                     )}
                   >
                     {cp.badge}
@@ -310,39 +306,39 @@ export default function CheckpointsPage() {
       </Card>
 
       {/* Penalty Ledger Table */}
-      <Card className="border-slate-200/60 shadow-sm rounded-xl overflow-hidden">
-        <CardHeader className="p-5 border-b border-slate-100 flex flex-col md:flex-row md:items-center justify-between gap-4">
+      <Card className="border-none shadow-sm rounded-2xl overflow-hidden bg-white ring-1 ring-slate-200/60">
+        <CardHeader className="p-6 border-b border-slate-50 flex flex-col md:flex-row md:items-center justify-between gap-4">
           <div>
-            <CardTitle className="text-base font-bold text-slate-900">Riwayat Pinalti (Kumulatif)</CardTitle>
-            <CardDescription className="text-xs text-slate-500 mt-1">Rekam jejak pelanggaran yang menambah total akumulasi pinalti.</CardDescription>
+            <CardTitle className="text-lg font-bold text-slate-900">Riwayat Pinalti (Kumulatif)</CardTitle>
+            <CardDescription className="text-xs font-semibold text-slate-500 mt-1">Rekam jejak pelanggaran yang memotong skor.</CardDescription>
           </div>
-          <div className="relative w-full md:w-64">
+          <div className="relative w-full md:w-72">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 size-4 text-slate-400" />
-            <Input className="pl-9 h-9 border-slate-200 rounded-lg text-xs" placeholder="Cari bukti atau deskripsi..." />
+            <Input className="pl-9 h-10 border-slate-200 rounded-xl text-xs font-medium focus:ring-teal-500 focus:border-teal-500 bg-slate-50" placeholder="Cari bukti atau deskripsi..." />
           </div>
         </CardHeader>
         <div className="overflow-x-auto">
           <Table>
             <TableHeader className="bg-slate-50/50">
-              <TableRow>
-                <TableHead className="font-semibold text-xs h-10 pl-6">Tanggal</TableHead>
-                <TableHead className="font-semibold text-xs h-10 text-center">Waktu</TableHead>
-                <TableHead className="font-semibold text-xs h-10">Deskripsi (Checkpoint)</TableHead>
-                <TableHead className="font-semibold text-xs h-10 text-center">Potongan</TableHead>
-                <TableHead className="font-semibold text-xs h-10 pr-6 text-right">Bukti AI</TableHead>
+              <TableRow className="border-slate-100 hover:bg-slate-50/50">
+                <TableHead className="font-bold text-[10px] uppercase tracking-widest h-12 pl-6">Tanggal</TableHead>
+                <TableHead className="font-bold text-[10px] uppercase tracking-widest h-12 text-center">Waktu</TableHead>
+                <TableHead className="font-bold text-[10px] uppercase tracking-widest h-12">Deskripsi Pelanggaran</TableHead>
+                <TableHead className="font-bold text-[10px] uppercase tracking-widest h-12 text-center">Potongan</TableHead>
+                <TableHead className="font-bold text-[10px] uppercase tracking-widest h-12 pr-6 text-right">Aksi</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
               {history.map((row, idx) => (
-                <TableRow key={idx} className="group hover:bg-slate-50/80">
+                <TableRow key={idx} className="group hover:bg-slate-50/80 border-slate-100">
                   <TableCell className="font-bold text-slate-900 pl-6 py-4 text-xs">{row.date}</TableCell>
-                  <TableCell className="text-center font-medium text-xs text-slate-500">{row.time}</TableCell>
-                  <TableCell className="font-medium text-slate-700 text-xs">{row.desc}</TableCell>
+                  <TableCell className="text-center font-bold text-xs text-slate-500">{row.time}</TableCell>
+                  <TableCell className="font-bold text-slate-700 text-xs">{row.desc}</TableCell>
                   <TableCell className="text-center">
-                    <span className="font-bold text-red-600 text-xs">{row.penalty}</span>
+                    <span className="font-extrabold text-red-600 text-xs bg-red-50 px-2 py-1 rounded-md">{row.penalty}</span>
                   </TableCell>
                   <TableCell className="text-right pr-6 py-4">
-                    <Button variant="ghost" size="sm" className="h-8 text-primary font-semibold text-[10px] uppercase gap-1.5 hover:bg-primary/5 rounded-lg px-3">
+                    <Button variant="ghost" size="sm" className="h-8 text-teal-700 font-bold text-[10px] uppercase gap-1.5 hover:bg-teal-50 rounded-lg px-3">
                       {row.evidence}
                       <ExternalLink className="size-3" />
                     </Button>
@@ -354,5 +350,5 @@ export default function CheckpointsPage() {
         </div>
       </Card>
     </div>
-  )
+  );
 }
