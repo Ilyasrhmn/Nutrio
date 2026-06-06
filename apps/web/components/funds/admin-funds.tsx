@@ -33,37 +33,7 @@ import { cn } from "@workspace/ui/lib/utils"
 
 const ReactApexChart = dynamic(() => import('react-apexcharts'), { ssr: false });
 
-interface FundSummary {
-  totalAlokasi: number;
-  totalTersalurkan: number;
-  sisaAnggaran: number;
-  realisasiPct: number;
-  trendData: { date: string; amount: number }[];
-}
-
-interface FundTransaction {
-  id: string;
-  vendorName: string;
-  paidAt: string | null;
-  amount: number;
-  status: string;
-  invoiceNumber: string | null;
-}
-
-function formatRupiah(value: number) {
-  if (value === 0) return '—';
-  return new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', maximumFractionDigits: 0 }).format(value);
-}
-
-const STATUS_LABEL: Record<string, { label: string; variant: 'default' | 'secondary' | 'destructive' | 'outline' }> = {
-  paid:    { label: 'Lunas',   variant: 'default' },
-  pending: { label: 'Pending', variant: 'secondary' },
-  failed:  { label: 'Gagal',   variant: 'destructive' },
-  expired: { label: 'Expired', variant: 'outline' },
-  refunded:{ label: 'Refund',  variant: 'outline' },
-};
-
-export default function FundTrackingPage() {
+export function AdminFundsDashboard() {
   const [hoveredRow, setHoveredRow] = React.useState<number | null>(null);
 
   const chartOptions: any = {

@@ -10,6 +10,7 @@ import {
   ShieldCheck,
   ArrowLeft,
   ChevronRight,
+  Info,
   CheckCircle2,
   Package,
   Plus,
@@ -37,20 +38,19 @@ import {
   Mail,
   Globe,
   ChevronDown,
-  SlidersHorizontal,
-  Info
+  SlidersHorizontal
 } from "lucide-react"
 
 import { Button } from "@workspace/ui/components/button"
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from "@workspace/ui/components/card"
 import { Badge } from "@workspace/ui/components/badge"
-import { Avatar, AvatarFallback } from "@workspace/ui/components/avatar"
+import { Avatar, AvatarFallback, AvatarImage } from "@workspace/ui/components/avatar"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@workspace/ui/components/tabs"
+import { Separator } from "@workspace/ui/components/separator"
 import { Input } from "@workspace/ui/components/input"
 import { Alert, AlertDescription } from "@workspace/ui/components/alert"
 import { cn } from "@workspace/ui/lib/utils"
 import { useToast } from "@workspace/ui/hooks/use-toast"
-import { Separator } from "@workspace/ui/components/separator"
 
 interface Product {
   id: number;
@@ -74,12 +74,6 @@ export default function SupplierMarketplacePage({ params }: { params: { supplier
   const [addedItems, setAddedItems] = React.useState<number[]>([])
   const [activeTab, setActiveTab] = React.useState<'katalog' | 'ulasan' | 'legalitas'>('katalog')
   const [showCart, setShowCart] = React.useState(false)
-  const [chatMessages, setChatMessages] = React.useState<{ id: string; from: "me" | "supplier"; text: string; time: Date }[]>([])
-  const [chatInput, setChatInput] = React.useState("")
-  const [isTyping, setIsTyping] = React.useState(false)
-  const chatBottomRef = React.useRef<HTMLDivElement>(null)
-
-  const supplier = { business_name: "PT Tani Makmur Sejahtera" }
 
   const { toast } = useToast()
 
@@ -153,50 +147,19 @@ export default function SupplierMarketplacePage({ params }: { params: { supplier
   const addToCart = (product: Product) => {
     setCart(prev => {
       const existing = prev.find(item => item.id === product.id)
-      if (existing) return prev.map(item => item.id === product.id ? { ...item, qty: item.qty + 1 } : item)
+      if (existing) {
+        return prev.map(item => item.id === product.id ? { ...item, qty: item.qty + 1 } : item)
+      }
       return [...prev, { ...product, qty: 1 }]
     })
     setAddedItems(prev => [...prev, product.id])
-    setTimeout(() => setAddedItems(prev => prev.filter(id => id !== product.id)), 2000)
-    toast({ title: "Ditambahkan", description: `${product.name} masuk ke keranjang pengadaan.` })
-  }
-
-  const AUTO_REPLIES = [
-    "Halo! Terima kasih sudah menghubungi kami. Ada yang bisa kami bantu? 😊",
-    "Untuk pemesanan dalam jumlah besar, kami bisa berikan harga khusus. Bisa minta info lebih lanjut?",
-    "Pengiriman biasanya kami lakukan H+1 setelah PO dikonfirmasi. Mau tahu jadwal lebih detail?",
-    "Produk kami selalu segar karena langsung dari sumber. Ada produk spesifik yang ingin ditanyakan?",
-  ]
-
-  React.useEffect(() => {
-    if (isChatOpen && chatMessages.length === 0 && supplier) {
-      setTimeout(() => {
-        setChatMessages([{
-          id: "welcome",
-          from: "supplier",
-          text: `Halo! Selamat datang di ${supplier.business_name}. Ada yang bisa kami bantu hari ini? 😊`,
-          time: new Date(),
-        }])
-      }, 500)
-    }
-  }, [isChatOpen, supplier])
-
-  React.useEffect(() => {
-    chatBottomRef.current?.scrollIntoView({ behavior: "smooth" })
-  }, [chatMessages, isTyping])
-
-  const sendChatMessage = () => {
-    const text = chatInput.trim()
-    if (!text) return
-    const msg = { id: Date.now().toString(), from: "me" as const, text, time: new Date() }
-    setChatMessages(prev => [...prev, msg])
-    setChatInput("")
-    setIsTyping(true)
     setTimeout(() => {
-      const reply = AUTO_REPLIES[Math.floor(Math.random() * AUTO_REPLIES.length)] ?? ""
-      setChatMessages(prev => [...prev, { id: Date.now().toString(), from: "supplier" as const, text: reply, time: new Date() }])
-      setIsTyping(false)
+      setAddedItems(prev => prev.filter(id => id !== product.id))
     }, 1500)
+    toast({
+      title: "Ditambahkan ke Keranjang",
+      description: `${product.name} berhasil ditambahkan.`,
+    })
   }
 
   const removeFromCart = (id: number) => {

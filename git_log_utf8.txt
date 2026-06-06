@@ -1,0 +1,2142 @@
+﻿commit 2cfe88b6b8dba614eaf301d2e0efdc0e17d2852d
+Merge: 0684323 e65074b
+Author: Ilyas Nur Rohman <139189668+Ilyasrhmn@users.noreply.github.com>
+Date:   Fri Jun 5 15:14:01 2026 +0700
+
+    Merge pull request #18 from Ilyasrhmn/feature/initial-frontend
+    
+    Feature/initial frontend
+
+commit e65074b2bf639c2d1922e86ad259f8fcb4cf2977
+Author: Ilyasrhmn <ilyasnurrohman14@gmail.com>
+Date:   Fri Jun 5 15:12:13 2026 +0700
+
+    chore(api): restore team's master config with fatal error handlers and env-based CORS
+
+M	apps/api/src/main.ts
+
+commit b8dd114f4ef09ea10f578d7456d5864058c42688
+Merge: d2faccb 0684323
+Author: Ilyasrhmn <ilyasnurrohman14@gmail.com>
+Date:   Fri Jun 5 15:08:35 2026 +0700
+
+    Merge branch 'master' into feature/initial-frontend to resolve conflicts
+
+commit d2faccb7d1c80334c19813e72c17f48da323f29a
+Author: Ilyasrhmn <ilyasnurrohman14@gmail.com>
+Date:   Fri Jun 5 15:06:22 2026 +0700
+
+    fix(api): update CORS to allow Vercel preview dynamic origins
+
+M	apps/api/src/main.ts
+
+commit 05f4269e347f0541d10f2170e7fcc45437016374
+Author: Ilyasrhmn <ilyasnurrohman14@gmail.com>
+Date:   Fri Jun 5 14:54:51 2026 +0700
+
+    feat: implement AI-powered reporting dashboard and inventory views for admin, supplier, and vendor roles
+
+A	apps/web/app/portal/(shared)/reports/components/admin-reports.tsx
+A	apps/web/app/portal/(shared)/reports/components/supplier-reports.tsx
+A	apps/web/app/portal/(shared)/reports/components/vendor-reports.tsx
+A	apps/web/app/portal/(shared)/reports/page.tsx
+A	apps/web/app/portal/(supplier)/supplier/inventory/page.tsx
+
+commit e7277f40440389305b55cce507c6cb0d2f559d00
+Author: Ilyasrhmn <ilyasnurrohman14@gmail.com>
+Date:   Fri Jun 5 14:54:46 2026 +0700
+
+    feat: implement supplier portal dashboard and role-based report routing
+
+D	apps/web/app/portal/(admin)/reports/page.tsx
+M	apps/web/app/portal/(supplier)/supplier/chat/page.tsx
+M	apps/web/app/portal/(supplier)/supplier/products/page.tsx
+M	apps/web/app/portal/(supplier)/supplier/shop/page.tsx
+M	apps/web/app/portal/(vendor)/marketplace/page.tsx
+M	apps/web/components/dashboard/supplier-dashboard.tsx
+
+commit 376ea49340c7b0303505121c66650a4d2c3dd1e3
+Author: Ilyasrhmn <ilyasnurrohman14@gmail.com>
+Date:   Fri Jun 5 12:45:41 2026 +0700
+
+    feat: implement portal dashboard layout, vendor modules, and service unit tests
+
+M	apps/web/app/portal/(admin)/audit/page.tsx
+M	apps/web/app/portal/(shared)/sop/page.tsx
+M	apps/web/app/portal/(vendor)/checkpoints/page.tsx
+M	apps/web/app/portal/(vendor)/incidents/page.tsx
+M	apps/web/app/portal/(vendor)/live/page.tsx
+M	apps/web/app/portal/(vendor)/marketplace/page.tsx
+M	apps/web/app/portal/(vendor)/menu/page.tsx
+M	apps/web/app/portal/(vendor)/operasional/jadwal/page.tsx
+M	apps/web/app/portal/(vendor)/operasional/kalkulasi-bahan/page.tsx
+M	apps/web/app/portal/(vendor)/operasional/kitchen-sop/page.tsx
+M	apps/web/app/portal/(vendor)/operasional/stock-opname/page.tsx
+M	apps/web/app/portal/layout.tsx
+M	apps/web/components/dashboard/vendor-dashboard.tsx
+M	apps/web/lib/services/__tests__/menus.service.test.ts
+M	apps/web/lib/services/__tests__/permissions.service.test.ts
+M	apps/web/lib/services/__tests__/roles.service.test.ts
+
+commit 0684323106799b06bf73439fc9e3fd4cd0eea5e2
+Author: Dian Setiawan <diansetiawan2121@gmail.com>
+Date:   Fri Jun 5 00:11:32 2026 +0700
+
+    chore: remove apps/api/vercel.json ΓÇö let Vercel auto-detect NestJS
+    
+    Custom vercel.json was interfering with deployment. With Root Directory
+    set correctly to apps/api in Vercel project settings, auto-detection
+    handles everything.
+    
+    Co-Authored-By: Claude Sonnet 4.6 <noreply@anthropic.com>
+
+D	apps/api/vercel.json
+
+commit 52f6fd2bec08a0c4349c85710bf9de5b9ea84778
+Author: Dian Setiawan <diansetiawan2121@gmail.com>
+Date:   Fri Jun 5 00:10:38 2026 +0700
+
+    debug: add fatal error handlers to surface bootstrap crash in Vercel logs
+    
+    Co-Authored-By: Claude Sonnet 4.6 <noreply@anthropic.com>
+
+M	apps/api/src/main.ts
+
+commit 9eda326b12ea4d75c237eeaafb6dab41ef9fa181
+Author: Dian Setiawan <diansetiawan2121@gmail.com>
+Date:   Fri Jun 5 00:01:14 2026 +0700
+
+    fix: tune TypeORM for serverless ΓÇö single conn, short timeout, ssl bypass
+    
+    co-Authored-By: Claude Sonnet 4.6 <noreply@anthropic.com>
+
+M	apps/api/src/config/data-source.ts
+
+commit f920fb2216ac95607d76824e78e671da563fcd23
+Author: Dian Setiawan <diansetiawan2121@gmail.com>
+Date:   Thu Jun 4 23:51:22 2026 +0700
+
+    fix: replace Next.js rewrite proxy with runtime Route Handler
+    
+    Rewrites in next.config.mjs are evaluated at build time, so env vars
+    may not be available. A Route Handler at /api-proxy/[...path] runs at
+    request time and reads NEXT_PUBLIC_API_URL from server-side process.env.
+    
+    Co-Authored-By: Claude Sonnet 4.6 <noreply@anthropic.com>
+
+A	apps/web/app/api-proxy/[...path]/route.ts
+M	apps/web/next.config.mjs
+
+commit b3f0b913646b83e1babb8f7b311f47c07c33cc9f
+Author: Dian Setiawan <diansetiawan2121@gmail.com>
+Date:   Thu Jun 4 23:40:23 2026 +0700
+
+    fix: use NEXT_PUBLIC_API_URL as proxy target fallback if API_TARGET_URL not set
+    
+    Co-Authored-By: Claude Sonnet 4.6 <noreply@anthropic.com>
+
+M	apps/web/next.config.mjs
+
+commit 0071e48966e5fcd3507bc1cbb1f44d627f757f62
+Author: Dian Setiawan <diansetiawan2121@gmail.com>
+Date:   Thu Jun 4 23:33:58 2026 +0700
+
+    fix: improve CORS handling by refining origin checks and importing necessary modules
+
+M	apps/api/api/index.ts
+
+commit 561d0c7d20acf5325e0650e1967ad2896c9b26e0
+Author: Dian Setiawan <diansetiawan2121@gmail.com>
+Date:   Thu Jun 4 23:24:33 2026 +0700
+
+    fix: route REST calls through Next.js proxy to eliminate CORS
+    
+    The API on Vercel runs in a context where the custom @vercel/node build
+    cannot resolve pnpm workspace modules (express not found). Rather than
+    fighting the serverless bundler, proxy all REST calls through Next.js
+    (/api-proxy/*) which is same-origin ΓÇö no CORS possible.
+    
+    - next.config.mjs: rewrite /api-proxy/* ΓåÆ API_TARGET_URL
+    - api-client.ts: auto-detect cross-origin URL and use /api-proxy
+    - realtime-client.ts: use NEXT_PUBLIC_WS_URL for direct Socket.IO
+    - vercel.json (api): remove broken @vercel/node build, keep CORS headers
+    
+    Co-Authored-By: Claude Sonnet 4.6 <noreply@anthropic.com>
+
+M	apps/api/vercel.json
+M	apps/web/lib/api-client.ts
+M	apps/web/lib/realtime-client.ts
+M	apps/web/next.config.mjs
+
+commit 368329a162a22461607ea0d69091b4da34a53fa1
+Author: Dian Setiawan <diansetiawan2121@gmail.com>
+Date:   Thu Jun 4 23:04:00 2026 +0700
+
+    fix: use dynamic imports so CORS headers are set before any crash can occur
+    
+    Static NestJS imports evaluated at module load time prevent applyCors()
+    from running if data-source.ts throws (missing DATABASE_URL). Moving all
+    NestJS/AppModule imports inside bootstrap() as dynamic imports ensures
+    applyCors() always executes first.
+    
+    Also: bundle .env in Vercel serverless and try cwd() as dotenv fallback
+    so DATABASE_URL resolves correctly at runtime without dashboard config.
+    
+    Co-Authored-By: Claude Sonnet 4.6 <noreply@anthropic.com>
+
+M	apps/api/api/index.ts
+M	apps/api/src/config/data-source.ts
+M	apps/api/vercel.json
+
+commit 34396b03f3b696b579f2af9d93230433f1222404
+Author: Dian Setiawan <diansetiawan2121@gmail.com>
+Date:   Thu Jun 4 22:26:10 2026 +0700
+
+    fix: set CORS headers before bootstrap so preflight never fails
+    
+    Even if NestJS crashes during startup, OPTIONS preflight now returns
+    204 immediately with correct CORS headers. Eliminates the browser
+    CORS block caused by error responses lacking Access-Control headers.
+    
+    Co-Authored-By: Claude Sonnet 4.6 <noreply@anthropic.com>
+
+M	apps/api/SEEDERS.md
+M	apps/api/api/index.ts
+M	apps/api/src/database/seed-runner.ts
+A	apps/api/src/database/seeds/compliance.seed.ts
+A	apps/api/src/database/seeds/daily-ops.seed.ts
+M	apps/api/src/database/seeds/demo-scenario.seed.ts
+A	apps/api/src/database/seeds/marketplace-supplier.seed.ts
+A	apps/api/src/database/seeds/vendor-lifecycle.seed.ts
+
+commit 6c3394f9c9d43beaf8a499babea19facb1d16381
+Author: Dian Setiawan <diansetiawan2121@gmail.com>
+Date:   Thu Jun 4 21:59:35 2026 +0700
+
+    feat: add API entry point and Vercel configuration with CORS support
+
+A	apps/api/api/index.ts
+M	apps/api/src/modules/cache/cache.module.ts
+A	apps/api/vercel.json
+
+commit 753816a18b62ff8e1057b1b49ca9329ddf658be8
+Author: Dian Setiawan <diansetiawan2121@gmail.com>
+Date:   Thu Jun 4 21:47:39 2026 +0700
+
+    feat: implement CORS configuration using ALLOWED_ORIGINS environment variable
+
+M	apps/api/.env.example
+M	apps/api/src/main.ts
+M	apps/api/src/modules/realtime/realtime.gateway.ts
+
+commit 3b639782bd8a4c7f9af6840c31c9b216393853db
+Author: Dian Setiawan <diansetiawan2121@gmail.com>
+Date:   Thu Jun 4 21:30:15 2026 +0700
+
+    fix: add ignoreDeprecations to common tsconfig for TypeScript 6 compatibility
+    
+    Co-Authored-By: Claude Sonnet 4.6 <noreply@anthropic.com>
+
+M	packages/common/tsconfig.json
+
+commit b068ac1edc2c2756e07e78dd9abfde98d366410a
+Author: Dian Setiawan <diansetiawan2121@gmail.com>
+Date:   Thu Jun 4 21:27:10 2026 +0700
+
+    fix: remove unnecessary comment from sleep utility function
+
+M	packages/common/src/utils/index.ts
+
+commit 8ad9b7a3d634f53546672c2e0439c49a76713b75
+Merge: f53ef41 50939e4
+Author: Dian Setiawan <39780760+yandiaan@users.noreply.github.com>
+Date:   Thu Jun 4 21:14:14 2026 +0700
+
+    Merge pull request #17 from Ilyasrhmn/feature/core
+    
+    Feature/core
+
+commit 50939e42e559297fb71332f19ae1f64450e6f838
+Author: Dian Setiawan <diansetiawan2121@gmail.com>
+Date:   Thu Jun 4 21:13:23 2026 +0700
+
+    feat: add CSS module declarations and update Next.js environment imports
+
+A	apps/pwa/declarations.d.ts
+M	apps/pwa/next-env.d.ts
+M	apps/web/app/portal/(admin)/reports/page.tsx
+M	apps/web/app/portal/(vendor)/checkpoints/page.tsx
+M	apps/web/app/portal/(vendor)/live/page.tsx
+M	apps/web/app/portal/(vendor)/marketplace/[supplierId]/page.tsx
+M	apps/web/components/dashboard/supplier-dashboard.tsx
+A	apps/web/declarations.d.ts
+M	apps/web/next-env.d.ts
+
+commit ff2b64d94dc9cf53bb2bcf8ee14bb530f171f45c
+Author: Dian Setiawan <diansetiawan2121@gmail.com>
+Date:   Thu Jun 4 20:49:36 2026 +0700
+
+    fix: update typescript and ts-jest versions, add socket.io-client and @types/luxon
+
+M	pnpm-lock.yaml
+
+commit f53ef41fa99a807eece507c64e95e712a743a0c2
+Merge: 239fef7 b9e65ba
+Author: Dian Setiawan <39780760+yandiaan@users.noreply.github.com>
+Date:   Thu Jun 4 20:46:35 2026 +0700
+
+    Merge pull request #16 from Ilyasrhmn/feature/core
+    
+    Feature/core
+
+commit b9e65ba2f4dc1fab5c74b4383cbc09d87e4fca2b
+Merge: b61ad15 239fef7
+Author: Dian Setiawan <diansetiawan2121@gmail.com>
+Date:   Thu Jun 4 20:46:01 2026 +0700
+
+    Merge remote-tracking branch 'origin/master' into feature/core
+
+commit b61ad15fd6d8281ad56fdad342be8786ed42f37a
+Author: Dian Setiawan <diansetiawan2121@gmail.com>
+Date:   Thu Jun 4 20:40:53 2026 +0700
+
+    feat: WIP core feature
+
+M	.env.example
+M	CLAUDE.md
+A	TESTING_SCENARIOS.md
+M	apps/api/SEEDERS.md
+A	apps/api/jest.config.js
+M	apps/api/package.json
+M	apps/api/src/app.module.ts
+A	apps/api/src/database/migrations/1710700000000-AddVendorLifecycleStatus.ts
+A	apps/api/src/database/migrations/1710800000000-AddEligibilitySession.ts
+A	apps/api/src/database/migrations/1710800000001-AddOnboardingTables.ts
+A	apps/api/src/database/migrations/1710800000002-AddVendorLogoUrl.ts
+M	apps/api/src/database/migrations/1710900000001-AddCheckpointTables.ts
+A	apps/api/src/database/migrations/1711000000000-AddDeliveryKurirColumns.ts
+A	apps/api/src/database/migrations/1711200000000-AddRagDocuments.ts
+A	apps/api/src/database/seed-runner.ts
+A	apps/api/src/database/seeds/demo-scenario.seed.ts
+M	apps/api/src/main.ts
+A	apps/api/src/modules/ai/ai.module.ts
+A	apps/api/src/modules/ai/llm.service.ts
+A	apps/api/src/modules/ai/mocks.ts
+A	apps/api/src/modules/ai/vision.service.ts
+M	apps/api/src/modules/auth/auth.controller.ts
+M	apps/api/src/modules/auth/auth.service.ts
+M	apps/api/src/modules/auth/dto/register.dto.ts
+M	apps/api/src/modules/checkpoints/checkpoints.module.ts
+M	apps/api/src/modules/checkpoints/checkpoints.service.ts
+A	apps/api/src/modules/command-center/command-center.controller.ts
+A	apps/api/src/modules/command-center/command-center.module.ts
+A	apps/api/src/modules/command-center/command-center.service.ts
+A	apps/api/src/modules/debrief/debrief.controller.ts
+A	apps/api/src/modules/debrief/debrief.module.ts
+A	apps/api/src/modules/debrief/debrief.service.ts
+A	apps/api/src/modules/delivery/delivery.controller.ts
+A	apps/api/src/modules/delivery/delivery.module.ts
+A	apps/api/src/modules/delivery/delivery.service.ts
+A	apps/api/src/modules/eligibility/constants/questions.ts
+A	apps/api/src/modules/eligibility/dto/save-answer.dto.ts
+A	apps/api/src/modules/eligibility/eligibility.controller.ts
+A	apps/api/src/modules/eligibility/eligibility.module.ts
+A	apps/api/src/modules/eligibility/eligibility.service.ts
+A	apps/api/src/modules/eligibility/entities/eligibility-session.entity.ts
+A	apps/api/src/modules/funds/funds.controller.ts
+A	apps/api/src/modules/funds/funds.module.ts
+A	apps/api/src/modules/funds/funds.service.ts
+A	apps/api/src/modules/notifications/entities/notification.entity.ts
+A	apps/api/src/modules/notifications/notifications.controller.ts
+A	apps/api/src/modules/notifications/notifications.module.ts
+A	apps/api/src/modules/notifications/notifications.service.ts
+A	apps/api/src/modules/onboarding/dto/accept-invite.dto.ts
+A	apps/api/src/modules/onboarding/dto/connect-supplier.dto.ts
+A	apps/api/src/modules/onboarding/dto/invite-member.dto.ts
+A	apps/api/src/modules/onboarding/dto/step1-profile.dto.ts
+A	apps/api/src/modules/onboarding/entities/onboarding-progress.entity.ts
+A	apps/api/src/modules/onboarding/entities/vendor-team-member.entity.ts
+A	apps/api/src/modules/onboarding/onboarding.controller.ts
+A	apps/api/src/modules/onboarding/onboarding.module.ts
+A	apps/api/src/modules/onboarding/onboarding.service.ts
+A	apps/api/src/modules/public/public.controller.ts
+A	apps/api/src/modules/public/public.module.ts
+A	apps/api/src/modules/public/public.service.ts
+A	apps/api/src/modules/rag/rag.controller.ts
+A	apps/api/src/modules/rag/rag.module.ts
+A	apps/api/src/modules/rag/rag.service.ts
+A	apps/api/src/modules/school-confirm/school-confirm.controller.ts
+A	apps/api/src/modules/school-confirm/school-confirm.module.ts
+A	apps/api/src/modules/school-confirm/school-confirm.service.ts
+M	apps/api/src/modules/scoring/scoring.service.ts
+A	apps/api/src/modules/storage/storage.controller.ts
+A	apps/api/src/modules/storage/storage.module.ts
+A	apps/api/src/modules/storage/storage.service.ts
+A	apps/api/src/modules/suppliers/suppliers.controller.ts
+A	apps/api/src/modules/suppliers/suppliers.module.ts
+A	apps/api/src/modules/suppliers/suppliers.service.ts
+A	apps/api/src/modules/vendors/entities/vendor.entity.ts
+A	apps/api/src/modules/vendors/state-machine.service.spec.ts
+A	apps/api/src/modules/vendors/state-machine.service.ts
+A	apps/api/src/modules/vendors/vendors.module.ts
+M	apps/api/tsconfig.json
+M	apps/pwa/.env.example
+M	apps/pwa/app/notifications/page.tsx
+M	apps/pwa/app/operasional/history/page.tsx
+M	apps/pwa/app/operasional/live/page.tsx
+M	apps/pwa/app/operasional/score/page.tsx
+M	apps/pwa/app/orders/[id]/page.tsx
+M	apps/pwa/app/orders/page.tsx
+M	apps/pwa/app/page.tsx
+M	apps/pwa/app/publik/page.tsx
+M	apps/pwa/app/sekolah/confirm/page.tsx
+M	apps/pwa/app/sekolah/page.tsx
+A	apps/pwa/lib/realtime-client.ts
+M	apps/pwa/package.json
+M	apps/pwa/tsconfig.json
+M	apps/web/.env.example
+A	apps/web/app/delivery/[token]/page.tsx
+D	apps/web/app/demo-accounts/page.tsx
+A	apps/web/app/eligibility/[token]/result/page.tsx
+A	apps/web/app/eligibility/page.tsx
+M	apps/web/app/login/page.tsx
+A	apps/web/app/portal/(admin)/command-center/page.tsx
+M	apps/web/app/portal/(admin)/funds/page.tsx
+M	apps/web/app/portal/(admin)/logistics/page.tsx
+M	apps/web/app/portal/(admin)/map/page.tsx
+M	apps/web/app/portal/(admin)/reports/page.tsx
+M	apps/web/app/portal/(shared)/settings/page.tsx
+M	apps/web/app/portal/(supplier)/supplier/chat/page.tsx
+M	apps/web/app/portal/(supplier)/supplier/products/add/page.tsx
+M	apps/web/app/portal/(supplier)/supplier/products/page.tsx
+M	apps/web/app/portal/(supplier)/supplier/shop/page.tsx
+M	apps/web/app/portal/(vendor)/checkpoints/page.tsx
+A	apps/web/app/portal/(vendor)/debrief/[date]/page.tsx
+M	apps/web/app/portal/(vendor)/live/page.tsx
+M	apps/web/app/portal/(vendor)/marketplace/[supplierId]/page.tsx
+M	apps/web/app/portal/(vendor)/marketplace/page.tsx
+M	apps/web/app/portal/(vendor)/menu/page.tsx
+M	apps/web/app/portal/(vendor)/mission-control/page.tsx
+A	apps/web/app/portal/(vendor)/onboarding/page.tsx
+M	apps/web/app/portal/(vendor)/operasional/jadwal/page.tsx
+M	apps/web/app/portal/(vendor)/operasional/stock-opname/page.tsx
+M	apps/web/app/portal/layout.tsx
+A	apps/web/app/publik/page.tsx
+M	apps/web/app/register/vendor/page.tsx
+M	apps/web/app/sekolah/confirm/[qrToken]/page.tsx
+M	apps/web/components/dashboard/admin-dashboard.tsx
+M	apps/web/components/dashboard/supplier-dashboard.tsx
+M	apps/web/components/dashboard/vendor-dashboard.tsx
+M	apps/web/components/floating-ai-button.tsx
+A	apps/web/components/map/coord-picker.tsx
+A	apps/web/components/map/vendor-map.tsx
+A	apps/web/components/notification-bell.tsx
+A	apps/web/components/rag-drawer.tsx
+M	apps/web/lib/api-client.ts
+A	apps/web/lib/realtime-client.ts
+M	apps/web/package.json
+M	apps/web/proxy.ts
+M	apps/web/tsconfig.json
+A	docker-compose.yml
+M	docs/superpowers/specs/2026-05-26-nutrio-action-tracker.md
+M	package.json
+M	packages/common/package.json
+A	packages/common/src/types/eligibility.ts
+M	packages/common/src/types/index.ts
+M	packages/eslint-config/package.json
+M	packages/modules/package.json
+M	packages/ui/package.json
+M	pnpm-lock.yaml
+
+commit 239fef72cfff05ac10621a0465ef9764d7d15956
+Merge: 98266d6 c88e0fa
+Author: Ilyasrhmn <ilyasnurrohman14@gmail.com>
+Date:   Thu Jun 4 14:01:10 2026 +0700
+
+    Merge feature/initial-frontend into master
+
+commit c88e0fae917e5e46a33b7719f9b432502e1de487
+Author: Ilyasrhmn <ilyasnurrohman14@gmail.com>
+Date:   Thu Jun 4 13:51:44 2026 +0700
+
+    feat: add admin dashboard and fund tracking interface with real-time analytics visualization
+
+M	apps/web/app/portal/(admin)/funds/page.tsx
+M	apps/web/components/dashboard/admin-dashboard.tsx
+
+commit 98266d6bcc55f49f0c1a5b388d7b5f6dc53bad5f
+Merge: a9f9b82 f00b450
+Author: Ilyas Nur Rohman <139189668+Ilyasrhmn@users.noreply.github.com>
+Date:   Thu Jun 4 13:45:58 2026 +0700
+
+    Merge pull request #15 from Ilyasrhmn/feature/initial-frontend
+    
+    feat: scaffold portal dashboard modules, layout, and AI-powered reporΓÇª
+
+commit f00b450dcb0dbad43f677757bca4471bb16b1d87
+Author: Ilyasrhmn <ilyasnurrohman14@gmail.com>
+Date:   Thu Jun 4 13:45:02 2026 +0700
+
+    feat: scaffold portal dashboard modules, layout, and AI-powered reporting interface
+
+M	apps/web/app/portal/(admin)/funds/page.tsx
+M	apps/web/app/portal/(admin)/logistics/page.tsx
+M	apps/web/app/portal/(admin)/map/page.tsx
+M	apps/web/app/portal/(admin)/reports/page.tsx
+A	apps/web/app/portal/(shared)/help/page.tsx
+M	apps/web/app/portal/(shared)/settings/page.tsx
+M	apps/web/app/portal/(vendor)/checkpoints/page.tsx
+M	apps/web/app/portal/(vendor)/incidents/page.tsx
+M	apps/web/app/portal/(vendor)/live/page.tsx
+M	apps/web/app/portal/(vendor)/menu/page.tsx
+M	apps/web/app/portal/layout.tsx
+M	apps/web/components/dashboard/admin-dashboard.tsx
+A	apps/web/components/dashboard/map-view.tsx
+M	apps/web/components/dashboard/supplier-dashboard.tsx
+M	apps/web/components/dashboard/vendor-dashboard.tsx
+M	apps/web/package.json
+M	pnpm-lock.yaml
+
+commit a9f9b8209a32b50ca1ef0d11348def1235ac7d37
+Merge: c52c8cd 5a24bda
+Author: Ilyas Nur Rohman <139189668+Ilyasrhmn@users.noreply.github.com>
+Date:   Thu Jun 4 12:31:51 2026 +0700
+
+    Merge pull request #14 from Ilyasrhmn/feature/initial-frontend
+    
+    feat: implement NewsCarousel module and add necessary media assets foΓÇª
+
+commit 5a24bda456c3cf03141955e8c3e78c142cad0ca2
+Author: Ilyasrhmn <ilyasnurrohman14@gmail.com>
+Date:   Thu Jun 4 12:29:44 2026 +0700
+
+    feat: implement NewsCarousel module and add necessary media assets for landing page updates
+
+M	apps/api/src/main.ts
+M	apps/pwa/package.json
+M	apps/web/app/portal/(vendor)/marketplace/[supplierId]/page.tsx
+M	apps/web/app/portal/(vendor)/marketplace/page.tsx
+M	apps/web/next-env.d.ts
+A	apps/web/public/assets/picture/AI.jpg
+A	apps/web/public/assets/picture/DapurMBGHigenis.jpeg
+A	apps/web/public/assets/picture/KepatuhanSOP.jpeg
+A	apps/web/public/assets/picture/KepatuhanSOP.webp
+A	apps/web/public/assets/picture/PemberdayaanPetaniLokal.jpg
+A	apps/web/public/assets/picture/PenghargaanSD.webp
+A	apps/web/public/assets/picture/PenyajianBergiziMBG.avif
+A	apps/web/public/assets/picture/PenyajianBergiziMBG.jpeg
+A	apps/web/public/assets/picture/SupplierLokalMBG.jpeg
+A	apps/web/public/assets/picture/SupplierMBG.webp
+M	packages/modules/src/landing/NewsCarousel.tsx
+M	packages/modules/src/landing/Problem.tsx
+A	public/assets/picture/AI.jpg
+A	public/assets/picture/DapurMBGHigenis.jpeg
+A	public/assets/picture/KepatuhanSOP.jpeg
+A	public/assets/picture/KepatuhanSOP.webp
+A	public/assets/picture/PemberdayaanPetaniLokal.jpg
+A	public/assets/picture/PenghargaanSD.webp
+A	public/assets/picture/PenyajianBergiziMBG.avif
+A	public/assets/picture/PenyajianBergiziMBG.jpeg
+A	public/assets/picture/SupplierLokalMBG.jpeg
+A	public/assets/picture/SupplierMBG.webp
+
+commit c52c8cd10404dc72fe85adb6476679eed2a2efac
+Merge: fd6823d a6ef713
+Author: Ilyas Nur Rohman <139189668+Ilyasrhmn@users.noreply.github.com>
+Date:   Tue Jun 2 21:46:11 2026 +0700
+
+    Merge pull request #13 from Ilyasrhmn/feature/initial-frontend
+    
+    feat: build landing page with GSAP-animated SplitText component and iΓÇª
+
+commit a6ef7138d6c90c843be67d4a01e6f8daec6dbcc3
+Merge: 5343489 72eb0c4
+Author: Ilyasrhmn <ilyasnurrohman14@gmail.com>
+Date:   Tue Jun 2 21:43:32 2026 +0700
+
+    Merge branch 'feature/initial-frontend' of https://github.com/Ilyasrhmn/BI-Hackathon into feature/initial-frontend
+
+commit 5343489a462192aa0d94adfae56895f8b04d9d9a
+Author: Ilyasrhmn <ilyasnurrohman14@gmail.com>
+Date:   Tue Jun 2 21:43:17 2026 +0700
+
+    feat: implement CASL authorization logic for user roles and initialize Next.js environment types
+
+M	apps/web/lib/casl.ts
+M	apps/web/next-env.d.ts
+
+commit f6c5b6cb92a357cbb3d94571350feb4e0316d15e
+Merge: 94d976e fd6823d
+Author: Ilyasrhmn <ilyasnurrohman14@gmail.com>
+Date:   Tue Jun 2 21:41:14 2026 +0700
+
+    Merge remote-tracking branch 'origin/master' into feature/initial-frontend
+
+commit 72eb0c445a823552d8ff9be0f08a82d7ab9785c5
+Merge: 94d976e fd6823d
+Author: Dian Setiawan <39780760+yandiaan@users.noreply.github.com>
+Date:   Tue Jun 2 21:33:00 2026 +0700
+
+    Merge branch 'master' into feature/initial-frontend
+
+commit 94d976e2196fe5c46c6ccad16fe4baa949d75cb4
+Author: Ilyasrhmn <ilyasnurrohman14@gmail.com>
+Date:   Tue Jun 2 21:23:06 2026 +0700
+
+    feat: build landing page with GSAP-animated SplitText component and integrated dashboard preview modules
+
+A	SPLITTEXT_INTEGRATION.md
+M	apps/web/app/asisten/page.tsx
+M	apps/web/app/page.tsx
+M	apps/web/app/portal/(shared)/asisten/page.tsx
+M	apps/web/lib/casl.ts
+M	apps/web/package.json
+A	apps/web/public/assets/MBG+Nutrio.webm
+M	package.json
+M	packages/modules/package.json
+M	packages/modules/src/landing/Cta.tsx
+M	packages/modules/src/landing/DashboardPreview.tsx
+A	packages/modules/src/landing/FaqAccordion.tsx
+M	packages/modules/src/landing/Features.tsx
+M	packages/modules/src/landing/Hero.tsx
+M	packages/modules/src/landing/Navbar.tsx
+A	packages/modules/src/landing/NewsCarousel.tsx
+M	packages/modules/src/landing/Problem.tsx
+A	packages/modules/src/landing/ScrollStack.tsx
+A	packages/modules/src/landing/SmoothScroll.tsx
+A	packages/modules/src/landing/SplitText.tsx
+M	packages/modules/src/landing/index.ts
+A	packages/modules/src/landing/useScrollReveal.ts
+M	packages/modules/tsconfig.json
+M	packages/ui/src/styles/globals.css
+M	pnpm-lock.yaml
+A	public/assets/MBG+Nutrio.webm
+
+commit ce76af27c5b4d8f70442ab3b2a79a75d2b1a1477
+Author: Dian Setiawan <diansetiawan2121@gmail.com>
+Date:   Tue Jun 2 20:01:16 2026 +0700
+
+    docs: mark Phase 3 Dunia 2 Core as complete in tracker
+    
+    Co-Authored-By: Claude Sonnet 4.6 <noreply@anthropic.com>
+
+M	docs/superpowers/specs/2026-05-26-nutrio-action-tracker.md
+
+commit 2cc352ed55a3b6c56a75f0a1ac99ef27b27b886d
+Author: Dian Setiawan <diansetiawan2121@gmail.com>
+Date:   Tue Jun 2 19:52:58 2026 +0700
+
+    fix: replace axios with fetch in pwa api-client and add explicit generics to page.tsx
+    
+    Co-Authored-By: Claude Sonnet 4.6 <noreply@anthropic.com>
+
+M	apps/pwa/app/page.tsx
+M	apps/pwa/lib/api-client.ts
+
+commit ec9b0ee957a2cbbf7766e2661f7129e89a0c101e
+Author: Dian Setiawan <diansetiawan2121@gmail.com>
+Date:   Tue Jun 2 19:51:00 2026 +0700
+
+    feat: add CP context and live camera capture pages for Daily Mode PWA
+
+A	apps/pwa/app/cp/[cpId]/capture/page.tsx
+A	apps/pwa/app/cp/[cpId]/confirm/page.tsx
+A	apps/pwa/app/cp/[cpId]/context/page.tsx
+A	apps/pwa/app/cp/[cpId]/validate/page.tsx
+
+commit cebbb4f1140d26258f7008855b4ed33da9741b04
+Author: Dian Setiawan <diansetiawan2121@gmail.com>
+Date:   Tue Jun 2 19:50:52 2026 +0700
+
+    feat: rewrite PWA landing page as task-focused daily mode with CP progress
+
+M	apps/pwa/app/page.tsx
+A	apps/pwa/lib/api-client.ts
+
+commit b9fea39cde92ef4b4734d1a2f7e502f84c313cde
+Author: Dian Setiawan <diansetiawan2121@gmail.com>
+Date:   Tue Jun 2 19:45:13 2026 +0700
+
+    feat: add Mission Control page with CP matrix, score card, team presence, WS live updates
+
+A	apps/web/app/portal/(vendor)/mission-control/page.tsx
+
+commit 9fda788910045655aa36e47215382149614d3f0f
+Author: Dian Setiawan <diansetiawan2121@gmail.com>
+Date:   Tue Jun 2 19:40:38 2026 +0700
+
+    feat: add MissionControlModule with team presence tracking and aggregated daily view
+    
+    Co-Authored-By: Claude Sonnet 4.6 <noreply@anthropic.com>
+
+M	apps/api/src/app.module.ts
+A	apps/api/src/modules/mission-control/mission-control.controller.ts
+A	apps/api/src/modules/mission-control/mission-control.module.ts
+A	apps/api/src/modules/mission-control/mission-control.service.ts
+A	apps/api/src/modules/realtime/realtime.gateway.ts
+A	apps/api/src/modules/realtime/realtime.module.ts
+A	apps/api/src/modules/realtime/realtime.service.ts
+
+commit 684a1be284751193e4e190567748eeba58180cc3
+Author: Dian Setiawan <diansetiawan2121@gmail.com>
+Date:   Tue Jun 2 19:36:47 2026 +0700
+
+    feat: register CheckpointsModule with GET /checkpoints/today and POST /checkpoints/:cpType/submit
+
+M	apps/api/src/app.module.ts
+A	apps/api/src/modules/checkpoints/checkpoints.controller.ts
+A	apps/api/src/modules/checkpoints/checkpoints.module.ts
+
+commit 5bc7529b8f45207deb7a3c075af28d2e1f251785
+Author: Dian Setiawan <diansetiawan2121@gmail.com>
+Date:   Tue Jun 2 19:34:35 2026 +0700
+
+    feat: implement CheckpointsService with ordering validation, Golden Rule, photo upload, AI validation
+    
+    - Add SubmitCheckpointDto with optional GPS and notes fields
+    - Implement static cpOrderIndex and previousCpRequired for CP ordering logic
+    - Enforce sequential CP submission (CP2 requires CP1 done, etc.)
+    - Apply GOLDEN_RULE_VIOLATION penalty when CP2 submitted >4h after CP1
+    - Upload photo via StorageService and upsert checkpoint_events row
+    - Fire-and-forget AI photo validation with PHOTO_QUALITY_POOR penalty fallback
+    - Generate delivery tokens on CP3 completion for all assigned schools
+    - Broadcast mc:checkpoint:update event to vendor via RealtimeService
+    - Add forceCloseAll() for scheduler end-of-day cleanup
+    
+    Co-Authored-By: Claude Sonnet 4.6 <noreply@anthropic.com>
+
+A	apps/api/src/modules/checkpoints/checkpoints.service.spec.ts
+A	apps/api/src/modules/checkpoints/checkpoints.service.ts
+A	apps/api/src/modules/checkpoints/dto/submit-checkpoint.dto.ts
+
+commit a0b1594a3b31cb0e71ca87d9b8125798b4e18d2b
+Author: Dian Setiawan <diansetiawan2121@gmail.com>
+Date:   Tue Jun 2 19:28:30 2026 +0700
+
+    feat: add checkpoint-event, delivery-token, school-confirmation entities
+
+A	apps/api/src/modules/checkpoints/entities/checkpoint-event.entity.ts
+A	apps/api/src/modules/checkpoints/entities/delivery-token.entity.ts
+A	apps/api/src/modules/checkpoints/entities/school-confirmation.entity.ts
+
+commit 9f3bdc18bc314164f629cd814f5c029ede52f1ad
+Author: Dian Setiawan <diansetiawan2121@gmail.com>
+Date:   Tue Jun 2 19:26:43 2026 +0700
+
+    fix: add error handling and allSettled resilience to cron jobs
+
+M	apps/api/src/modules/scheduler/force-close.cron.ts
+M	apps/api/src/modules/scheduler/score-init.cron.ts
+
+commit dbcd5e3ba636b5c095a16ee004de29ed39804931
+Author: Dian Setiawan <diansetiawan2121@gmail.com>
+Date:   Tue Jun 2 19:21:41 2026 +0700
+
+    feat: wire ScoringService into cron jobs ΓÇö score-init and force-close now functional
+
+A	apps/api/src/modules/scheduler/force-close.cron.ts
+A	apps/api/src/modules/scheduler/review-sla.cron.ts
+A	apps/api/src/modules/scheduler/scheduler.module.ts
+A	apps/api/src/modules/scheduler/score-init.cron.ts
+
+commit be39ec5e75bd0cc53c64952c511725b270107e29
+Author: Dian Setiawan <diansetiawan2121@gmail.com>
+Date:   Tue Jun 2 19:19:16 2026 +0700
+
+    feat: register ScoringModule with REST endpoints GET /scoring/today and /scoring/history
+
+M	apps/api/src/app.module.ts
+A	apps/api/src/modules/scoring/scoring.controller.ts
+A	apps/api/src/modules/scoring/scoring.module.ts
+
+commit 2925bcbf304fe46ebca8f804a31a335728d3c58f
+Author: Dian Setiawan <diansetiawan2121@gmail.com>
+Date:   Tue Jun 2 19:16:49 2026 +0700
+
+    feat: implement ScoringService with penalty logic and WS broadcast
+    
+    Co-Authored-By: Claude Sonnet 4.6 <noreply@anthropic.com>
+
+A	apps/api/src/modules/scoring/scoring.service.spec.ts
+A	apps/api/src/modules/scoring/scoring.service.ts
+
+commit f6f68507bd54bbdc93141f093d3f9cf9aa2a24a2
+Author: Dian Setiawan <diansetiawan2121@gmail.com>
+Date:   Tue Jun 2 19:13:32 2026 +0700
+
+    feat: add scoring entities and penalty constants
+
+A	apps/api/src/modules/scoring/entities/daily-score-record.entity.ts
+A	apps/api/src/modules/scoring/entities/score-event.entity.ts
+A	apps/api/src/modules/scoring/penalty.constants.ts
+
+commit 01638554047dacf1ae7677fdbb44bf259b8beb00
+Author: Dian Setiawan <diansetiawan2121@gmail.com>
+Date:   Tue Jun 2 19:12:02 2026 +0700
+
+    feat: add checkpoint/delivery/school-confirmation tables migration
+
+A	apps/api/src/database/migrations/1710900000001-AddCheckpointTables.ts
+
+commit 3326cc533965b1fd13d9ed8515ecc04a5f7d4d04
+Author: Dian Setiawan <diansetiawan2121@gmail.com>
+Date:   Tue Jun 2 19:10:21 2026 +0700
+
+    feat: add scoring tables migration
+
+A	apps/api/src/database/migrations/1710900000000-AddScoringTables.ts
+
+commit f569e2278eda67ae23f9d4b4ce9dbc21179a43ed
+Author: Dian Setiawan <diansetiawan2121@gmail.com>
+Date:   Tue Jun 2 19:02:48 2026 +0700
+
+    docs: add Phase 3 Dunia 2 Core implementation plan (15 tasks)
+    
+    Co-Authored-By: Claude Sonnet 4.6 <noreply@anthropic.com>
+
+A	docs/superpowers/plans/2026-06-02-phase3-dunia2-core.md
+
+commit ae03e056b2cfe21b12240bc24ea72648d08b77bf
+Author: Dian Setiawan <diansetiawan2121@gmail.com>
+Date:   Tue Jun 2 18:41:28 2026 +0700
+
+    docs: add Phase 3 Dunia 2 Core design spec
+    
+    Co-Authored-By: Claude Sonnet 4.6 <noreply@anthropic.com>
+
+A	docs/superpowers/specs/2026-06-02-phase3-dunia2-core-design.md
+
+commit 80d0d51f68d0c613ddc501c5e4cacd3bf76f80d8
+Author: Dian Setiawan <diansetiawan2121@gmail.com>
+Date:   Wed May 27 10:58:31 2026 +0700
+
+    docs: add PHASE 3 Dunia 2 Core implementation design spec
+    
+    Covers FEAT-2.6 (Scoring Engine), FEAT-2.3 (Checkpoint Flow),
+    FEAT-2.1 (Mission Control), FEAT-2.2 (Daily Mode PWA)
+    
+    Key decisions:
+    - Mission Control: WebSocket + polling fallback 10s
+    - PWA Camera: Full MediaDevices API (no file picker)
+    - SPPG: 1 vendor = 1 SPPG (auto-resolve)
+    - Score events: append-only via DB rule
+    
+    Co-Authored-By: Claude Sonnet 4.6 <noreply@anthropic.com>
+
+A	docs/superpowers/specs/2026-05-27-phase3-dunia2-core-design.md
+
+commit fca0f255bddaacdd983a556edc74f79f1f4c1462
+Author: Dian Setiawan <diansetiawan2121@gmail.com>
+Date:   Tue May 26 21:40:54 2026 +0700
+
+    feat: update abilities in casl.ts to refine access control and add new permissions
+
+A	apps/web/.env.example
+M	apps/web/lib/casl.ts
+
+commit 4ce30a225b5f955925b6a237f99b7c22746aade5
+Author: Dian Setiawan <diansetiawan2121@gmail.com>
+Date:   Tue May 26 21:40:44 2026 +0700
+
+    feat: remove GlobalAIAssistantPage component and related files for cleanup
+
+D	apps/web/app/asisten/page.tsx
+
+commit afe3bd8c064302db226cc96612b6a730bd49d080
+Author: Dian Setiawan <diansetiawan2121@gmail.com>
+Date:   Tue May 26 21:40:36 2026 +0700
+
+    feat: add SchoolConfirmPage component for QR token confirmation
+
+A	apps/web/app/sekolah/confirm/[qrToken]/page.tsx
+
+commit 5a712db85ce437f7c71fc59d7b56c0b3fc809a40
+Author: Dian Setiawan <diansetiawan2121@gmail.com>
+Date:   Tue May 26 21:40:27 2026 +0700
+
+    Refactor Checkpoints and Live pages; replace content with placeholders for upcoming features
+
+D	apps/web/app/portal/(shared)/asisten/page.tsx
+A	apps/web/app/portal/(vendor)/checkpoints/_archive/page.tsx
+M	apps/web/app/portal/(vendor)/checkpoints/page.tsx
+A	apps/web/app/portal/(vendor)/live/_archive/page.tsx
+M	apps/web/app/portal/(vendor)/live/page.tsx
+
+commit aa580d2ed1136b5d9915c3f316591a7e1b138359
+Author: Dian Setiawan <diansetiawan2121@gmail.com>
+Date:   Tue May 26 21:39:52 2026 +0700
+
+    feat: enhance permissions and add AI integration in environment configuration
+
+M	apps/api/.env.example
+M	apps/api/package.json
+M	apps/api/src/database/seeds/permission.seed.ts
+M	apps/api/src/modules/auth/casl-ability.factory.ts
+
+commit 0cc314b711236a2c16b7fc49a9074f2299caf182
+Author: Dian Setiawan <diansetiawan2121@gmail.com>
+Date:   Tue May 26 21:38:23 2026 +0700
+
+    feat: update API description and terminology in PublicHome component
+
+A	apps/pwa/.env.example
+M	apps/pwa/app/page.tsx
+
+commit c42d7a617aa5ec88d3f493b1a80c06e219155aea
+Author: Dian Setiawan <diansetiawan2121@gmail.com>
+Date:   Tue May 26 21:38:10 2026 +0700
+
+    feat: remove contracts directory and related files for cleanup
+
+D	apps/contracts/.env.example
+D	apps/contracts/foundry.toml
+D	apps/contracts/package.json
+D	apps/contracts/script/Counter.s.sol
+D	apps/contracts/scripts/deploy.ts
+D	apps/contracts/src/Counter.sol
+D	apps/contracts/test/Counter.t.sol
+D	apps/contracts/tsconfig.json
+
+commit 7a1781fa6809f706ca6a84fc5b1721cee14bc8f8
+Author: Dian Setiawan <diansetiawan2121@gmail.com>
+Date:   Tue May 26 21:37:53 2026 +0700
+
+    feat: add new AppSubject types for enhanced access control
+
+M	packages/common/src/types/casl.ts
+
+commit 96327ac661734f05a89d8d4fa6682c61b48a31f6
+Author: Dian Setiawan <diansetiawan2121@gmail.com>
+Date:   Tue May 26 21:37:44 2026 +0700
+
+    feat: remove contract-types package and related files
+
+D	packages/contract-types/package.json
+D	packages/contract-types/src/abis/.gitkeep
+D	packages/contract-types/src/index.ts
+D	packages/contract-types/tsconfig.json
+
+commit abcef3ea6e6affd14ade4490c47e0d302d2e9755
+Author: Dian Setiawan <diansetiawan2121@gmail.com>
+Date:   Tue May 26 21:37:30 2026 +0700
+
+    Add PRD for Nutrio: Platform Perizinan & Monitoring Vendor MBG
+
+A	docs/design_thinking.md
+A	docs/superpowers/specs/2026-05-26-nutrio-action-tracker.md
+A	docs/superpowers/specs/2026-05-26-nutrio-gap-analysis-action-plan.md
+A	docs/superpowers/specs/2026-05-26-nutrio-prd.md
+
+commit a4501a71500a9b293a39b6477175e9af393cbb32
+Author: Dian Setiawan <diansetiawan2121@gmail.com>
+Date:   Tue May 26 21:37:20 2026 +0700
+
+    feat: clean up pnpm-lock.yaml by removing unused dependencies and packages
+
+M	pnpm-lock.yaml
+
+commit 44589ad8aa9fdcaf0093c57386a109352711bc76
+Author: Dian Setiawan <diansetiawan2121@gmail.com>
+Date:   Tue May 26 21:37:13 2026 +0700
+
+    feat: remove blockchain environment variables from .env.example
+
+M	.env.example
+
+commit 3b75997ecf80563fdcf783661f0b98ace6101086
+Author: Dian Setiawan <diansetiawan2121@gmail.com>
+Date:   Tue May 26 21:37:01 2026 +0700
+
+    feat: add CLAUDE.md for repository guidance, including repo layout, common commands, and conventions
+
+A	CLAUDE.md
+
+commit 261737f24ccb6bdf2b9d5b781056da9539c56464
+Author: Dian Setiawan <dian.setiawan@spesolution.com>
+Date:   Tue May 26 20:25:41 2026 +0700
+
+    docs: add enhanced PRD v2 with wireframe flows, integration map, and component specs
+    
+    Expands PRD from high-level feature list to implementation-ready spec:
+    - Section 3.5: Integration Map (vendor lifecycle state machine, CP1-CP4 chain, cross-world data dependencies, eventΓåÆside-effect map)
+    - 15 features across 3 worlds: each enhanced with wireframe flow (happy path + error states), component notes, and integration contract
+    - Acceptance criteria strengthened with edge cases
+    
+    Co-Authored-By: Claude Sonnet 4.6 <noreply@anthropic.com>
+
+A	docs/superpowers/specs/2026-05-26-nutrio-prd-v2.md
+
+commit fd6823d44af065e3cf4ca71abf16aedef0f324af
+Author: Dian Setiawan <diansetiawan2121@gmail.com>
+Date:   Sat Mar 21 01:59:50 2026 +0800
+
+    feat: establish initial database schema including core user and authentication entities, and add environment configurations.
+
+M	apps/api/.env.example
+M	apps/api/src/config/data-source.ts
+M	apps/api/src/database/migrations/1710400000000-InitialSchema.ts
+M	apps/api/src/database/migrations/1710400000001-SupplierSchema.ts
+M	apps/api/src/database/seeds/user.seed.ts
+
+commit 186357180a522ac7bc796eb4ae4fb6f6735a70ab
+Merge: cf30b5d 9c45c5e
+Author: Ilyas Nur Rohman <139189668+Ilyasrhmn@users.noreply.github.com>
+Date:   Sat Mar 21 01:39:53 2026 +0800
+
+    Merge pull request #12 from Ilyasrhmn/feature/initial-frontend
+    
+    feat: implement initial landing page components and demo/login pages
+
+commit 9c45c5eecc22c04459d603ee9661c43fb23ca421
+Author: Ilyasrhmn <ilyasnurrohman14@gmail.com>
+Date:   Sat Mar 21 00:39:17 2026 +0700
+
+    feat: implement initial landing page components and demo/login pages
+
+A	apps/web/app/demo-accounts/page.tsx
+M	apps/web/app/login/page.tsx
+M	packages/modules/src/landing/Cta.tsx
+M	packages/modules/src/landing/Hero.tsx
+M	packages/modules/src/landing/Navbar.tsx
+M	packages/modules/src/landing/Problem.tsx
+
+commit cf30b5d6c98d48bfaf959f74272cb704f2abb685
+Author: Dian Setiawan <diansetiawan2121@gmail.com>
+Date:   Sat Mar 21 01:26:39 2026 +0800
+
+    feat: Implement new PWA and web pages for school confirmation, operational scoring, live tracking, order details, and assistant functionality, including CASL type definitions.
+
+M	apps/pwa/app/operasional/live/page.tsx
+M	apps/pwa/app/operasional/score/page.tsx
+M	apps/pwa/app/orders/[id]/page.tsx
+M	apps/pwa/app/sekolah/confirm/page.tsx
+M	apps/pwa/components/orders/order-card.tsx
+M	apps/web/app/asisten/page.tsx
+M	apps/web/app/portal/(shared)/asisten/page.tsx
+M	apps/web/lib/casl.ts
+M	packages/common/src/types/casl.ts
+
+commit eaf6be054fe0c52c23bbd3cc21c0df6fedc4817b
+Author: Dian Setiawan <diansetiawan2121@gmail.com>
+Date:   Sat Mar 21 00:58:43 2026 +0800
+
+    feat: Add Next.js PWA configuration and transpile workspace UI package.
+
+M	apps/pwa/next.config.ts
+
+commit 215b1252c8bd398d7c371baa597f3586ce79cc91
+Merge: 35882af 8d8184b
+Author: Ilyas Nur Rohman <139189668+Ilyasrhmn@users.noreply.github.com>
+Date:   Sat Mar 21 00:37:49 2026 +0800
+
+    Merge pull request #11 from Ilyasrhmn/feature/initial-frontend
+    
+    feat: Establish initial multi-role portal application with AI assistaΓÇª
+
+commit 8d8184bc6a24aa661501a14cf93a8e81e5a2e1de
+Author: Ilyasrhmn <ilyasnurrohman14@gmail.com>
+Date:   Fri Mar 20 23:37:05 2026 +0700
+
+    feat: Establish initial multi-role portal application with AI assistant and database schemas.
+
+M	apps/api/.env.example
+M	apps/api/SEEDERS.md
+M	apps/api/src/config/data-source.ts
+M	apps/api/src/database/migrations/1710400000000-InitialSchema.ts
+M	apps/api/src/database/migrations/1710400000001-SupplierSchema.ts
+A	apps/web/app/asisten/page.tsx
+M	apps/web/app/layout.tsx
+M	apps/web/app/login/page.tsx
+M	apps/web/app/portal/(admin)/admin/layout.tsx
+M	apps/web/app/portal/(admin)/audit/page.tsx
+A	apps/web/app/portal/(shared)/asisten/page.tsx
+M	apps/web/app/portal/(supplier)/supplier/products/page.tsx
+M	apps/web/app/portal/(supplier)/supplier/shop/page.tsx
+M	apps/web/app/portal/(vendor)/marketplace/[supplierId]/page.tsx
+M	apps/web/app/portal/(vendor)/marketplace/page.tsx
+M	apps/web/app/portal/(vendor)/operasional/kitchen-sop/page.tsx
+M	apps/web/app/portal/layout.tsx
+M	apps/web/app/portal/page.tsx
+M	apps/web/app/register/page.tsx
+M	apps/web/app/register/supplier/page.tsx
+M	apps/web/app/register/vendor/page.tsx
+A	apps/web/components/dashboard/admin-dashboard.tsx
+A	apps/web/components/dashboard/supplier-dashboard.tsx
+A	apps/web/components/dashboard/vendor-dashboard.tsx
+A	apps/web/components/floating-ai-button.tsx
+M	apps/web/hooks/use-auth.tsx
+A	docs/mbg_ai_features_briefing (1).md
+M	openspec/specs/rbac-implementation/spec.md
+M	packages/modules/src/landing/DashboardPreview.tsx
+M	packages/modules/src/landing/Features.tsx
+M	packages/modules/src/landing/Hero.tsx
+M	packages/modules/src/landing/Navbar.tsx
+
+commit 35882af54f32a572996ace0a02fe363c15e44785
+Author: Dian Setiawan <diansetiawan2121@gmail.com>
+Date:   Sat Mar 21 00:31:04 2026 +0800
+
+    feat: Introduce a role-based root page displaying distinct home views for Vendor, Supplier, School, and Public users.
+
+M	apps/pwa/app/page.tsx
+
+commit cd8492f1c8d32bc3e047a27575ab6136c2f4a282
+Author: Dian Setiawan <diansetiawan2121@gmail.com>
+Date:   Fri Mar 20 22:37:01 2026 +0800
+
+    feat: Initialize PWA application with core pages, components, and configurations including a camera capture feature.
+
+A	PWA-Prompt.md
+A	apps/pwa/app/layout.tsx
+A	apps/pwa/app/login/page.tsx
+A	apps/pwa/app/notifications/page.tsx
+A	apps/pwa/app/operasional/history/page.tsx
+A	apps/pwa/app/operasional/live/page.tsx
+A	apps/pwa/app/operasional/score/page.tsx
+A	apps/pwa/app/orders/[id]/page.tsx
+A	apps/pwa/app/orders/page.tsx
+A	apps/pwa/app/page.tsx
+A	apps/pwa/app/publik/page.tsx
+A	apps/pwa/app/sekolah/confirm/page.tsx
+A	apps/pwa/app/sekolah/page.tsx
+A	apps/pwa/app/settings/page.tsx
+A	apps/pwa/components/checkpoint/ai-result-card.tsx
+A	apps/pwa/components/checkpoint/camera-capture.tsx
+A	apps/pwa/components/checkpoint/step-indicator.tsx
+A	apps/pwa/components/layout/bottom-nav.tsx
+A	apps/pwa/components/layout/page-header.tsx
+A	apps/pwa/components/orders/order-card.tsx
+A	apps/pwa/components/providers/auth-provider.tsx
+A	apps/pwa/lib/mock-data/checkpoints.ts
+A	apps/pwa/lib/mock-data/orders.ts
+A	apps/pwa/lib/mock-data/public-stats.ts
+A	apps/pwa/lib/mock-data/vendor.ts
+A	apps/pwa/next-env.d.ts
+A	apps/pwa/next.config.ts
+A	apps/pwa/package.json
+A	apps/pwa/postcss.config.mjs
+A	apps/pwa/public/manifest.json
+A	apps/pwa/tsconfig.json
+M	pnpm-lock.yaml
+
+commit 20f28994e2aaf6aac6a094fa9492a81dd71066f5
+Author: Dian Setiawan <diansetiawan2121@gmail.com>
+Date:   Fri Mar 20 19:54:51 2026 +0800
+
+    chore: Add Next.js environment type definitions.
+
+D	docs/access-control/API.md
+D	docs/access-control/BUGFIXES.md
+D	docs/access-control/DEPLOYMENT.md
+D	docs/access-control/DEVELOPER_GUIDE.md
+D	docs/access-control/FEATURE_FLAGS.md
+D	docs/access-control/IMPLEMENTATION_COMPLETE.md
+D	docs/access-control/LOGIN_FIX.md
+D	docs/access-control/LOGIN_IMPLEMENTATION_COMPLETE.md
+D	docs/access-control/LOGIN_QUICK_REFERENCE.md
+D	docs/access-control/README.md
+D	docs/access-control/USER_GUIDE.md
+D	docs/auth-integrations.md
+A	docs/fraud_analysis.md
+A	docs/hackathon_strategy.md
+A	docs/main_flow_design.md
+A	docs/phase1_codebase_audit.md
+A	docs/phase2_user_journey_mapping.md
+A	docs/phase3_feature_strategy.md
+A	docs/phase4_final_recommendations.md
+A	docs/platform_architecture.md
+
+commit 1de79ed19c4561fe36a672663fec40685a13beb6
+Author: Dian Setiawan <diansetiawan2121@gmail.com>
+Date:   Fri Mar 20 19:51:59 2026 +0800
+
+    fix: cleanup directory
+
+R100	apps/web/app/portal/admin/layout.tsx	apps/web/app/portal/(admin)/admin/layout.tsx
+R100	apps/web/app/portal/admin/menus/page.tsx	apps/web/app/portal/(admin)/admin/menus/page.tsx
+R100	apps/web/app/portal/admin/page.tsx	apps/web/app/portal/(admin)/admin/page.tsx
+R100	apps/web/app/portal/admin/permissions/page.tsx	apps/web/app/portal/(admin)/admin/permissions/page.tsx
+R100	apps/web/app/portal/admin/roles/page.tsx	apps/web/app/portal/(admin)/admin/roles/page.tsx
+R100	apps/web/app/portal/audit/page.tsx	apps/web/app/portal/(admin)/audit/page.tsx
+R100	apps/web/app/portal/funds/page.tsx	apps/web/app/portal/(admin)/funds/page.tsx
+R100	apps/web/app/portal/logistics/page.tsx	apps/web/app/portal/(admin)/logistics/page.tsx
+R100	apps/web/app/portal/map/page.tsx	apps/web/app/portal/(admin)/map/page.tsx
+R100	apps/web/app/portal/reports/page.tsx	apps/web/app/portal/(admin)/reports/page.tsx
+R100	apps/web/app/portal/settings/page.tsx	apps/web/app/portal/(shared)/settings/page.tsx
+R100	apps/web/app/portal/sop/page.tsx	apps/web/app/portal/(shared)/sop/page.tsx
+R100	apps/web/app/portal/supplier/chat/page.tsx	apps/web/app/portal/(supplier)/supplier/chat/page.tsx
+R100	apps/web/app/portal/supplier/products/add/page.tsx	apps/web/app/portal/(supplier)/supplier/products/add/page.tsx
+R100	apps/web/app/portal/supplier/products/page.tsx	apps/web/app/portal/(supplier)/supplier/products/page.tsx
+R100	apps/web/app/portal/supplier/shop/page.tsx	apps/web/app/portal/(supplier)/supplier/shop/page.tsx
+R100	apps/web/app/portal/checkpoints/page.tsx	apps/web/app/portal/(vendor)/checkpoints/page.tsx
+R100	apps/web/app/portal/incidents/page.tsx	apps/web/app/portal/(vendor)/incidents/page.tsx
+R100	apps/web/app/portal/live/page.tsx	apps/web/app/portal/(vendor)/live/page.tsx
+R100	apps/web/app/portal/marketplace/[supplierId]/page.tsx	apps/web/app/portal/(vendor)/marketplace/[supplierId]/page.tsx
+R100	apps/web/app/portal/marketplace/page.tsx	apps/web/app/portal/(vendor)/marketplace/page.tsx
+R100	apps/web/app/portal/menu/page.tsx	apps/web/app/portal/(vendor)/menu/page.tsx
+R100	apps/web/app/portal/operasional/jadwal/page.tsx	apps/web/app/portal/(vendor)/operasional/jadwal/page.tsx
+R100	apps/web/app/portal/operasional/kalkulasi-bahan/page.tsx	apps/web/app/portal/(vendor)/operasional/kalkulasi-bahan/page.tsx
+R100	apps/web/app/portal/operasional/kitchen-sop/page.tsx	apps/web/app/portal/(vendor)/operasional/kitchen-sop/page.tsx
+R100	apps/web/app/portal/operasional/stock-opname/page.tsx	apps/web/app/portal/(vendor)/operasional/stock-opname/page.tsx
+M	apps/web/next-env.d.ts
+
+commit 141ed269afa28f6e75b3e472f0709383995d1c13
+Author: Dian Setiawan <diansetiawan2121@gmail.com>
+Date:   Fri Mar 20 05:52:25 2026 +0800
+
+    fix: delete unused files
+
+D	%TEMP%install-qwen.bat
+D	MIGRATION_SUMMARY.md
+D	Screenshot 2026-03-16 211417.png
+
+commit 4c6e55036a0d0f256b2cdcab4686a181e8914429
+Merge: 78764ba 6457576
+Author: Ilyas Nur Rohman <139189668+Ilyasrhmn@users.noreply.github.com>
+Date:   Wed Mar 18 03:02:32 2026 +0800
+
+    Merge pull request #10 from Ilyasrhmn/feature/initial-frontend
+    
+    feat: Implement role-based access control for portal menus and establΓÇª
+
+commit 6457576ce42fa8100b5e8adf06c9c30b48905e6a
+Author: Ilyasrhmn <ilyasnurrohman14@gmail.com>
+Date:   Wed Mar 18 02:01:03 2026 +0700
+
+    feat: Implement role-based access control for portal menus and establish initial dashboard views for different user roles.
+
+M	apps/api/src/database/seeds/menu.seed.ts
+M	apps/api/src/database/seeds/role-menu.seed.ts
+M	apps/web/app/portal/page.tsx
+M	apps/web/lib/casl.ts
+
+commit 78764babb8abbb5c0db8f22e375cc4c6c9d051d8
+Author: Dian Setiawan <diansetiawan2121@gmail.com>
+Date:   Wed Mar 18 01:54:22 2026 +0800
+
+    feat: Add distribution schedule management page and initial portal pages for incidents and live views.
+
+M	.gitignore
+M	apps/web/app/portal/incidents/page.tsx
+M	apps/web/app/portal/live/page.tsx
+M	apps/web/app/portal/operasional/jadwal/page.tsx
+M	apps/web/next-env.d.ts
+M	packages/common/src/types/casl.ts
+
+commit 9ecf62c2e16c4c4071a917d300e8f77818e84ba0
+Author: Dian Setiawan <diansetiawan2121@gmail.com>
+Date:   Wed Mar 18 01:37:53 2026 +0800
+
+    feat: Add AI Incident Control Center page with operational and technical incident reporting.
+
+M	apps/web/app/portal/incidents/page.tsx
+
+commit ff4fc8c0aa9c00d19e140b98057f251b164b8b3f
+Author: Dian Setiawan <diansetiawan2121@gmail.com>
+Date:   Wed Mar 18 01:35:54 2026 +0800
+
+    feat: Add new portal admin and checkpoints pages.
+
+M	apps/web/app/portal/admin/page.tsx
+M	apps/web/app/portal/checkpoints/page.tsx
+
+commit e06ef39f1f56b8629441aaa3e0286956d2874e66
+Merge: d6e9032 06c6462
+Author: Dian Setiawan <diansetiawan2121@gmail.com>
+Date:   Wed Mar 18 01:22:24 2026 +0800
+
+    Merge remote-tracking branch 'origin/master'
+
+commit d6e9032cb996fc8f06807ae785909fde41eaf598
+Author: Dian Setiawan <diansetiawan2121@gmail.com>
+Date:   Wed Mar 18 01:21:53 2026 +0800
+
+    feat: introduce admin page for managing application menus and their permissions.
+
+M	apps/web/app/portal/admin/menus/page.tsx
+M	apps/web/app/portal/admin/page.tsx
+
+commit 06c6462a5a5eade80c10c5b92c2ed5bca319c3bf
+Merge: c56c990 1f3a57a
+Author: Ilyas Nur Rohman <139189668+Ilyasrhmn@users.noreply.github.com>
+Date:   Tue Mar 17 23:51:07 2026 +0700
+
+    Merge pull request #9 from Ilyasrhmn/feature/initial-frontend
+    
+    feat: Implement supplier role and portal with dedicated pages, permisΓÇª
+
+commit 1f3a57aaab3b2ea1f35e38aabd0e6f116a2901d9
+Author: Ilyasrhmn <ilyasnurrohman14@gmail.com>
+Date:   Tue Mar 17 23:50:37 2026 +0700
+
+    feat: Implement supplier role and portal with dedicated pages, permissions, database seeds, common types, and a new UI dialog component.
+
+A	apps/api/src/database/migrations/1710600000001-AddSupplierToUserRoleEnum.ts
+M	apps/api/src/database/seeds/menu.seed.ts
+M	apps/api/src/database/seeds/role-menu.seed.ts
+M	apps/api/src/database/seeds/role.seed.ts
+M	apps/api/src/database/seeds/user.seed.ts
+M	apps/web/app/portal/layout.tsx
+M	apps/web/app/portal/page.tsx
+M	apps/web/app/portal/settings/page.tsx
+A	apps/web/app/portal/supplier/chat/page.tsx
+A	apps/web/app/portal/supplier/products/add/page.tsx
+A	apps/web/app/portal/supplier/products/page.tsx
+A	apps/web/app/portal/supplier/shop/page.tsx
+M	apps/web/lib/casl.ts
+M	packages/common/src/types/index.ts
+A	packages/ui/src/components/dialog.tsx
+
+commit c56c990c1f66b231f8bfb8d4e2ea9dae10d89372
+Author: Dian Setiawan <diansetiawan2121@gmail.com>
+Date:   Wed Mar 18 00:44:49 2026 +0800
+
+    feat: Add admin pages for menu, role, and permission management, including a new confirm modal UI component.
+
+M	apps/web/app/portal/admin/menus/page.tsx
+M	apps/web/app/portal/admin/permissions/page.tsx
+M	apps/web/app/portal/admin/roles/page.tsx
+A	packages/ui/src/components/confirm-modal.tsx
+
+commit 2f19da4ed43d1b3bde836066f1d4030ac932e9ce
+Author: Dian Setiawan <diansetiawan2121@gmail.com>
+Date:   Wed Mar 18 00:16:14 2026 +0800
+
+    feat: Implement a comprehensive menu management system with dedicated API, admin UI, and client-side hooks, and introduce a new Toast UI component.
+
+M	apps/api/src/modules/access-control/menus/menus.controller.ts
+M	apps/api/src/modules/access-control/menus/menus.service.ts
+M	apps/web/app/layout.tsx
+M	apps/web/app/portal/admin/menus/page.tsx
+M	apps/web/components/providers.tsx
+A	apps/web/hooks/use-menu-context.tsx
+M	apps/web/hooks/use-user-menu.ts
+M	apps/web/lib/services/menus.service.ts
+M	packages/common/src/types/casl.ts
+M	packages/ui/src/components/toast.tsx
+
+commit 21fac8ec7fb3ce3c46ee3271464553220e3d79e4
+Author: Dian Setiawan <diansetiawan2121@gmail.com>
+Date:   Tue Mar 17 22:13:10 2026 +0800
+
+    feat: Add a global Redis cache module and service, and update .gitignore to reflect new Foundry artifact paths.
+
+M	.gitignore
+A	apps/api/src/modules/cache/cache.module.ts
+A	apps/api/src/modules/cache/cache.service.ts
+
+commit 7ff23b25d4bcdf17d4138c13fc7c97e9343e4ade
+Author: Dian Setiawan <diansetiawan2121@gmail.com>
+Date:   Tue Mar 17 21:38:18 2026 +0800
+
+    feat: Implement comprehensive role and menu management with RBAC, including API services, database seeding, and administrative UI.
+
+M	apps/api/package.json
+M	apps/api/src/database/seeds/menu.seed.ts
+M	apps/api/src/database/seeds/permission.seed.ts
+M	apps/api/src/database/seeds/role-menu.seed.ts
+M	apps/api/src/database/seeds/role-permission.seed.ts
+M	apps/api/src/main.ts
+M	apps/api/src/modules/access-control/menus/menus.module.ts
+M	apps/api/src/modules/access-control/menus/menus.service.ts
+M	apps/api/src/modules/access-control/roles/roles.service.ts
+M	apps/web/app/portal/admin/layout.tsx
+M	apps/web/app/portal/admin/menus/page.tsx
+M	apps/web/app/portal/admin/roles/page.tsx
+M	apps/web/app/portal/layout.tsx
+M	package.json
+A	packages/ui/src/components/popover.tsx
+
+commit 0dc80eabe1b2b00012ca41953c1d039f134b85f0
+Merge: d9b88a4 713f64f
+Author: Ilyas Nur Rohman <139189668+Ilyasrhmn@users.noreply.github.com>
+Date:   Tue Mar 17 19:05:47 2026 +0700
+
+    Merge pull request #8 from Ilyasrhmn/feature/initial-frontend
+    
+    feat: Introduce new portal pages for live checkpoints, incidents, audΓÇª
+
+commit 713f64f32e7b014fc8001faeb74df1a80467146b
+Merge: 504b4f8 d9b88a4
+Author: Dian Setiawan <diansetiawan2121@gmail.com>
+Date:   Tue Mar 17 19:59:16 2026 +0800
+
+    Merge remote-tracking branch 'origin/master' into feature/initial-frontend
+
+commit 504b4f8581751c304d6bf3d7c4aa6e69eff7cfae
+Author: Ilyasrhmn <ilyasnurrohman14@gmail.com>
+Date:   Tue Mar 17 18:58:54 2026 +0700
+
+    feat: Introduce new portal pages for live checkpoints, incidents, audit, and SOP, integrate CASL, and add specifications for incident management and AI monitoring initiatives.
+
+M	apps/web/app/portal/audit/page.tsx
+M	apps/web/app/portal/checkpoints/page.tsx
+A	apps/web/app/portal/incidents/page.tsx
+M	apps/web/app/portal/layout.tsx
+M	apps/web/app/portal/live/page.tsx
+A	apps/web/app/portal/sop/page.tsx
+M	apps/web/lib/casl.ts
+A	openspec/changes/incident-tech-center-refinement/.openspec.yaml
+A	openspec/changes/incident-tech-center-refinement/design.md
+A	openspec/changes/incident-tech-center-refinement/proposal.md
+A	openspec/changes/incident-tech-center-refinement/specs/fraud-proof-incidents/spec.md
+A	openspec/changes/incident-tech-center-refinement/specs/monitoring-sidebar/spec.md
+A	openspec/changes/incident-tech-center-refinement/specs/refined-monitoring-navigation/spec.md
+A	openspec/changes/incident-tech-center-refinement/specs/technical-incident-reporting/spec.md
+A	openspec/changes/incident-tech-center-refinement/tasks.md
+A	openspec/changes/monitoring-kepatuhan-ai-overhaul/.openspec.yaml
+A	openspec/changes/monitoring-kepatuhan-ai-overhaul/design.md
+A	openspec/changes/monitoring-kepatuhan-ai-overhaul/proposal.md
+A	openspec/changes/monitoring-kepatuhan-ai-overhaul/specs/fraud-proof-incidents/spec.md
+A	openspec/changes/monitoring-kepatuhan-ai-overhaul/specs/integrated-sop-manual/spec.md
+A	openspec/changes/monitoring-kepatuhan-ai-overhaul/specs/live-checkpoint-execution/spec.md
+A	openspec/changes/monitoring-kepatuhan-ai-overhaul/specs/monitoring-sidebar/spec.md
+A	openspec/changes/monitoring-kepatuhan-ai-overhaul/specs/operational-health-scoring/spec.md
+A	openspec/changes/monitoring-kepatuhan-ai-overhaul/specs/rbac-implementation/spec.md
+A	openspec/changes/monitoring-kepatuhan-ai-overhaul/tasks.md
+M	packages/common/src/types/casl.ts
+
+commit d9b88a415211916f05595ac404f76ada25c775cd
+Merge: 743cb15 9e13928
+Author: Dian Setiawan <39780760+yandiaan@users.noreply.github.com>
+Date:   Tue Mar 17 19:57:27 2026 +0800
+
+    Merge pull request #7 from Ilyasrhmn/feature/rbac
+    
+    Feature/rbac
+
+commit 9e1392843fc40e535e5790c17851421c3576ae0f
+Merge: 2cd74ff 743cb15
+Author: Dian Setiawan <diansetiawan2121@gmail.com>
+Date:   Tue Mar 17 19:51:49 2026 +0800
+
+    Merge remote-tracking branch 'origin/master' into feature/rbac
+
+commit 2cd74ff77ea2992a566ef4546009355692c1bf22
+Author: Dian Setiawan <diansetiawan2121@gmail.com>
+Date:   Tue Mar 17 19:42:13 2026 +0800
+
+    feat: Implement comprehensive access control and RBAC, including permissions, roles, and menu management across both API and web applications.
+
+A	.github/prompts/opsx-apply.prompt.md
+A	.github/prompts/opsx-archive.prompt.md
+A	.github/prompts/opsx-bulk-archive.prompt.md
+A	.github/prompts/opsx-continue.prompt.md
+A	.github/prompts/opsx-explore.prompt.md
+A	.github/prompts/opsx-ff.prompt.md
+A	.github/prompts/opsx-new.prompt.md
+A	.github/prompts/opsx-onboard.prompt.md
+A	.github/prompts/opsx-propose.prompt.md
+A	.github/prompts/opsx-sync.prompt.md
+A	.github/prompts/opsx-verify.prompt.md
+A	.github/skills/openspec-apply-change/SKILL.md
+A	.github/skills/openspec-archive-change/SKILL.md
+A	.github/skills/openspec-bulk-archive-change/SKILL.md
+A	.github/skills/openspec-continue-change/SKILL.md
+A	.github/skills/openspec-explore/SKILL.md
+A	.github/skills/openspec-ff-change/SKILL.md
+A	.github/skills/openspec-new-change/SKILL.md
+A	.github/skills/openspec-onboard/SKILL.md
+A	.github/skills/openspec-propose/SKILL.md
+A	.github/skills/openspec-sync-specs/SKILL.md
+A	.github/skills/openspec-verify-change/SKILL.md
+A	.qwen/commands/opsx-apply.toml
+A	.qwen/commands/opsx-archive.toml
+A	.qwen/commands/opsx-bulk-archive.toml
+A	.qwen/commands/opsx-continue.toml
+A	.qwen/commands/opsx-explore.toml
+A	.qwen/commands/opsx-ff.toml
+A	.qwen/commands/opsx-new.toml
+A	.qwen/commands/opsx-onboard.toml
+A	.qwen/commands/opsx-propose.toml
+A	.qwen/commands/opsx-sync.toml
+A	.qwen/commands/opsx-verify.toml
+M	apps/api/.env.example
+M	apps/api/package.json
+M	apps/api/src/app.module.ts
+A	apps/api/src/common/filters/all-exceptions.filter.ts
+A	apps/api/src/database/migrations/1710500000000-CreateAccessControlTables.ts
+A	apps/api/src/database/seeds/menu.seed.ts
+A	apps/api/src/database/seeds/permission.seed.ts
+A	apps/api/src/database/seeds/role-menu.seed.ts
+A	apps/api/src/database/seeds/role-permission.seed.ts
+A	apps/api/src/database/seeds/role.seed.ts
+M	apps/api/src/main.ts
+A	apps/api/src/modules/access-control/access-control.module.ts
+A	apps/api/src/modules/access-control/common/admin.guard.ts
+A	apps/api/src/modules/access-control/common/decorators.ts
+A	apps/api/src/modules/access-control/common/permissions.guard.ts
+A	apps/api/src/modules/access-control/common/roles.guard.ts
+A	apps/api/src/modules/access-control/menus/dto/menu.dto.ts
+A	apps/api/src/modules/access-control/menus/entities/index.ts
+A	apps/api/src/modules/access-control/menus/entities/menu.entity.ts
+A	apps/api/src/modules/access-control/menus/entities/role-menu.entity.ts
+A	apps/api/src/modules/access-control/menus/menus.controller.ts
+A	apps/api/src/modules/access-control/menus/menus.module.ts
+A	apps/api/src/modules/access-control/menus/menus.service.ts
+A	apps/api/src/modules/access-control/permissions/dto/permission.dto.ts
+A	apps/api/src/modules/access-control/permissions/entities/index.ts
+A	apps/api/src/modules/access-control/permissions/entities/permission.entity.ts
+A	apps/api/src/modules/access-control/permissions/permissions.controller.ts
+A	apps/api/src/modules/access-control/permissions/permissions.module.ts
+A	apps/api/src/modules/access-control/permissions/permissions.service.ts
+A	apps/api/src/modules/access-control/roles/dto/role.dto.ts
+A	apps/api/src/modules/access-control/roles/entities/menu.entity.ts
+A	apps/api/src/modules/access-control/roles/entities/role-permission.entity.ts
+A	apps/api/src/modules/access-control/roles/entities/role.entity.ts
+A	apps/api/src/modules/access-control/roles/roles.controller.ts
+A	apps/api/src/modules/access-control/roles/roles.module.ts
+A	apps/api/src/modules/access-control/roles/roles.service.ts
+M	apps/api/src/modules/auth/auth.module.ts
+M	apps/api/src/modules/auth/auth.service.ts
+M	apps/api/src/modules/auth/casl-ability.factory.ts
+A	apps/api/src/modules/auth/decorators/current-user.decorator.ts
+M	apps/api/src/modules/auth/guards/policies.guard.ts
+M	apps/api/src/modules/auth/strategies/jwt.strategy.ts
+A	apps/api/src/scripts/generate-password-hash.ts
+A	apps/api/test/README.md
+A	apps/api/test/casl-ability-factory.e2e-spec.ts
+A	apps/api/test/guards.e2e-spec.ts
+A	apps/api/test/jest-e2e.json
+A	apps/api/test/jwt-permissions.e2e-spec.ts
+A	apps/api/test/menus.e2e-spec.ts
+A	apps/api/test/permissions.e2e-spec.ts
+A	apps/api/test/roles.e2e-spec.ts
+M	apps/web/app/login/page.tsx
+A	apps/web/app/portal/admin/layout.tsx
+A	apps/web/app/portal/admin/menus/page.tsx
+A	apps/web/app/portal/admin/page.tsx
+A	apps/web/app/portal/admin/permissions/page.tsx
+A	apps/web/app/portal/admin/roles/page.tsx
+M	apps/web/app/portal/layout.tsx
+A	apps/web/e2e/admin-navigation.spec.ts
+A	apps/web/e2e/roles-workflow.spec.ts
+M	apps/web/hooks/use-auth.tsx
+A	apps/web/hooks/use-user-menu.ts
+A	apps/web/jest.config.cjs
+A	apps/web/jest.setup.cjs
+A	apps/web/lib/components/permission-guards.tsx
+A	apps/web/lib/hooks/use-permission.tsx
+A	apps/web/lib/services/__tests__/menus.service.test.ts
+A	apps/web/lib/services/__tests__/permissions.service.test.ts
+A	apps/web/lib/services/__tests__/roles.service.test.ts
+A	apps/web/lib/services/auth.service.ts
+A	apps/web/lib/services/error-handler.ts
+A	apps/web/lib/services/menus.service.ts
+A	apps/web/lib/services/permissions.service.ts
+A	apps/web/lib/services/roles.service.ts
+M	apps/web/package.json
+A	apps/web/playwright.config.ts
+A	docs/access-control/API.md
+A	docs/access-control/BUGFIXES.md
+A	docs/access-control/DEPLOYMENT.md
+A	docs/access-control/DEVELOPER_GUIDE.md
+A	docs/access-control/FEATURE_FLAGS.md
+A	docs/access-control/IMPLEMENTATION_COMPLETE.md
+A	docs/access-control/LOGIN_FIX.md
+A	docs/access-control/LOGIN_IMPLEMENTATION_COMPLETE.md
+A	docs/access-control/LOGIN_QUICK_REFERENCE.md
+A	docs/access-control/README.md
+A	docs/access-control/USER_GUIDE.md
+A	openspec/changes/access-control-mgmt/.openspec.yaml
+A	openspec/changes/access-control-mgmt/design.md
+A	openspec/changes/access-control-mgmt/proposal.md
+A	openspec/changes/access-control-mgmt/specs/access-control-api/spec.md
+A	openspec/changes/access-control-mgmt/specs/admin-ui/spec.md
+A	openspec/changes/access-control-mgmt/specs/menu-management/spec.md
+A	openspec/changes/access-control-mgmt/specs/permission-management/spec.md
+A	openspec/changes/access-control-mgmt/specs/rbac-implementation/spec.md
+A	openspec/changes/access-control-mgmt/specs/role-management/spec.md
+A	openspec/changes/access-control-mgmt/tasks.md
+M	packages/common/src/types/casl.ts
+M	packages/ui/src/components/button.tsx
+M	pnpm-lock.yaml
+
+commit 9c37c36f8ef1143e877a55fcad8eed2b93f172d8
+Author: Dian Setiawan <diansetiawan2121@gmail.com>
+Date:   Tue Mar 17 03:35:57 2026 +0800
+
+    fix: transform role object to string in auth responses
+    
+    Resolves React error: 'Objects are not valid as a React child'
+    
+    Issue: After migrating User.role to foreign key relation, the login/register
+    endpoints were returning the full Role object {id, name, description, ...}
+    instead of just the role string, causing React to fail when trying to render
+    the role value.
+    
+    Changes:
+    - Transform login response to return role as uppercase string (ADMIN_BGN)
+    - Transform register response to return role as string
+    - Frontend continues to work with role as string enum
+    
+    Tested:
+    Γ£à Login returns role as String, not Object
+    Γ£à roleId still included in response
+    Γ£à Frontend can render user.role without errors
+    
+    Co-authored-by: Copilot <223556219+Copilot@users.noreply.github.com>
+
+M	apps/api/src/modules/auth/auth.service.ts
+
+commit c5ad0479de6ff1cc6cc5c4c8355832a8c6e8f41a
+Author: Dian Setiawan <diansetiawan2121@gmail.com>
+Date:   Tue Mar 17 03:29:20 2026 +0800
+
+    fix: migrate User.role from enum to foreign key relation
+    
+    Resolves UUID type mismatch error when querying role_menus table.
+    
+    Changes:
+    - Add role_id (UUID) column to users table with FK to roles
+    - Rename old role enum to role_legacy for backward compatibility
+    - Update User entity with roleId field and Role relation
+    - Update AuthService to lookup roles by name and use roleId
+    - Update UsersService to load role relation
+    - Update user seeder to populate roleId from roles table
+    - Add migration: MigrateUserRoleToRelation1710600000000
+    
+    Benefits:
+    - Proper relational database design with referential integrity
+    - Fixes 'invalid input syntax for type uuid' error
+    - Maintains backward compatibility with role_legacy field
+    - JWT payload includes both role enum and roleId UUID
+    
+    Tested:
+    Γ£à Login endpoint returns roleId
+    Γ£à Menu endpoint works with roleId from JWT
+    Γ£à No more UUID type errors
+    
+    Co-authored-by: Copilot <223556219+Copilot@users.noreply.github.com>
+
+A	MIGRATION_SUMMARY.md
+A	apps/api/src/database/migrations/1710600000000-MigrateUserRoleToRelation.ts
+M	apps/api/src/database/seeds/user.seed.ts
+M	apps/api/src/modules/auth/auth.service.ts
+M	apps/api/src/modules/users/entities/user.entity.ts
+M	apps/api/src/modules/users/users.service.ts
+
+commit 743cb1516380f65e1067576fff5b0e893e00855b
+Merge: 0af9a35 be324e1
+Author: Ilyas Nur Rohman <139189668+Ilyasrhmn@users.noreply.github.com>
+Date:   Tue Mar 17 00:37:03 2026 +0700
+
+    Merge pull request #6 from Ilyasrhmn/feature/initial-frontend
+    
+    feat: Implement openspec change management, integrate AI agent skillsΓÇª
+
+commit be324e10bf8415a39e7b4f48620a4225d3fd8fbf
+Author: Ilyasrhmn <ilyasnurrohman14@gmail.com>
+Date:   Tue Mar 17 00:36:25 2026 +0700
+
+    feat: Implement openspec change management, integrate AI agent skills and workflows, and add new operational portal pages.
+
+A	%TEMP%install-qwen.bat
+A	.qwen/commands/opsx-apply.toml
+A	.qwen/commands/opsx-archive.toml
+A	.qwen/commands/opsx-bulk-archive.toml
+A	.qwen/commands/opsx-continue.toml
+A	.qwen/commands/opsx-explore.toml
+A	.qwen/commands/opsx-ff.toml
+A	.qwen/commands/opsx-new.toml
+A	.qwen/commands/opsx-onboard.toml
+A	.qwen/commands/opsx-propose.toml
+A	.qwen/commands/opsx-sync.toml
+A	.qwen/commands/opsx-verify.toml
+A	Screenshot 2026-03-16 211417.png
+M	apps/web/app/portal/layout.tsx
+M	apps/web/app/portal/menu/page.tsx
+M	apps/web/app/portal/operasional/jadwal/page.tsx
+M	apps/web/app/portal/operasional/kalkulasi-bahan/page.tsx
+A	openspec/changes/perencanaan-operasional-overhaul/.openspec.yaml
+A	openspec/changes/perencanaan-operasional-overhaul/design.md
+A	openspec/changes/perencanaan-operasional-overhaul/proposal.md
+A	openspec/changes/perencanaan-operasional-overhaul/specs/ingredient-scaling/spec.md
+A	openspec/changes/perencanaan-operasional-overhaul/specs/menu-planner/spec.md
+A	openspec/changes/perencanaan-operasional-overhaul/specs/planning-hub/spec.md
+A	openspec/changes/perencanaan-operasional-overhaul/tasks.md
+
+commit 0af9a351d20637521e57e2f66eb17f0d0b6f0066
+Merge: d72e698 c09815e
+Author: Ilyas Nur Rohman <139189668+Ilyasrhmn@users.noreply.github.com>
+Date:   Mon Mar 16 21:04:28 2026 +0700
+
+    Merge pull request #5 from Ilyasrhmn/feature/initial-frontend
+    
+    feat: Add new operational pages for material calculation, kitchen SOPΓÇª
+
+commit c09815e34f3b3618f90622865c882a5831cb5f7c
+Merge: b5f2bfe d72e698
+Author: Ilyasrhmn <ilyasnurrohman14@gmail.com>
+Date:   Mon Mar 16 21:03:51 2026 +0700
+
+    Merge remote-tracking branch 'origin/master' into feature/initial-frontend
+
+commit b5f2bfe53f2f011400a83758deb489fa0c17952b
+Author: Ilyasrhmn <ilyasnurrohman14@gmail.com>
+Date:   Mon Mar 16 21:00:25 2026 +0700
+
+    feat: Add new operational pages for material calculation, kitchen SOP, stock opname, and schedule, along with a new portal layout.
+
+M	apps/web/app/portal/layout.tsx
+A	apps/web/app/portal/operasional/jadwal/page.tsx
+A	apps/web/app/portal/operasional/kalkulasi-bahan/page.tsx
+A	apps/web/app/portal/operasional/kitchen-sop/page.tsx
+A	apps/web/app/portal/operasional/stock-opname/page.tsx
+
+commit d72e698a1f40fa9e15117f7519f980f7a6f48736
+Author: Dian Setiawan <diansetiawan2121@gmail.com>
+Date:   Mon Mar 16 20:47:33 2026 +0800
+
+    refactor: Implement CASL-based Role-Based Access Control with shared types, API policies, and frontend ability checks.
+
+A	apps/api/SEEDERS.md
+M	apps/api/package.json
+M	apps/api/src/app.controller.ts
+A	apps/api/src/database/seeds/user.seed.ts
+M	apps/api/src/modules/auth/auth.module.ts
+A	apps/api/src/modules/auth/casl-ability.factory.ts
+A	apps/api/src/modules/auth/decorators/check-policies.decorator.ts
+A	apps/api/src/modules/auth/guards/policies.guard.ts
+M	apps/web/app/login/page.tsx
+M	apps/web/app/portal/layout.tsx
+M	apps/web/hooks/use-auth.tsx
+M	apps/web/lib/casl.ts
+M	apps/web/package.json
+A	openspec/changes/archive/2026-03-16-refactor-casl-rbac/.openspec.yaml
+A	openspec/changes/archive/2026-03-16-refactor-casl-rbac/design.md
+A	openspec/changes/archive/2026-03-16-refactor-casl-rbac/proposal.md
+A	openspec/changes/archive/2026-03-16-refactor-casl-rbac/specs/rbac-implementation/spec.md
+A	openspec/changes/archive/2026-03-16-refactor-casl-rbac/tasks.md
+A	openspec/specs/rbac-implementation/spec.md
+A	packages/common/src/types/casl.ts
+M	packages/common/src/types/index.ts
+M	packages/modules/package.json
+M	pnpm-lock.yaml
+
+commit c0467beeefdbad9d6366ebad1039ceea525027b4
+Author: Dian Setiawan <diansetiawan2121@gmail.com>
+Date:   Mon Mar 16 20:00:26 2026 +0800
+
+    feat: Initiate CASL RBAC refactor by introducing shared permission types, design specifications, and new `opsx` change management commands.
+
+A	.qwen/commands/opsx-apply.md
+R100	.qwen/commands/opsx-apply.toml	.qwen/commands/opsx-apply.toml.backup
+A	.qwen/commands/opsx-archive.md
+R100	.qwen/commands/opsx-archive.toml	.qwen/commands/opsx-archive.toml.backup
+A	.qwen/commands/opsx-bulk-archive.md
+R100	.qwen/commands/opsx-bulk-archive.toml	.qwen/commands/opsx-bulk-archive.toml.backup
+A	.qwen/commands/opsx-continue.md
+R100	.qwen/commands/opsx-continue.toml	.qwen/commands/opsx-continue.toml.backup
+A	.qwen/commands/opsx-explore.md
+R100	.qwen/commands/opsx-explore.toml	.qwen/commands/opsx-explore.toml.backup
+A	.qwen/commands/opsx-ff.md
+R100	.qwen/commands/opsx-ff.toml	.qwen/commands/opsx-ff.toml.backup
+A	.qwen/commands/opsx-new.md
+R100	.qwen/commands/opsx-new.toml	.qwen/commands/opsx-new.toml.backup
+A	.qwen/commands/opsx-onboard.md
+R100	.qwen/commands/opsx-onboard.toml	.qwen/commands/opsx-onboard.toml.backup
+A	.qwen/commands/opsx-propose.md
+R100	.qwen/commands/opsx-propose.toml	.qwen/commands/opsx-propose.toml.backup
+A	.qwen/commands/opsx-sync.md
+R100	.qwen/commands/opsx-sync.toml	.qwen/commands/opsx-sync.toml.backup
+A	.qwen/commands/opsx-verify.md
+R100	.qwen/commands/opsx-verify.toml	.qwen/commands/opsx-verify.toml.backup
+
+commit 9d5a6167559a19b569a8314675dd890d97a0f011
+Author: Dian Setiawan <diansetiawan2121@gmail.com>
+Date:   Mon Mar 16 19:45:58 2026 +0800
+
+    feat: Implement the OpenSpec framework with new commands, skills, and an example CASL RBAC refactor change.
+
+A	.qwen/commands/opsx-apply.toml
+A	.qwen/commands/opsx-archive.toml
+A	.qwen/commands/opsx-bulk-archive.toml
+A	.qwen/commands/opsx-continue.toml
+A	.qwen/commands/opsx-explore.toml
+A	.qwen/commands/opsx-ff.toml
+A	.qwen/commands/opsx-new.toml
+A	.qwen/commands/opsx-onboard.toml
+A	.qwen/commands/opsx-propose.toml
+A	.qwen/commands/opsx-sync.toml
+A	.qwen/commands/opsx-verify.toml
+A	.qwen/skills/openspec-apply-change/SKILL.md
+A	.qwen/skills/openspec-archive-change/SKILL.md
+A	.qwen/skills/openspec-bulk-archive-change/SKILL.md
+A	.qwen/skills/openspec-continue-change/SKILL.md
+A	.qwen/skills/openspec-explore/SKILL.md
+A	.qwen/skills/openspec-ff-change/SKILL.md
+A	.qwen/skills/openspec-new-change/SKILL.md
+A	.qwen/skills/openspec-onboard/SKILL.md
+A	.qwen/skills/openspec-propose/SKILL.md
+A	.qwen/skills/openspec-sync-specs/SKILL.md
+A	.qwen/skills/openspec-verify-change/SKILL.md
+
+commit 38d1a412bf3e79aa45a5a892ff52592fbd29399e
+Author: Dian Setiawan <diansetiawan2121@gmail.com>
+Date:   Mon Mar 16 19:43:16 2026 +0800
+
+    feat: Introduce OPSX workflows and openspec skills for artifact-driven change management, including an initial CASL RBAC refactor proposal.
+
+A	.agent/skills/openspec-apply-change/SKILL.md
+A	.agent/skills/openspec-archive-change/SKILL.md
+A	.agent/skills/openspec-bulk-archive-change/SKILL.md
+A	.agent/skills/openspec-continue-change/SKILL.md
+A	.agent/skills/openspec-explore/SKILL.md
+A	.agent/skills/openspec-ff-change/SKILL.md
+A	.agent/skills/openspec-new-change/SKILL.md
+A	.agent/skills/openspec-onboard/SKILL.md
+A	.agent/skills/openspec-propose/SKILL.md
+A	.agent/skills/openspec-sync-specs/SKILL.md
+A	.agent/skills/openspec-verify-change/SKILL.md
+A	.agent/workflows/opsx-apply.md
+A	.agent/workflows/opsx-archive.md
+A	.agent/workflows/opsx-bulk-archive.md
+A	.agent/workflows/opsx-continue.md
+A	.agent/workflows/opsx-explore.md
+A	.agent/workflows/opsx-ff.md
+A	.agent/workflows/opsx-new.md
+A	.agent/workflows/opsx-onboard.md
+A	.agent/workflows/opsx-propose.md
+A	.agent/workflows/opsx-sync.md
+A	.agent/workflows/opsx-verify.md
+
+commit 041494ca31612b3759c4e77500fc34c8d8b367e8
+Author: Dian Setiawan <diansetiawan2121@gmail.com>
+Date:   Mon Mar 16 18:26:25 2026 +0800
+
+    feat: introduce OpenSpec skills and opsx commands for change management.
+
+A	.gemini/commands/opsx/apply.toml
+A	.gemini/commands/opsx/archive.toml
+A	.gemini/commands/opsx/bulk-archive.toml
+A	.gemini/commands/opsx/continue.toml
+A	.gemini/commands/opsx/explore.toml
+A	.gemini/commands/opsx/ff.toml
+A	.gemini/commands/opsx/new.toml
+A	.gemini/commands/opsx/onboard.toml
+A	.gemini/commands/opsx/propose.toml
+A	.gemini/commands/opsx/sync.toml
+A	.gemini/commands/opsx/verify.toml
+A	.gemini/skills/openspec-apply-change/SKILL.md
+A	.gemini/skills/openspec-archive-change/SKILL.md
+A	.gemini/skills/openspec-bulk-archive-change/SKILL.md
+A	.gemini/skills/openspec-continue-change/SKILL.md
+A	.gemini/skills/openspec-explore/SKILL.md
+A	.gemini/skills/openspec-ff-change/SKILL.md
+A	.gemini/skills/openspec-new-change/SKILL.md
+A	.gemini/skills/openspec-onboard/SKILL.md
+A	.gemini/skills/openspec-propose/SKILL.md
+A	.gemini/skills/openspec-sync-specs/SKILL.md
+A	.gemini/skills/openspec-verify-change/SKILL.md
+A	openspec/config.yaml
+
+commit dad4b078b98c9ea63bd9aada204e9e1cc53678ea
+Merge: e86a0ff 1850616
+Author: Ilyas Nur Rohman <139189668+Ilyasrhmn@users.noreply.github.com>
+Date:   Mon Mar 16 17:15:35 2026 +0700
+
+    Merge pull request #4 from Ilyasrhmn/feature/initial-frontend
+    
+    feat: Implement initial web application with authentication, portal pΓÇª
+
+commit 18506167321b95242abd8b457d56d6f1345e76f7
+Author: Ilyasrhmn <ilyasnurrohman14@gmail.com>
+Date:   Mon Mar 16 17:14:43 2026 +0700
+
+    feat: Implement initial web application with authentication, portal pages, and new UI components.
+
+M	apps/web/app/login/page.tsx
+A	apps/web/app/portal/checkpoints/page.tsx
+M	apps/web/app/portal/layout.tsx
+A	apps/web/app/portal/live/page.tsx
+A	apps/web/app/portal/marketplace/[supplierId]/page.tsx
+A	apps/web/app/portal/marketplace/page.tsx
+A	apps/web/app/portal/menu/page.tsx
+M	apps/web/app/register/page.tsx
+M	apps/web/components/providers.tsx
+A	apps/web/hooks/use-auth.tsx
+A	apps/web/lib/casl.ts
+M	apps/web/package.json
+A	packages/ui/src/components/alert.tsx
+M	packages/ui/src/components/checkbox.tsx
+A	packages/ui/src/components/separator.tsx
+A	packages/ui/src/components/textarea.tsx
+M	pnpm-lock.yaml
+
+commit e86a0ff0d21a708aa3f7a5b222d5010ca57120f7
+Merge: d711254 835a2a7
+Author: Ilyas Nur Rohman <139189668+Ilyasrhmn@users.noreply.github.com>
+Date:   Sun Mar 15 19:34:01 2026 +0700
+
+    Merge pull request #3 from Ilyasrhmn/feature/initial-frontend
+    
+    feat: Implement a new user registration flow with role selection and ΓÇª
+
+commit 835a2a7baedf51febeebef533e9b542f047ea584
+Author: Ilyasrhmn <ilyasnurrohman14@gmail.com>
+Date:   Sun Mar 15 19:30:21 2026 +0700
+
+    feat: Implement a new user registration flow with role selection and a multi-step supplier onboarding process.
+
+M	apps/web/app/register/page.tsx
+A	apps/web/app/register/supplier/page.tsx
+A	apps/web/app/register/vendor/page.tsx
+
+commit d71125444ecc65e1815beeea116d5c600e3595d3
+Merge: 7a96618 77d24f1
+Author: Ilyas Nur Rohman <139189668+Ilyasrhmn@users.noreply.github.com>
+Date:   Sun Mar 15 02:14:07 2026 +0700
+
+    Merge pull request #2 from Ilyasrhmn/feature/initial-frontend
+    
+    feat: Implement initial application structure including authenticatioΓÇª
+
+commit 77d24f17f3a2f0805991bc25546fe75c777fd447
+Author: Ilyasrhmn <ilyasnurrohman14@gmail.com>
+Date:   Sun Mar 15 02:13:05 2026 +0700
+
+    feat: Implement initial application structure including authentication pages, portal settings, API service, and core UI components.
+
+M	apps/api/src/app.service.ts
+M	apps/api/src/database/migrations/1710400000000-InitialSchema.ts
+M	apps/api/tsconfig.json
+M	apps/web/app/layout.tsx
+M	apps/web/app/login/page.tsx
+M	apps/web/app/portal/layout.tsx
+M	apps/web/app/portal/settings/page.tsx
+M	apps/web/app/register/page.tsx
+M	apps/web/lib/api-client.ts
+M	apps/web/package.json
+A	apps/web/proxy.ts
+M	packages/common/package.json
+M	packages/common/tsconfig.json
+M	packages/contract-types/package.json
+M	packages/contract-types/tsconfig.json
+M	packages/modules/src/landing/Navbar.tsx
+A	packages/ui/src/components/toast.tsx
+A	packages/ui/src/components/toaster.tsx
+A	packages/ui/src/hooks/use-toast.ts
+M	pnpm-lock.yaml
+
+commit 7a966181c20ef2b5fe260afdf3b5a952298f298d
+Merge: 4428526 ee28d70
+Author: Dian Setiawan <diansetiawan2121@gmail.com>
+Date:   Sun Mar 15 01:13:41 2026 +0800
+
+    Merge remote-tracking branch 'origin/master'
+
+commit ee28d707fb4f26ede92f780e8d54f3deb3c11f01
+Merge: f5a7637 2c718bf
+Author: Ilyas Nur Rohman <139189668+Ilyasrhmn@users.noreply.github.com>
+Date:   Sun Mar 15 00:15:07 2026 +0700
+
+    Merge pull request #1 from Ilyasrhmn/feature/initial-frontend
+    
+    feat: Initialize core web application with login, registration, and pΓÇª
+
+commit 2c718bfd278496495ebb7ee64a1cccdfe7600ffe
+Author: Ilyasrhmn <ilyasnurrohman14@gmail.com>
+Date:   Sun Mar 15 00:13:40 2026 +0700
+
+    feat: Initialize core web application with login, registration, and portal pages, alongside a new set of UI components.
+
+A	apps/web/app/login/page.tsx
+A	apps/web/app/portal/audit/page.tsx
+A	apps/web/app/portal/funds/page.tsx
+A	apps/web/app/portal/layout.tsx
+A	apps/web/app/portal/logistics/page.tsx
+A	apps/web/app/portal/map/page.tsx
+A	apps/web/app/portal/page.tsx
+A	apps/web/app/portal/reports/page.tsx
+A	apps/web/app/portal/settings/page.tsx
+A	apps/web/app/register/page.tsx
+M	apps/web/components/providers.tsx
+M	apps/web/package.json
+A	packages/ui/src/components/accordion.tsx
+A	packages/ui/src/components/avatar.tsx
+A	packages/ui/src/components/badge.tsx
+A	packages/ui/src/components/card.tsx
+A	packages/ui/src/components/checkbox.tsx
+A	packages/ui/src/components/dropdown-menu.tsx
+A	packages/ui/src/components/input.tsx
+A	packages/ui/src/components/label.tsx
+A	packages/ui/src/components/progress.tsx
+A	packages/ui/src/components/scroll-area.tsx
+A	packages/ui/src/components/select.tsx
+A	packages/ui/src/components/table.tsx
+A	packages/ui/src/components/tabs.tsx
+M	pnpm-lock.yaml
+
+commit 44285263d5f548a3cfaafd352c0d4362f20497b0
+Author: Dian Setiawan <diansetiawan2121@gmail.com>
+Date:   Sun Mar 15 01:10:23 2026 +0800
+
+    feat: Implement initial database schema, core API structure, user authentication, and vendor management.
+
+A	apps/api/.env.example
+M	apps/api/package.json
+M	apps/api/src/app.controller.ts
+M	apps/api/src/app.module.ts
+A	apps/api/src/config/data-source.ts
+A	apps/api/src/database/migrations/1710400000000-InitialSchema.ts
+A	apps/api/src/database/migrations/1710400000001-SupplierSchema.ts
+M	apps/api/src/main.ts
+A	apps/api/src/modules/auth/auth.controller.ts
+A	apps/api/src/modules/auth/auth.module.ts
+A	apps/api/src/modules/auth/auth.service.ts
+A	apps/api/src/modules/auth/decorators/roles.decorator.ts
+A	apps/api/src/modules/auth/dto/login.dto.ts
+A	apps/api/src/modules/auth/dto/refresh.dto.ts
+A	apps/api/src/modules/auth/dto/register.dto.ts
+A	apps/api/src/modules/auth/entities/refresh-token.entity.ts
+A	apps/api/src/modules/auth/guards/jwt-auth.guard.ts
+A	apps/api/src/modules/auth/guards/roles.guard.ts
+A	apps/api/src/modules/auth/strategies/jwt.strategy.ts
+A	apps/api/src/modules/users/entities/user.entity.ts
+A	apps/api/src/modules/users/users.module.ts
+A	apps/api/src/modules/users/users.service.ts
+M	apps/api/tsconfig.json
+A	apps/web/lib/api-client.ts
+M	apps/web/package.json
+A	docs/auth-integrations.md
+M	packages/common/src/index.ts
+M	packages/common/src/types/index.ts
+M	pnpm-lock.yaml
+
+commit f5a76379bad82ccda05606d6d9aa091158baede0
+Author: Dian Setiawan <diansetiawan2121@gmail.com>
+Date:   Sat Mar 14 22:39:36 2026 +0800
+
+    feat: initialize Next.js configuration to transpile workspace packages and establish global UI styles with comprehensive theme variables.
+
+M	apps/web/next.config.mjs
+M	packages/ui/src/styles/globals.css
+
+commit fc0a07f3eec01fb96e3afccd44c0ecf6d15bc6b0
+Author: Dian Setiawan <diansetiawan2121@gmail.com>
+Date:   Sat Mar 14 22:30:38 2026 +0800
+
+    feat: introduce global CSS with Tailwind, comprehensive light/dark theme variables, and base styles.
+
+M	packages/ui/src/styles/globals.css
+
+commit 2169970515466c6cf1feb43a9e3da1b3928c1371
+Author: Dian Setiawan <diansetiawan2121@gmail.com>
+Date:   Sat Mar 14 22:19:45 2026 +0800
+
+    feat: Initial landing page
+
+M	apps/web/app/layout.tsx
+M	apps/web/app/page.tsx
+M	apps/web/next-env.d.ts
+M	apps/web/package.json
+M	apps/web/tsconfig.json
+A	packages/modules/package.json
+A	packages/modules/src/landing/Cta.tsx
+A	packages/modules/src/landing/DashboardPreview.tsx
+A	packages/modules/src/landing/Features.tsx
+A	packages/modules/src/landing/Hero.tsx
+A	packages/modules/src/landing/Navbar.tsx
+A	packages/modules/src/landing/Problem.tsx
+A	packages/modules/src/landing/index.ts
+A	packages/modules/tsconfig.json
+M	packages/ui/src/components/button.tsx
+M	packages/ui/src/styles/globals.css
+M	pnpm-lock.yaml
+
+commit 0270f27fcec4c4953224e73387fe41db0aae7c02
+Author: Dian Setiawan <diansetiawan2121@gmail.com>
+Date:   Sat Feb 28 02:14:17 2026 +0700
+
+    feat: Initialize monorepo with API, Contracts, and shared utility packages.
+
+A	.env.example
+M	.gitignore
+A	apps/api/eslint.config.js
+A	apps/api/nest-cli.json
+A	apps/api/package.json
+A	apps/api/src/app.controller.ts
+A	apps/api/src/app.module.ts
+A	apps/api/src/app.service.ts
+A	apps/api/src/main.ts
+A	apps/api/src/modules/health/health.controller.ts
+A	apps/api/src/modules/health/health.module.ts
+A	apps/api/tsconfig.build.json
+A	apps/api/tsconfig.json
+A	apps/contracts/.env.example
+A	apps/contracts/foundry.toml
+A	apps/contracts/package.json
+A	apps/contracts/script/Counter.s.sol
+A	apps/contracts/scripts/deploy.ts
+A	apps/contracts/src/Counter.sol
+A	apps/contracts/test/Counter.t.sol
+A	apps/contracts/tsconfig.json
+M	package.json
+A	packages/common/package.json
+A	packages/common/src/constants/index.ts
+A	packages/common/src/index.ts
+A	packages/common/src/types/index.ts
+A	packages/common/src/utils/index.ts
+A	packages/common/tsconfig.json
+A	packages/contract-types/package.json
+A	packages/contract-types/src/abis/.gitkeep
+A	packages/contract-types/src/index.ts
+A	packages/contract-types/tsconfig.json
+A	packages/eslint-config/nestjs.js
+M	packages/eslint-config/package.json
+A	packages/typescript-config/nestjs.json
+M	pnpm-lock.yaml
+M	turbo.json
+
+commit 9348f260c8c0fc84de8fb75e6706c8dfee5364eb
+Author: Dian Setiawan <dian.setiawan@spesolution.net>
+Date:   Sat Feb 28 01:40:05 2026 +0700
+
+    Initial commit
+
+A	.eslintrc.js
+A	.gitignore
+A	.npmrc
+A	.vscode/settings.json
+A	README.md
+A	apps/web/app/favicon.ico
+A	apps/web/app/layout.tsx
+A	apps/web/app/page.tsx
+A	apps/web/components.json
+A	apps/web/components/.gitkeep
+A	apps/web/components/providers.tsx
+A	apps/web/eslint.config.js
+A	apps/web/hooks/.gitkeep
+A	apps/web/lib/.gitkeep
+A	apps/web/next-env.d.ts
+A	apps/web/next.config.mjs
+A	apps/web/package.json
+A	apps/web/postcss.config.mjs
+A	apps/web/tsconfig.json
+A	package.json
+A	packages/eslint-config/README.md
+A	packages/eslint-config/base.js
+A	packages/eslint-config/next.js
+A	packages/eslint-config/package.json
+A	packages/eslint-config/react-internal.js
+A	packages/typescript-config/README.md
+A	packages/typescript-config/base.json
+A	packages/typescript-config/nextjs.json
+A	packages/typescript-config/package.json
+A	packages/typescript-config/react-library.json
+A	packages/ui/components.json
+A	packages/ui/eslint.config.js
+A	packages/ui/package.json
+A	packages/ui/postcss.config.mjs
+A	packages/ui/src/components/.gitkeep
+A	packages/ui/src/components/button.tsx
+A	packages/ui/src/hooks/.gitkeep
+A	packages/ui/src/lib/utils.ts
+A	packages/ui/src/styles/globals.css
+A	packages/ui/tsconfig.json
+A	packages/ui/tsconfig.lint.json
+A	pnpm-lock.yaml
+A	pnpm-workspace.yaml
+A	tsconfig.json
+A	turbo.json

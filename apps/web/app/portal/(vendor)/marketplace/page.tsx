@@ -2,7 +2,6 @@
 
 import * as React from "react"
 import Link from "next/link"
-import { useAuth } from "@/hooks/use-auth"
 import { 
   Search, 
   MapPin, 
@@ -44,93 +43,9 @@ const categories = [
 ]
 
 export default function MarketplaceHomePage() {
-  const { user } = useAuth()
   const [searchFocused, setSearchFocused] = React.useState(false)
   const [activeCategory, setActiveCategory] = React.useState("all")
   const [likedSuppliers, setLikedSuppliers] = React.useState<string[]>([])
-  const [mounted, setMounted] = React.useState(false)
-
-  React.useEffect(() => {
-    setMounted(true)
-  }, [])
-
-  // Dynamic Theme based on Role
-  const roleName = (user?.role || "Admin").toLowerCase()
-  
-  const getTheme = () => {
-    if (roleName.includes("supplier")) {
-      return {
-        gradient: "from-orange-900 via-orange-800 to-slate-900",
-        badge: "bg-orange-500/20 text-orange-100 border-orange-500/30",
-        iconPulse: "bg-orange-400",
-        iconBox: "bg-orange-500/20",
-        iconColor: "text-orange-300",
-        iconColorDark: "text-orange-600",
-        focusRing: "focus:ring-orange-500/20",
-        buttonPrimary: "bg-orange-600 hover:bg-orange-700",
-        buttonPrimaryActive: "bg-orange-600 text-white shadow-md shadow-orange-500/20",
-        textPrimary: "text-orange-600",
-        textDark: "text-orange-900",
-        textMedium: "text-orange-700",
-        bgLight: "bg-orange-50",
-        borderLight: "border-orange-100",
-        shadowFocus: "ring-orange-500/30",
-        hoverText: "group-hover:text-orange-700",
-        badgeSolid: "bg-orange-500",
-        borderFocus: "focus:border-orange-500",
-        itemFocus: "focus:bg-orange-50 focus:text-orange-900"
-      };
-    }
-    
-    if (roleName.includes("vendor") || roleName.includes("mitra") || roleName.includes("dapur")) {
-      return {
-        gradient: "from-teal-900 via-teal-800 to-slate-900",
-        badge: "bg-teal-500/20 text-teal-100 border-teal-500/30",
-        iconPulse: "bg-emerald-400",
-        iconBox: "bg-teal-500/20",
-        iconColor: "text-teal-300",
-        iconColorDark: "text-teal-600",
-        focusRing: "focus:ring-teal-500/20",
-        buttonPrimary: "bg-teal-600 hover:bg-teal-700",
-        buttonPrimaryActive: "bg-teal-600 text-white shadow-md shadow-teal-500/20",
-        textPrimary: "text-teal-600",
-        textDark: "text-teal-900",
-        textMedium: "text-teal-700",
-        bgLight: "bg-teal-50",
-        borderLight: "border-teal-100",
-        shadowFocus: "ring-teal-500/30",
-        hoverText: "group-hover:text-teal-700",
-        badgeSolid: "bg-teal-500",
-        borderFocus: "focus:border-teal-500",
-        itemFocus: "focus:bg-teal-50 focus:text-teal-900"
-      };
-    }
-  
-    // Admin default (Indigo/Blue)
-    return {
-      gradient: "from-indigo-900 via-indigo-800 to-slate-900",
-      badge: "bg-indigo-500/20 text-indigo-100 border-indigo-500/30",
-      iconPulse: "bg-indigo-400",
-      iconBox: "bg-indigo-500/20",
-      iconColor: "text-indigo-300",
-      iconColorDark: "text-indigo-600",
-      focusRing: "focus:ring-indigo-500/20",
-      buttonPrimary: "bg-indigo-600 hover:bg-indigo-700",
-      buttonPrimaryActive: "bg-indigo-600 text-white shadow-md shadow-indigo-500/20",
-      textPrimary: "text-indigo-600",
-      textDark: "text-indigo-900",
-      textMedium: "text-indigo-700",
-      bgLight: "bg-indigo-50",
-      borderLight: "border-indigo-100",
-      shadowFocus: "ring-indigo-500/30",
-      hoverText: "group-hover:text-indigo-700",
-      badgeSolid: "bg-indigo-500",
-      borderFocus: "focus:border-indigo-500",
-      itemFocus: "focus:bg-indigo-50 focus:text-indigo-900"
-    };
-  };
-
-  const theme = getTheme()
 
   const toggleLike = (id: string) => {
     setLikedSuppliers(prev => 
@@ -241,36 +156,32 @@ export default function MarketplaceHomePage() {
     }
   ]
 
-  if (!mounted) {
-    return <div className="h-screen bg-[#F1F3F6] flex items-center justify-center animate-pulse text-slate-400">Memuat direktori...</div>
-  }
-
   return (
-    <div className="pb-12 animate-in fade-in duration-500">
+    <div className="min-h-screen bg-[#F4F7FA] pb-16 animate-in fade-in duration-500">
       {/* Hero Search Section */}
       <div className="relative overflow-hidden">
-        <div className={cn("absolute inset-0 bg-gradient-to-br", theme.gradient)} />
+        <div className="absolute inset-0 bg-gradient-to-br from-teal-900 via-teal-800 to-teal-950" />
         <div className="absolute inset-0 bg-[linear-gradient(to_right,#ffffff0a_1px,transparent_1px),linear-gradient(to_bottom,#ffffff0a_1px,transparent_1px)] bg-[size:24px_24px]" />
         
-        <div className="relative max-w-7xl mx-auto px-6 pt-10 pb-16">
+        <div className="relative max-w-[1400px] mx-auto px-6 md:px-12 pt-10 pb-16">
           <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-6 mb-10">
             <div className="space-y-3">
-              <Badge className={cn("border font-bold uppercase tracking-widest text-[10px] px-3 py-1 rounded-full backdrop-blur-sm", theme.badge)}>
-                <span className={cn("size-1.5 rounded-full animate-pulse mr-2 inline-block", theme.iconPulse)} /> BGN Verified Directory
+              <Badge className="bg-teal-500/20 text-teal-100 border border-teal-500/30 font-bold uppercase tracking-widest text-[10px] px-3 py-1 rounded-full backdrop-blur-sm">
+                <span className="size-1.5 rounded-full bg-emerald-400 animate-pulse mr-2 inline-block" /> BGN Verified Directory
               </Badge>
               <h1 className="text-3xl md:text-4xl font-extrabold text-white tracking-tight">
                 Direktori Supplier MBG
               </h1>
-              <p className="text-white/80 text-sm md:text-base font-medium mt-1 max-w-xl leading-relaxed">
+              <p className="text-teal-100/80 text-sm md:text-base font-medium mt-1 max-w-xl leading-relaxed">
                 Temukan mitra pemasok tervalidasi di sekitar dapur Anda untuk menjamin kualitas gizi dan ketepatan waktu.
               </p>
             </div>
             <div className="hidden md:flex items-center gap-3 bg-black/20 backdrop-blur-md rounded-2xl p-4 border border-white/10 shrink-0">
-              <div className={cn("size-10 rounded-xl flex items-center justify-center", theme.iconBox)}>
-                <MapPin className={cn("size-5", theme.iconColor)} />
+              <div className="size-10 bg-teal-500/20 rounded-xl flex items-center justify-center">
+                <MapPin className="size-5 text-teal-300" />
               </div>
               <div>
-                <p className={cn("text-[10px] font-bold uppercase tracking-widest", theme.iconColor)}>Titik Dapur (GPS)</p>
+                <p className="text-[10px] font-bold text-teal-200 uppercase tracking-widest">Titik Dapur (GPS)</p>
                 <p className="text-sm font-bold text-white mt-0.5">Sleman, DI Yogyakarta</p>
               </div>
             </div>
@@ -283,7 +194,7 @@ export default function MarketplaceHomePage() {
           )}>
             <div className={cn(
               "flex items-center bg-white rounded-2xl overflow-hidden shadow-xl transition-all duration-500 p-1.5",
-              searchFocused ? `ring-4 ${theme.shadowFocus} shadow-2xl` : "shadow-lg"
+              searchFocused ? "ring-4 ring-teal-500/30 shadow-2xl" : "shadow-lg"
             )}>
               <div className="flex-1 relative flex items-center">
                 <Search className="absolute left-4 size-5 text-slate-400" />
@@ -297,17 +208,17 @@ export default function MarketplaceHomePage() {
               <div className="flex items-center gap-2 pr-2">
                 <div className="h-8 w-px bg-slate-200 mx-2" />
                 <Select defaultValue="sleman">
-                  <SelectTrigger className={cn("w-[140px] h-12 rounded-xl bg-slate-50 border-none shadow-none text-sm font-bold text-slate-700 hover:bg-slate-100 transition-all", theme.focusRing)}>
-                    <MapPin className={cn("size-4 mr-2", theme.iconColorDark)} />
+                  <SelectTrigger className="w-[140px] h-12 rounded-xl bg-slate-50 border-none shadow-none text-sm font-bold text-slate-700 focus:ring-2 focus:ring-teal-500/20 hover:bg-slate-100 transition-all">
+                    <MapPin className="size-4 text-teal-600 mr-2" />
                     <SelectValue placeholder="Lokasi" />
                   </SelectTrigger>
                   <SelectContent className="rounded-xl border-slate-200 shadow-xl">
-                    <SelectItem value="sleman" className={cn("rounded-lg font-bold text-sm py-3 cursor-pointer", theme.itemFocus)}>Sleman</SelectItem>
-                    <SelectItem value="bantul" className={cn("rounded-lg font-bold text-sm py-3 cursor-pointer", theme.itemFocus)}>Bantul</SelectItem>
-                    <SelectItem value="kulonprogo" className={cn("rounded-lg font-bold text-sm py-3 cursor-pointer", theme.itemFocus)}>Kulon Progo</SelectItem>
+                    <SelectItem value="sleman" className="rounded-lg font-bold text-sm py-3 focus:bg-teal-50 focus:text-teal-900 cursor-pointer">Sleman</SelectItem>
+                    <SelectItem value="bantul" className="rounded-lg font-bold text-sm py-3 focus:bg-teal-50 focus:text-teal-900 cursor-pointer">Bantul</SelectItem>
+                    <SelectItem value="kulonprogo" className="rounded-lg font-bold text-sm py-3 focus:bg-teal-50 focus:text-teal-900 cursor-pointer">Kulon Progo</SelectItem>
                   </SelectContent>
                 </Select>
-                <Button className={cn("h-12 px-8 rounded-xl font-bold text-sm gap-2 shadow-md text-white ml-2 transition-all", theme.buttonPrimary)}>
+                <Button className="h-12 px-8 rounded-xl font-bold text-sm gap-2 shadow-md bg-teal-600 hover:bg-teal-700 text-white ml-2 transition-all">
                   <Search className="size-4" />
                   Cari
                 </Button>
@@ -317,17 +228,17 @@ export default function MarketplaceHomePage() {
 
           {/* Quick Stats */}
           <div className="flex flex-wrap items-center gap-6 mt-8">
-            <div className="flex items-center gap-2 text-white/60 text-xs font-semibold">
+            <div className="flex items-center gap-2 text-teal-100/60 text-xs font-semibold">
               <BadgeCheck className="size-4 text-emerald-400" />
               <span><strong className="text-white">127</strong> supplier terverifikasi</span>
             </div>
             <div className="w-px h-4 bg-white/20" />
-            <div className="flex items-center gap-2 text-white/60 text-xs font-semibold">
-              <Package className={cn("size-4", theme.iconPulse)} />
+            <div className="flex items-center gap-2 text-teal-100/60 text-xs font-semibold">
+              <Package className="size-4 text-teal-400" />
               <span><strong className="text-white">2,340</strong> produk tersedia</span>
             </div>
             <div className="w-px h-4 bg-white/20" />
-            <div className="flex items-center gap-2 text-white/60 text-xs font-semibold">
+            <div className="flex items-center gap-2 text-teal-100/60 text-xs font-semibold">
               <Truck className="size-4 text-amber-400" />
               <span>Pengiriman <strong className="text-white">same-day</strong></span>
             </div>
@@ -336,7 +247,7 @@ export default function MarketplaceHomePage() {
       </div>
 
       {/* Category Pills */}
-      <div className="max-w-7xl mx-auto px-6 -mt-8 relative z-10">
+      <div className="max-w-[1400px] mx-auto px-6 md:px-12 -mt-8 relative z-10">
         <div className="bg-white rounded-2xl shadow-md border border-slate-200/60 p-2 flex items-center gap-2 overflow-x-auto ring-1 ring-slate-100">
           {categories.map((cat) => (
             <button
@@ -345,7 +256,7 @@ export default function MarketplaceHomePage() {
               className={cn(
                 "flex items-center gap-2 px-5 py-3 rounded-xl text-xs font-bold whitespace-nowrap transition-all duration-300",
                 activeCategory === cat.value
-                  ? theme.buttonPrimaryActive
+                  ? "bg-teal-600 text-white shadow-md shadow-teal-500/20"
                   : "bg-slate-50 text-slate-600 hover:bg-slate-100 hover:text-slate-900"
               )}
             >
@@ -355,7 +266,7 @@ export default function MarketplaceHomePage() {
           ))}
           <div className="flex-1" />
           <Button variant="outline" className="h-10 rounded-xl border-slate-200 text-slate-700 font-bold text-xs gap-2 shrink-0 px-5 hover:bg-slate-50 mr-2">
-            <Filter className={cn("size-4", theme.iconColorDark)} />
+            <Filter className="size-4 text-teal-600" />
             Filter
             <ChevronDown className="size-4 opacity-50" />
           </Button>
@@ -363,41 +274,41 @@ export default function MarketplaceHomePage() {
       </div>
 
       {/* AI Location Notice */}
-      <div className="max-w-7xl mx-auto px-6 mt-8">
-        <div className={cn("flex flex-col sm:flex-row sm:items-center gap-4 border rounded-2xl px-6 py-4 shadow-sm", theme.bgLight, theme.borderLight)}>
-          <div className={cn("size-10 bg-white rounded-full flex items-center justify-center shrink-0 shadow-sm border", theme.borderLight)}>
-            <Sparkles className={cn("size-5", theme.iconColorDark)} />
+      <div className="max-w-[1400px] mx-auto px-6 md:px-12 mt-8">
+        <div className="flex flex-col sm:flex-row sm:items-center gap-4 bg-teal-50 border border-teal-100 rounded-2xl px-6 py-4 shadow-sm">
+          <div className="size-10 bg-white rounded-full flex items-center justify-center shrink-0 shadow-sm border border-teal-100">
+            <Sparkles className="size-5 text-teal-600" />
           </div>
-          <p className={cn("text-sm font-medium leading-relaxed", theme.textDark)}>
-            <span className={cn("font-extrabold uppercase tracking-wide mr-2", theme.textMedium)}>Rekomendasi AI:</span>
-            Menampilkan <strong className={cn("font-bold", theme.textDark)}>5 supplier terdekat</strong> dari titik koordinat dapur SPPG Anda di Sleman, diurutkan berdasarkan jarak dan rating.
+          <p className="text-sm text-teal-900 font-medium leading-relaxed">
+            <span className="font-extrabold text-teal-800 uppercase tracking-wide mr-2">Rekomendasi AI:</span>
+            Menampilkan <strong className="font-bold text-teal-900">5 supplier terdekat</strong> dari titik koordinat dapur SPPG Anda di Sleman, diurutkan berdasarkan jarak dan rating.
           </p>
         </div>
       </div>
 
       {/* Supplier Grid - 5 cards */}
-      <div className="max-w-7xl mx-auto px-6 mt-8 pb-12">
+      <div className="max-w-[1400px] mx-auto px-6 md:px-12 mt-8 pb-12">
         <div className="flex items-center justify-between mb-6">
           <div className="flex items-center gap-3">
             <h2 className="text-xl font-bold text-slate-900">Supplier Terdekat</h2>
-            <Badge className={cn("border-none font-bold text-[10px] px-2 py-0.5 uppercase tracking-widest shadow-sm", theme.bgLight, theme.textMedium)}>
+            <Badge className="bg-teal-50 text-teal-700 border-none font-bold text-[10px] px-2 py-0.5 uppercase tracking-widest shadow-sm">
               {suppliers.length} supplier
             </Badge>
           </div>
           <Select defaultValue="nearest">
-            <SelectTrigger className={cn("w-[180px] h-10 rounded-xl border-slate-200 text-xs font-bold transition-all hover:bg-slate-50 focus:ring-2", theme.focusRing, theme.borderFocus)}>
+            <SelectTrigger className="w-[180px] h-10 rounded-xl border-slate-200 text-xs font-bold focus:ring-2 focus:ring-teal-500/20 focus:border-teal-500 transition-all hover:bg-slate-50">
               <SelectValue />
             </SelectTrigger>
             <SelectContent className="rounded-xl border-slate-200 shadow-xl">
-              <SelectItem value="nearest" className={cn("rounded-lg font-bold text-sm py-3 cursor-pointer", theme.itemFocus)}>Terdekat</SelectItem>
-              <SelectItem value="rating" className={cn("rounded-lg font-bold text-sm py-3 cursor-pointer", theme.itemFocus)}>Rating Tertinggi</SelectItem>
-              <SelectItem value="reviews" className={cn("rounded-lg font-bold text-sm py-3 cursor-pointer", theme.itemFocus)}>Ulasan Terbanyak</SelectItem>
-              <SelectItem value="newest" className={cn("rounded-lg font-bold text-sm py-3 cursor-pointer", theme.itemFocus)}>Terbaru</SelectItem>
+              <SelectItem value="nearest" className="rounded-lg font-bold text-sm py-3 focus:bg-teal-50 focus:text-teal-900 cursor-pointer">Terdekat</SelectItem>
+              <SelectItem value="rating" className="rounded-lg font-bold text-sm py-3 focus:bg-teal-50 focus:text-teal-900 cursor-pointer">Rating Tertinggi</SelectItem>
+              <SelectItem value="reviews" className="rounded-lg font-bold text-sm py-3 focus:bg-teal-50 focus:text-teal-900 cursor-pointer">Ulasan Terbanyak</SelectItem>
+              <SelectItem value="newest" className="rounded-lg font-bold text-sm py-3 focus:bg-teal-50 focus:text-teal-900 cursor-pointer">Terbaru</SelectItem>
             </SelectContent>
           </Select>
         </div>
 
-        {/* Responsive grid */}
+        {/* Responsive grid: 2 cols on md, 3 on lg, then last 2 cards on new row for 5 cards */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
           {suppliers.map((supplier, index) => (
             <Link 
@@ -406,7 +317,7 @@ export default function MarketplaceHomePage() {
               className="group block"
             >
               <Card className={cn(
-                "overflow-hidden border-none ring-1 ring-slate-200/60 bg-white hover:shadow-xl hover:shadow-slate-200/50 hover:-translate-y-1 transition-all duration-300 rounded-2xl h-full flex flex-col",
+                "overflow-hidden bg-white/95 backdrop-blur-xl border border-white/40 shadow-xl shadow-teal-900/5 hover:-translate-y-1 transition-all duration-300 rounded-[24px] h-full flex flex-col",
                 "animate-in fade-in slide-in-from-bottom-3",
               )} style={{ animationDelay: `${index * 80}ms`, animationFillMode: 'both' }}>
                 {/* Image */}
@@ -422,7 +333,7 @@ export default function MarketplaceHomePage() {
                   {/* Top badges */}
                   <div className="absolute top-3 left-3 flex flex-wrap gap-1.5">
                     {supplier.isOfficial && (
-                      <Badge className={cn("text-white border-none font-bold text-[9px] px-2 py-0.5 gap-1 shadow-md uppercase tracking-widest", theme.badgeSolid)}>
+                      <Badge className="bg-teal-500 text-white border-none font-bold text-[9px] px-2 py-0.5 gap-1 shadow-md uppercase tracking-widest">
                         <BadgeCheck className="size-3" />
                         Official
                       </Badge>
@@ -451,7 +362,7 @@ export default function MarketplaceHomePage() {
                   {/* Bottom info overlay */}
                   <div className="absolute bottom-3 left-3 right-3 flex items-center gap-2">
                     <Badge className="bg-white/95 backdrop-blur-md text-slate-900 border-none font-bold text-[10px] px-2 py-1 shadow-sm gap-1 rounded-lg">
-                      <MapPin className={cn("size-3", theme.iconColorDark)} />
+                      <MapPin className="size-3 text-teal-600" />
                       {supplier.distance}
                     </Badge>
                     <Badge className="bg-white/95 backdrop-blur-md text-slate-900 border-none font-bold text-[10px] px-2 py-1 shadow-sm gap-1 rounded-lg">
@@ -472,7 +383,7 @@ export default function MarketplaceHomePage() {
                       {supplier.initials}
                     </div>
                     <div className="flex-1 min-w-0">
-                      <h3 className={cn("text-base font-bold text-slate-900 leading-tight transition-colors line-clamp-2", theme.hoverText)}>
+                      <h3 className="text-base font-bold text-slate-900 leading-tight group-hover:text-teal-700 transition-colors line-clamp-2">
                         {supplier.name}
                       </h3>
                       <p className="text-[11px] text-slate-500 font-semibold mt-1 flex items-center gap-1">
@@ -488,7 +399,7 @@ export default function MarketplaceHomePage() {
                       <span className="text-xs font-extrabold text-slate-900">{supplier.rating}</span>
                     </div>
                     <span className="text-[10px] text-slate-400 font-medium">({supplier.reviews} ulasan)</span>
-                    <span className="text-[10px] text-slate-300 mx-1">•</span>
+                    <span className="text-slate-300 mx-1">•</span>
                     <span className="text-[10px] text-slate-600 font-bold bg-slate-200/50 px-1.5 py-0.5 rounded-md">{supplier.sold} terjual</span>
                   </div>
 
@@ -516,8 +427,8 @@ export default function MarketplaceHomePage() {
                       <Clock className="size-3.5 text-slate-400" />
                       Respon {supplier.responseTime}
                     </div>
-                    <div className={cn("flex items-center gap-1.5 text-[10px] font-extrabold px-2 py-1 rounded-md uppercase tracking-widest", theme.bgLight, theme.textMedium)}>
-                      <Truck className={cn("size-3.5", theme.iconColorDark)} />
+                    <div className="flex items-center gap-1.5 text-[10px] font-extrabold text-teal-700 bg-teal-50 px-2 py-1 rounded-md uppercase tracking-widest">
+                      <Truck className="size-3.5 text-teal-600" />
                       {supplier.deliveryAccuracy}
                     </div>
                   </div>

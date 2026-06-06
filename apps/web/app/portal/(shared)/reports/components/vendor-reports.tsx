@@ -94,7 +94,7 @@ export default function VendorReportsPage() {
           <UtensilsCrossed className="size-64" />
         </div>
         
-        <div className="relative z-10 max-w-7xl mx-auto space-y-6">
+        <div className="relative z-10 max-w-[1400px] mx-auto space-y-6">
           <div className="flex flex-col md:flex-row md:items-start justify-between gap-6">
             <div className="space-y-3">
               <Badge className="bg-emerald-500/20 text-emerald-100 border border-emerald-500/30 font-bold uppercase tracking-widest text-[10px] px-3 py-1 rounded-full flex w-fit items-center">
@@ -123,7 +123,7 @@ export default function VendorReportsPage() {
       </div>
 
       {/* MAIN CONTENT (Overlapping Hero) */}
-      <div className="relative z-20 max-w-7xl mx-auto px-6 lg:px-12 -mt-20 space-y-6">
+      <div className="relative z-20 max-w-[1400px] mx-auto px-6 lg:px-12 -mt-20 space-y-6">
         
         {/* KPI Cards */}
         <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
@@ -200,7 +200,7 @@ export default function VendorReportsPage() {
                 Minggu Ini
               </Badge>
             </CardHeader>
-            <CardContent className="p-6 flex-1 flex flex-col justify-end">
+            <CardContent className="p-6 md:p-8 flex-1 flex flex-col justify-end">
               <div className="h-[250px] w-full">
                 <ReactApexChart options={foodCostChartOptions} series={foodCostSeries} type="area" height="100%" />
               </div>
@@ -212,7 +212,7 @@ export default function VendorReportsPage() {
               <CardTitle className="text-base font-bold text-slate-900">Analisis Sisa Bahan (Wastage)</CardTitle>
               <CardDescription className="text-xs font-medium mt-1">Rincian sisa bahan dapur yang terbuang berdasarkan kategori.</CardDescription>
             </CardHeader>
-            <CardContent className="p-6 flex-1 flex flex-col items-center justify-center">
+            <CardContent className="p-6 md:p-8 flex-1 flex flex-col items-center justify-center">
               <div className="w-full max-w-[220px]">
                 <ReactApexChart options={wastageChartOptions} series={wastageSeries} type="donut" width="100%" />
               </div>

@@ -35,6 +35,6 @@ export const AppDataSource = new DataSource({
     max: 1,
     connectionTimeoutMillis: 10000,
     idleTimeoutMillis: 0,
-    ssl: { rejectUnauthorized: false }, // Neon DB requires SSL; bypass cert validation
+    ssl: process.env.DATABASE_URL.includes('localhost') ? false : { rejectUnauthorized: false }, // Neon DB requires SSL; bypass cert validation
   },
 });

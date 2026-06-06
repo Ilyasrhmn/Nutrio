@@ -35,6 +35,8 @@ import {
   MessageSquare,
   Bell,
   Search,
+  Boxes,
+  AlertTriangle,
 } from "lucide-react";
 import { Button } from "@workspace/ui/components/button";
 import {
@@ -74,6 +76,8 @@ const ICON_MAP: Record<string, any> = {
   BookOpen,
   Package,
   MessageSquare,
+  Boxes,
+  AlertTriangle,
 };
 
 export default function PortalLayout({
