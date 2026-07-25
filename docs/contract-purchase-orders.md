@@ -2,7 +2,13 @@
 
 **Requested by:** Orang 2 (web/PWA) — needed for Sprint 1 marketplace checkout
 **Owner:** Orang 1 (apps/api)
-**Status:** open — blocking real PO submission in `apps/web` marketplace and `apps/pwa` orders
+**Status:** ✅ RESOLVED — Orang 1 shipped the `orders` module (`POST/GET /orders`,
+`accept/reject/dispatch/receive`, idempotency-key based). Frontend integration landed in
+`apps/web/lib/services/orders.service.ts`, `apps/web/app/portal/(vendor)/orders`,
+`apps/web/app/portal/(supplier)/supplier/orders`, and `apps/pwa/app/pesanan`.
+The actual shipped shape differs slightly from what was originally requested below — kept for
+history; see the services above for the real contract (status enum, idempotency header
+requirement, `{body, eventId, replayed}` response envelope on mutations).
 
 ## Why
 

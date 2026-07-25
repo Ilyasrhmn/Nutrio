@@ -4,7 +4,7 @@ import { cn } from "@workspace/ui/lib/utils";
 
 interface AIResultCardProps {
   result: {
-    status: "pass" | "warning" | "pending";
+    status: "pass" | "warning" | "pending" | "queued";
     confidence: number;
     notes: string;
     scoreDelta?: number;
@@ -18,6 +18,17 @@ export function AIResultCard({ result }: AIResultCardProps) {
         <CardContent className="p-5 flex items-center gap-3">
           <Loader2 className="h-5 w-5 text-slate-400 animate-spin shrink-0" />
           <p className="text-sm text-slate-500">Menunggu hasil validasi AI...</p>
+        </CardContent>
+      </Card>
+    );
+  }
+
+  if (result.status === "queued") {
+    return (
+      <Card className="border-2 border-amber-100 bg-amber-50/50 animate-in fade-in slide-in-from-bottom-4">
+        <CardContent className="p-5 flex items-center gap-3">
+          <Loader2 className="h-5 w-5 text-amber-500 shrink-0" />
+          <p className="text-sm text-amber-700">{result.notes}</p>
         </CardContent>
       </Card>
     );

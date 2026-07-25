@@ -2,7 +2,7 @@
 
 import * as React from "react"
 import Link from "next/link"
-import { useParams } from "next/navigation"
+import { useParams, useRouter } from "next/navigation"
 import {
   MapPin,
   MessageSquare,
@@ -39,11 +39,16 @@ import { Alert, AlertDescription } from "@workspace/ui/components/alert"
 import { cn } from "@workspace/ui/lib/utils"
 import { QueryState, QueryStatus } from "@workspace/ui/components/query-state"
 import { suppliersService, SupplierDetail, SupplierProduct } from "@/lib/services/suppliers.service"
+import { ordersService } from "@/lib/services/orders.service"
 import { toQueryError } from "@/lib/services/error-handler"
+import { useToast } from "@workspace/ui/hooks/use-toast"
 
 export default function SupplierMarketplacePage() {
   const params = useParams()
+  const router = useRouter()
+  const { toast } = useToast()
   const supplierId = params?.supplierId as string
+  const [submittingPo, setSubmittingPo] = React.useState(false)
 
   const [supplier, setSupplier] = React.useState<SupplierDetail | null>(null)
   const [loading, setLoading] = React.useState(true)
@@ -91,6 +96,29 @@ export default function SupplierMarketplacePage() {
 
   const totalEstimasi = cart.reduce((acc, item) => acc + ((item.pricePerUnit ?? 0) * item.qty), 0)
   const totalItems = cart.reduce((acc, item) => acc + item.qty, 0)
+
+  const handleSubmitPo = async () => {
+    if (!supplier || cart.length === 0) return
+    setSubmittingPo(true)
+    try {
+      const res = await ordersService.create({
+        supplierId: supplier.id,
+        items: cart.map((item) => ({ productId: item.id, quantity: item.qty })),
+      })
+      toast({
+        title: "Purchase Order Dibuat",
+        description: `${res.body.poNumber} telah dikirim ke supplier untuk konfirmasi.`,
+      })
+      setCart([])
+      setShowCart(false)
+      router.push(`/portal/orders/${res.body.id}`)
+    } catch (error) {
+      const { errorMessage } = toQueryError(error)
+      toast({ title: "Gagal Membuat PO", description: errorMessage, variant: "destructive" })
+    } finally {
+      setSubmittingPo(false)
+    }
+  }
 
   return (
     <QueryState
@@ -492,12 +520,21 @@ export default function SupplierMarketplacePage() {
                       <span className="text-sm font-bold text-slate-900">Total</span>
                       <span className="text-lg font-extrabold text-red-600">Rp {totalEstimasi.toLocaleString('id-ID')}</span>
                     </div>
-                    <Button disabled className="w-full h-10 rounded-xl font-bold text-xs gap-2" title="Pembuatan PO otomatis belum tersedia">
+                    {cart.some((item) => item.minOrderQty != null && item.qty < item.minOrderQty) && (
+                      <p className="text-[10px] text-amber-600 font-semibold text-center">
+                        Beberapa item belum memenuhi jumlah minimum order supplier.
+                      </p>
+                    )}
+                    <Button
+                      onClick={handleSubmitPo}
+                      disabled={submittingPo || cart.some((item) => item.minOrderQty != null && item.qty < item.minOrderQty)}
+                      className="w-full h-10 rounded-xl font-bold text-xs gap-2"
+                    >
                       <FileText className="size-3.5" />
-                      Buat Purchase Order (Segera Hadir)
+                      {submittingPo ? "Mengirim..." : "Buat Purchase Order"}
                     </Button>
                     <p className="text-[9px] text-slate-400 text-center">
-                      Fitur pembuatan PO otomatis sedang dikembangkan. Hubungi supplier langsung untuk saat ini.
+                      PO akan dikirim ke supplier untuk konfirmasi.
                     </p>
                   </div>
                 )}

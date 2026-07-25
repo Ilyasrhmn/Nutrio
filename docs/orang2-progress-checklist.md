@@ -1,148 +1,176 @@
 # Checklist Progress — Rencana Orang 2 (Web, PWA, Integrasi Pengguna)
 
-Status per sesi ini. Dicocokkan ke struktur sprint di `Rencana Orang 2`. Commit terkait ada di
-branch `feature/web-pwa-baseline`.
+Update terbaru: setelah `feature/operation-day-backend` (Orang 1) di-merge, backend nambah
+modul `orders` (Purchase Order), `inventory` (opname/waste), `menu-plans`, dan `operation-days`
+(alur harian: menu plan → operation day → CP1-4 → delivery → close). Ini nutup blocker utama
+sesi sebelumnya. Bagian di bawah sudah diupdate untuk reflect integrasi terbaru.
 
 ## Sprint 0 — Baseline aplikasi dan kerangka integrasi
 
-- [x] Bersihkan build web — fix tsconfig exclude `__tests__` dari tsc produksi, fix ts-jest
-      config (`rootDir`/`declaration`) yang bikin `pnpm test` gagal. `pnpm typecheck`,
-      `pnpm test` (48/48), `pnpm build` semua hijau untuk `apps/web`.
-- [x] Route `_archive` (checkpoints, live) dicek — sudah underscore-prefixed, otomatis tidak
-      keroute Next.js, aman.
-- [x] Komponen status standar: `packages/ui/src/components/query-state.tsx` (`QueryState`) —
-      loading/empty/error/forbidden + retry. Dipasang di admin dashboard, roles, permissions,
-      menus, marketplace, supplier products/shop/inventory, funds, reports, map, logistics.
-- [x] Indikator env demo: `NEXT_PUBLIC_DEMO_MODE` banner di `apps/web/app/portal/layout.tsx`.
-- [x] PWA: mockUsers diganti login/refresh/`/auth/me` asli (lihat Sprint 2).
-- [ ] Service/client per-domain (`orders`, `inventory`, `operation`, `delivery`,
-      `school-confirmation`, `monitoring`) di `apps/web/lib/services/` — baru dibuat
-      `suppliers.service.ts`; domain lain (delivery, school-confirmation, monitoring) belum
-      punya file service terpisah karena UI-nya belum digarap (dihindari servis kosong tanpa
-      pemakai, sesuai YAGNI). Bikin saat halamannya digarap.
+- [x] Build web sehat (`typecheck`, `test` 48/48, `build` semua hijau).
+- [x] `QueryState` component + dipasang di banyak halaman.
+- [x] Indikator env demo (`NEXT_PUBLIC_DEMO_MODE`).
+- [x] PWA auth asli (login/refresh/`/auth/me`).
+- [x] Service per-domain: `suppliers.service.ts`, `orders.service.ts`, `inventory.service.ts`,
+      `menu-plans.service.ts` (web). PWA masih inline `apiClient` call langsung di tiap page
+      (tidak ada layer service terpisah) — konsisten dgn pola PWA yang sudah ada sebelumnya.
 
 ## Sprint 1 — Marketplace, pesanan, dan stok nyata
 
-- [x] Marketplace vendor (`apps/web/app/portal/(vendor)/marketplace/page.tsx`) — data statis
-      diganti `GET /suppliers` asli (search, filter kategori dinamis dari data, pagination).
-- [x] Detail supplier (`marketplace/[supplierId]/page.tsx`) — `GET /suppliers/:id` asli
-      (produk, ulasan, dokumen legalitas). Cart tetap lokal; tombol "Buat Purchase Order"
-      **disabled** dengan label "Segera Hadir" — backend belum punya endpoint PO sama sekali.
-- [x] Supplier products (`supplier/products`, `supplier/products/add`) — `GET/POST/PATCH/DELETE
-      /suppliers/me/products` asli. Delete sekarang benar-benar memanggil server (sebelumnya
-      cuma toast lokal).
-- [x] Supplier shop (`supplier/shop`) — `GET/PATCH /suppliers/me/profile` asli. Field yang
-      backend belum dukung ubah (nama perusahaan, alamat, radius, logo) dijadikan read-only
-      dengan penjelasan, bukan pura-pura bisa disimpan.
-- [x] Supplier inventory (`supplier/inventory`) — disederhanakan jadi tabel stok asli dari
-      `listMyProducts`; angka KPI karangan (nilai aset gudang, PO belum kirim, dst — backend
-      tidak punya ledger PO/inbound-outbound) dihapus, bukan dipertahankan sebagai dekorasi.
-- [x] **Kontrak issue ditulis**: `docs/contract-purchase-orders.md` — spesifikasi endpoint
-      `POST/GET /purchase-orders`, `PATCH /purchase-orders/:id/status` yang dibutuhkan Sprint 1
-      lanjutan (cart checkout, PWA pesanan supplier), lengkap dengan body/response/acceptance
-      test. **Ini blocker utama sisa Sprint 1** — submit PO real tidak bisa jalan sampai Orang 1
-      menyediakan endpoint ini.
-- [x] Stock opname & kalkulasi bahan (`operasional/stock-opname`, `operasional/kalkulasi-bahan`)
-      — tidak ada modul menu/resep/inventory dapur di backend sama sekali. Diubah jadi
-      kalkulator lokal jujur: input manual, draft tersimpan di `localStorage`, label eksplisit
-      "belum tersinkron ke server" (bukan klaim "masuk sistem" seperti sebelumnya).
-- [ ] Playwright test vendor buat PO / supplier ubah status PO — **tidak bisa dibuat**, fitur
-      itu sendiri belum ada (blocked oleh kontrak PO di atas).
+- [x] Marketplace vendor & detail supplier — `GET /suppliers`, `GET /suppliers/:id` real.
+- [x] **Checkout PO real** — `POST /orders` dengan `Idempotency-Key` header wajib. Tombol
+      "Buat Purchase Order" di marketplace detail sekarang submit sungguhan, redirect ke
+      `/portal/orders/:id`.
+- [x] **Vendor "My Orders"** (`/portal/orders`, `/portal/orders/[id]`) — list + detail + aksi
+      cancel/receive (vendor) dan accept/reject/dispatch (supplier, halaman sama, role-branch).
+- [x] **Supplier order queue** (`/portal/supplier/orders`) — list PO masuk, badge highlight
+      yang perlu ditinjau.
+- [x] Supplier products/shop — `GET/POST/PATCH/DELETE /suppliers/me/products`,
+      `GET/PATCH /suppliers/me/profile` real (dari sesi sebelumnya, tidak berubah).
+- [x] **Stock opname real** — `GET /inventory/current`, `POST /inventory/opname`,
+      `POST /inventory/waste`. Bahan yang muncul cuma yang pernah diterima lewat PO (sesuai
+      semantik inventory_ledger backend).
+- [x] **Kalkulasi bahan real** — `GET/POST /menu-plans/:date`. Vendor pilih produk lewat
+      pencarian supplier inline, backend hitung `requiredQuantity/availableQuantity/
+      shortageQuantity` — bukan kalkulasi client lagi.
+- [x] Kontrak PO ditulis lalu **resolved** — `docs/contract-purchase-orders.md` diupdate status.
+- [ ] Playwright test vendor buat PO / supplier ubah status — belum dibuat (fiturnya sudah
+      nyata sekarang, tinggal ditulis testnya).
 
 ## Sprint 2 — PWA hari operasional, delivery, dan sekolah
 
-- [x] PWA auth asli — `apps/pwa/lib/api-client.ts` ditulis ulang (Bearer token + refresh,
-      match kontrak backend yang taruh token di body, bukan cookie). `auth-provider.tsx`
-      pakai `POST /auth/login` asli, hapus `mockUsers` dan role-switcher demo di halaman
-      Pengaturan.
-- [x] Checkpoint capture (`operasional/live`) — hasil AI yang tadinya di-fabricate langsung
-      setelah submit (score 90, confidence 0.88 hardcode) diganti polling `GET
-      /checkpoints/today` untuk `aiValidation`/`scoreDelta` asli (validasi AI backend memang
-      async). Kalau belum selesai dalam window polling, tampil status "masih diproses" — jujur,
-      bukan dipalsuin.
-- [x] Semantik "Orders" diperbaiki — halaman yang isinya progress checkpoint vendor (CP1-4)
-      tapi dipasang di nav "Orders" milik role SUPPLIER dipindah ke
-      `operasional/progress` (vendor). Supplier sekarang dapat `/pesanan` dengan status
-      "belum tersedia" yang jujur (bukan 404 atau data vendor yang salah konteks).
-- [ ] Retry upload aman + antrian IndexedDB untuk foto yang gagal terkirim — **belum
-      dikerjakan**, di luar scope sesi ini.
-- [ ] Batas ukuran foto, fallback upload file non-kamera, UI offline/kamera ditolak — belum
-      dikerjakan.
-- [ ] Delivery flow (jadwal, QR/token, arrived, foto serah-terima, complete) dan sekolah
-      confirm — belum diaudit sesi ini; `apps/pwa/app/sekolah/*` sudah ada route-nya tapi
-      belum dicek datanya real atau mock.
-- [ ] PWA score/history/notifications/publik — belum diaudit sesi ini.
+- [x] PWA auth asli (JWT Bearer + refresh, `mockUsers` dihapus).
+- [x] Checkpoint capture — polling `GET /checkpoints/today` untuk hasil AI asli (bukan fabricated).
+- [x] **Operation-day gating** — backend sekarang mewajibkan `operation_day` aktif sebelum CP1
+      bisa submit (409 kalau belum ada). PWA `operasional/live` sekarang: cek
+      `GET /operation-days/today` → kalau kosong, coba bikin dari menu plan hari ini via
+      `POST /operation-days` → kalau menu plan juga belum ada, tampil pesan jelas "susun menu
+      dulu di web" (bukan submit checkpoint yang gagal membingungkan). Kalau stok kurang
+      (422 `INSUFFICIENT_INVENTORY`), tampilkan daftar shortage asli dari server.
+- [x] Semantik "Orders" — halaman checkpoint progress pindah ke `operasional/progress`
+      (vendor), supplier dapat `/pesanan`.
+- [x] **`/pesanan` (supplier) real** — `GET /orders/supplier` + accept/reject/dispatch.
+      Sebelumnya "belum tersedia", sekarang fungsional penuh.
+- [ ] Retry upload foto + antrian offline (IndexedDB) — belum dikerjakan.
+- [ ] Batas ukuran foto, fallback upload non-kamera, UI offline/kamera ditolak — belum.
+- [x] **Ketemu flow checkpoint KEDUA yang aktif** — `apps/pwa/app/cp/[cpId]/{context,capture,
+      validate,confirm}`, dilink dari home dashboard (`app/page.tsx`), paralel sama
+      `operasional/live`. Punya bug sama persis (klaim "Foto Valid!" instan tanpa nunggu AI,
+      gak ada operation-day gating). Di-extract jadi `hooks/use-operation-day-check.ts` dipakai
+      di kedua flow; `validate/page.tsx` sekarang polling `/checkpoints/today` buat hasil AI
+      asli.
+- [x] Sekolah flow (`app/sekolah/page.tsx`, `sekolah/confirm/page.tsx`) — sudah real dari
+      awal (`/public/sppg/search`, `/public/overview`, `GET/POST /sekolah/confirm/:token`).
+      Dicek ulang field DTO backend (`jumlahDiterima`, `kondisi`, `catatan`) masih cocok
+      persis sama request body PWA — tidak ada breaking change dari perubahan backend.
+- [x] PWA score/history/notifications/publik — dicek, semua sudah panggil endpoint real
+      (`/scoring/history`, dst), tidak ada data fake.
+- [x] Fallback upload file non-kamera — sudah, lihat bagian "Lanjutan sesi ketiga" di bawah.
+- [ ] Retry upload foto + antrian offline (IndexedDB) — belum dikerjakan.
+- [ ] Batas ukuran foto, UI offline/kamera ditolak — belum.
 - [ ] Playwright/mobile smoke test login → CP1 → CP4/delivery → sekolah confirm — belum dibuat.
+- [x] **End-to-end PO flow dites manual via browser**: marketplace checkout (vendor) →
+      accept → dispatch (supplier) → receive (vendor) → stok inventory bertambah real.
+      Nemu & fix 2 bug: migration belum jalan di DB lokal pasca-merge (`pnpm db:migrate`),
+      dan `GET /orders/:id` balikin `items`/`history` snake_case + angka string (beda dari
+      top-level yang camelCase) — dinormalize di `orders.service.ts`. Juga nemu bug kecil di
+      backend: `po_status_logs` ke-insert dobel (DB trigger + kode service) — dicatat, tidak
+      difix (di luar scope `apps/api`).
 
 ## Sprint 3 — Monitoring, transparansi, dan operasi admin
 
-- [x] Command-center — sudah real dari sebelumnya (`GET /command-center/overview,vendors,alerts,
-      deliveries,reports,sppg/:id`), dikonfirmasi lewat audit, tidak diubah.
-- [x] Map (`portal/map`) — `GET /command-center/vendors` asli, status turunan dari skor. Backend
-      tidak punya koordinat vendor sama sekali → area peta menampilkan pesan jujur "lokasi
-      belum tersedia", bukan pin GPS ngarang.
-- [x] Logistics (`portal/logistics`) — `GET /command-center/deliveries` asli (status, GPS token
-      pengiriman kalau ada, manifest). Angka armada/SLA/tervalidasi yang hardcode dihapus,
-      diganti hitungan real dari data pengiriman.
-- [x] Audit (`portal/audit`) — tidak ada endpoint audit-log lintas vendor di backend sama
-      sekali. Diubah jadi halaman "belum tersedia" eksplisit, bukan tabel log fiktif.
-- [x] AI Reports admin (`reports/components/admin-reports.tsx`) — `GET /command-center/reports`
-      asli untuk compliance/fraud-prevention rate dan anomali per vendor. Kartu batch/lab/fraud
-      fiktif dihapus.
-- [x] Funds admin (`components/funds/admin-funds.tsx`) — `GET /funds/summary` +
-      `/funds/transactions` asli. Klaim "Smart Contract auto-disbursement" (fitur yang tidak
-      ada) di-relabel jadi "Konsep — Belum Aktif" sesuai DoD (jangan klaim integrasi yang
-      belum ada).
-- [x] Funds vendor (`components/funds/vendor-funds.tsx`) — tidak ada modul pembukuan
-      income/expense vendor di backend. Diubah jadi draft lokal (`localStorage`) yang jujur,
-      `Math.random()` id diganti `crypto.randomUUID()`.
-- [ ] Vendor reports & supplier reports (`reports/components/vendor-reports.tsx`,
-      `supplier-reports.tsx`) — **masih fake**, belum diaudit/wiring sesi ini. Tidak ada
-      endpoint per-role reports dengan chart yang jelas cocok; butuh kontrak tambahan atau
-      keputusan reuse `scoring/history`.
+- [x] Command-center, map, logistics, audit, admin-reports, funds admin — real (sesi
+      sebelumnya, tidak berubah signifikan oleh merge ini kecuali funds: query transaksi
+      sekarang UNION dengan `fund_projections`, `paidAt` bisa null — sudah dipatch supaya
+      tidak nampilkan "Invalid Date").
+- [x] Funds vendor — draft lokal (masih tidak ada modul pembukuan vendor personal di backend,
+      belum berubah oleh merge ini).
+- [x] `GET /command-center/operation-days` — endpoint baru (overview operation day per vendor:
+      checkpoint done, delivery confirmed, fund projection, score). **Belum dipakai** di web —
+      peluang bagus buat command-center/mission-control drill-down, belum digarap sesi ini.
+- [x] Vendor reports & supplier reports — lihat bagian "Lanjutan sesi ketiga" di bawah.
 - [ ] Drill-down alert → vendor → operation day → checkpoint/delivery → incident → audit trail
-      — belum dikerjakan (audit trail sendiri belum ada).
-- [ ] Mission-control, debrief, notification bell — mission-control & debrief sudah real dari
-      sebelumnya (dikonfirmasi lewat audit), belum disambungkan ulang ke event yang sama /
-      Socket.IO invalidation sesi ini.
-- [ ] Halaman publik (`/publik`) — belum diaudit sesi ini.
-- [x] Label eksplisit fitur belum produktif — diterapkan di funds ("Konsep — Belum Aktif"),
-      marketplace PO ("Segera Hadir"), audit ("Belum Tersedia"), map ("lokasi belum
-      tersedia").
+      — belum. Audit trail sendiri masih belum ada endpoint lintas-vendor.
+- [ ] Halaman publik — belum diaudit.
+
+## Lanjutan sesi ketiga (setelah "gass" #2)
+
+- [x] `pnpm lint` dijalankan (`next lint` sudah deprecated di Next 16, dipakai `eslint .`
+      langsung) — 0 error, ~21rb warning `no-explicit-any` yang mayoritas baseline lama
+      (pre-existing di repo, bukan dari kerjaan sesi ini). Tidak di-fix massal karena scope
+      di luar permintaan dan bukan bug.
+- [x] `apps/web/app/portal/(vendor)/operasional/jadwal/page.tsx` — halaman jadwal minggu
+      ini yang tadinya 100% hardcode (menu ngarang, alamat/jarak sekolah ngarang, badge kalori
+      ngarang), sekarang pakai `GET /delivery/my/week-schedule` asli. Klaim yang gak bisa
+      dibuktikan (alamat, jarak, kalori) dihapus, bukan dipertahankan.
+- [x] Delivery kurir flow (`apps/web/app/delivery/[token]/page.tsx`) dicek — sudah **fully
+      real** dari awal (GPS, foto native camera+galeri, QR, complete), tidak perlu diubah.
+- [x] `/cp/[cpId]/capture` — tadinya blokir total `<input type="file">` di seluruh dokumen,
+      tanpa jalan keluar kalau izin kamera ditolak. Ditambah fallback upload galeri
+      eksplisit + retry kamera, konsisten sama pola yang dipakai `operasional/live` dan
+      halaman delivery kurir.
+- [x] Supplier reports (`reports/components/supplier-reports.tsx`) — diganti total pakai
+      `GET /orders/supplier` real (total PO, nilai, status breakdown, tren mingguan dari
+      tanggal kirim, tabel PO terbaru).
+- [x] Vendor reports (`vendor-reports.tsx`) — food cost / wastage-per-kategori / log produksi
+      **tidak ada endpoint sama sekali** di backend (inventory cuma expose saldo saat ini,
+      bukan riwayat harian). Bagian itu diganti alert eksplisit "belum tersedia" +
+      alasannya; satu-satunya metrik real yang ada (`GET /scoring/history`) dipertahankan
+      sebagai chart tren skor.
+
+## Lanjutan sesi keempat ("gass" #3, exclude e2e)
+
+- [x] Command-center vendor detail — sudah ada drill-down alert→vendor dari sesi sebelumnya;
+      ditambah kartu **Hari Operasional** (target pax, checkpoint, delivery dikonfirmasi,
+      estimasi dana) dari `GET /command-center/operation-days?vendorId=` yang sebelumnya belum
+      dipakai sama sekali. Drill-down ke incident masih belum bisa — endpoint-nya gak ada
+      (lihat kontrak baru).
+- [x] **IndexedDB offline retry queue** — `apps/pwa/lib/offline-queue.ts` +
+      `hooks/use-offline-queue-sync.ts` + banner global di layout. Kegagalan submit foto
+      checkpoint akibat network (bukan validasi server) sekarang disimpan ke IndexedDB dan
+      di-retry otomatis pas online lagi. Dipasang di kedua flow checkpoint
+      (`operasional/live` dan `cp/[cpId]/validate`).
+- [x] 3 kontrak issue baru ditulis buat gap backend yang genuinely gak bisa dikerjain dari
+      sisi frontend: `docs/contract-audit-trail.md` (audit log + incidents read/patch),
+      `docs/contract-vendor-coordinates.md` (lat/lng vendor buat peta),
+      `docs/contract-vendor-bookkeeping.md` (income vendor-scoped + expense tracking).
+      **Ketemu isu keamanan sekalian**: `GET /funds/transactions` gak di-scope per role —
+      semua user login bisa lihat payment history vendor lain. Dicatat di kontrak, bukan
+      difix (backend, di luar scope).
 
 ## Sprint 4 — QA lintas peran
 
-- [ ] `pnpm test:e2e` dan smoke test PWA — belum dijalankan sesi ini.
-- [ ] Uji 3 browser/session (vendor/supplier/sekolah-admin) — belum dilakukan; verifikasi
-      manual sesi ini terbatas pada login admin & vendor lewat browser tool untuk cek
-      halaman yang diubah tidak regresi (roles, permissions, menus, dashboard, marketplace).
-- [x] Audit tombol toast-sukses-tanpa-server — ditemukan & diperbaiki: supplier products
-      delete, shop save, funds vendor expense (sekarang localStorage jujur, bukan diam-diam
-      tidak tersimpan sama sekali seperti sebelumnya).
-- [x] Hapus fixture/mock yang consumer-nya hilang — `apps/pwa/lib/mock-data/orders.ts`,
-      `apps/pwa/components/orders/order-card.tsx`, `apps/pwa/app/orders/[id]` (redirect stub)
-      dihapus.
-- [ ] `pnpm typecheck`, `pnpm lint`, build semua app — `typecheck` dan `build` untuk
-      `apps/web` dan `apps/pwa` dijalankan berkali-kali sepanjang sesi ini dan selalu hijau
-      di titik commit. `pnpm lint` **belum dijalankan** sesi ini.
+- [ ] `pnpm test:e2e` — belum dijalankan.
+- [x] Verifikasi manual: `pnpm typecheck` + `pnpm build` untuk `apps/web` dan `apps/pwa`
+      dijalankan berkali-kali sepanjang integrasi ini, selalu hijau di titik commit.
+- [ ] `pnpm lint` — belum dijalankan sesi ini.
+- [ ] Uji 3 role browser (vendor/supplier/sekolah-admin) end-to-end untuk alur PO baru —
+      belum dilakukan (perlu login manual tiap role, cek create PO → accept → dispatch →
+      receive → stok bertambah).
 
-## Ringkasan blocker terbesar
+## Blocker yang sudah resolved sesi ini
 
-1. **Tidak ada endpoint Purchase Order** (`docs/contract-purchase-orders.md`) — menahan
-   checkout marketplace web dan halaman Pesanan supplier PWA supaya jadi nyata.
-2. **Tidak ada endpoint audit-log lintas vendor** — halaman Audit BGN masih kosong by design.
-3. **Tidak ada koordinat vendor** — peta sebaran mitra tidak bisa plot pin asli.
-4. **Tidak ada modul menu/resep/inventory dapur vendor** — stock opname & kalkulasi bahan jadi
-   kalkulator lokal, bukan terintegrasi backend.
-5. **Tidak ada modul pembukuan vendor** (income/expense pribadi) — funds vendor jadi draft
+1. ~~Tidak ada endpoint Purchase Order~~ → **ADA** (`orders` module).
+2. ~~Tidak ada modul menu/resep/inventory dapur vendor~~ → **ADA** (`inventory` +
+   `menu-plans` module).
+
+## Blocker yang masih ada
+
+1. **Tidak ada endpoint audit-log lintas vendor** — halaman Audit BGN masih kosong by design.
+2. **Tidak ada koordinat vendor** — peta sebaran mitra tidak bisa plot pin asli.
+3. **Tidak ada modul pembukuan vendor** (income/expense pribadi) — funds vendor tetap draft
    lokal.
+4. **Delivery/sekolah flow PWA belum diverifikasi ulang** pasca perubahan backend (guard baru
+   di beberapa endpoint delivery).
 
-## File baru/berubah signifikan
+## File baru/berubah signifikan (sesi integrasi ini)
 
-- `packages/ui/src/components/query-state.tsx` (baru)
-- `apps/web/lib/services/suppliers.service.ts` (baru)
-- `apps/web/lib/services/error-handler.ts` (`toQueryError` ditambah)
-- `apps/pwa/lib/api-client.ts` (ditulis ulang total)
-- `apps/pwa/components/providers/auth-provider.tsx` (ditulis ulang total)
-- `docs/contract-purchase-orders.md` (baru)
-- `docs/orang2-progress-checklist.md` (file ini)
+- `apps/web/lib/services/orders.service.ts`, `inventory.service.ts`, `menu-plans.service.ts` (baru)
+- `apps/web/app/portal/(vendor)/orders/**`, `apps/web/app/portal/(supplier)/supplier/orders/**` (baru)
+- `apps/web/app/portal/(vendor)/marketplace/[supplierId]/page.tsx` (checkout real)
+- `apps/web/app/portal/(vendor)/operasional/stock-opname/page.tsx` (rewrite total, real)
+- `apps/web/app/portal/(vendor)/operasional/kalkulasi-bahan/page.tsx` (rewrite total, real)
+- `apps/web/components/funds/admin-funds.tsx` (null-safety `paidAt`)
+- `apps/pwa/app/pesanan/page.tsx` (rewrite total, real)
+- `apps/pwa/app/operasional/live/page.tsx` (tambah operation-day gating)
+- `docs/contract-purchase-orders.md` (status resolved)
