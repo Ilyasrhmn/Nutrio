@@ -76,6 +76,7 @@ export class CheckpointsController {
       photo,
       dto.gpsLat,
       dto.gpsLng,
+      user.sub,
     );
   }
 }

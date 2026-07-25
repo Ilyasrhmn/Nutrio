@@ -52,7 +52,7 @@ export class SchoolConfirmService {
 
   async confirm(qrToken: string, payload: ConfirmPayload) {
     const [tokenRow] = await this.dataSource.query(
-      `SELECT dt.id, dt.vendor_id, dt.school_id, sc.id AS existing_confirm
+      `SELECT dt.id, dt.vendor_id, dt.school_id, dt.operation_day_id, sc.id AS existing_confirm
        FROM delivery_tokens dt
        LEFT JOIN school_confirmations sc ON sc.delivery_token_id = dt.id
        WHERE dt.token = $1::uuid`,
@@ -72,6 +72,15 @@ export class SchoolConfirmService {
         payload.catatan ?? null,
       ],
     );
+
+    if (tokenRow.operation_day_id) {
+      await this.dataSource.query(
+        `UPDATE operation_days
+         SET status = 'school_confirmed', updated_at = NOW()
+         WHERE id = $1 AND status = 'dispatched'`,
+        [tokenRow.operation_day_id],
+      );
+    }
 
     await this.dataSource.query(
       `UPDATE delivery_tokens SET status = 'used', used_at = NOW() WHERE id = $1`,

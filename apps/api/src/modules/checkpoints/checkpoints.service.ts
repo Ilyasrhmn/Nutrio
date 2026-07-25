@@ -9,6 +9,7 @@ import { ScoringService } from '../scoring/scoring.service';
 import { RealtimeService } from '../realtime/realtime.service';
 import { DebriefService } from '../debrief/debrief.service';
 import * as path from 'path';
+import { OperationDaysService } from '../operation-days/operation-days.service';
 
 const CP_ORDER: CpType[] = ['CP1', 'CP2', 'CP3', 'CP4'];
 
@@ -27,6 +28,7 @@ export class CheckpointsService {
     private readonly scoringService: ScoringService,
     private readonly realtimeService: RealtimeService,
     private readonly debriefService: DebriefService,
+    private readonly operationDays: OperationDaysService,
   ) {}
 
   static cpOrderIndex(cpType: CpType): number {
@@ -69,9 +71,15 @@ export class CheckpointsService {
     file: Express.Multer.File,
     gpsLat?: string,
     gpsLng?: string,
+    userId?: string,
   ): Promise<CheckpointEvent> {
     const sppg = await this.getPrimarySppgLocation(vendorId);
     const today = this.todayString();
+    const day = await this.dataSource.transaction(async (manager) => {
+      const active = await this.operationDays.activeForVendor(manager, vendorId);
+      if (cpType === 'CP1') await this.operationDays.consumeForCp1(manager, active.id, userId ?? null as any);
+      return active;
+    });
 
     // Validate ordering
     const prevRequired = CheckpointsService.previousCpRequired(cpType);
@@ -109,11 +117,11 @@ export class CheckpointsService {
     // Upsert checkpoint event
     const now = new Date();
     await this.dataSource.query(
-      `INSERT INTO checkpoint_events (vendor_id, sppg_location_id, cp_type, cp_status, photos, started_at, completed_at)
-       VALUES ($1, $2, $3, 'done', $4::jsonb, $5, $5)
+      `INSERT INTO checkpoint_events (vendor_id, sppg_location_id, operation_day_id, cp_type, cp_status, photos, started_at, completed_at)
+       VALUES ($1, $2, $3, $4, 'done', $5::jsonb, $6, $6)
        ON CONFLICT ON CONSTRAINT idx_cp_unique_per_day DO UPDATE
-         SET cp_status = 'done', photos = $4::jsonb, completed_at = $5`,
-      [vendorId, sppg.id, cpType, JSON.stringify([uploadResult]), now],
+         SET cp_status = 'done', photos = $5::jsonb, completed_at = $6, operation_day_id = $3`,
+      [vendorId, sppg.id, day.id, cpType, JSON.stringify([uploadResult]), now],
     );
 
     const [saved] = await this.dataSource.query(
@@ -137,7 +145,7 @@ export class CheckpointsService {
 
     // CP3 side effect: generate delivery tokens
     if (cpType === 'CP3') {
-      await this.generateDeliveryTokens(vendorId, sppg);
+      await this.generateDeliveryTokens(vendorId, sppg, day.id);
     }
 
     // CP4 side effect: auto-generate daily debrief
@@ -168,19 +176,20 @@ export class CheckpointsService {
 
   private async generateDeliveryTokens(
     vendorId: string,
-    sppg: { id: string; targetPorsi: number; assignedSchools: string[] },
+    sppg: { id: string; targetPorsi: number; assignedSchools: string[] }, operationDayId: string,
   ): Promise<void> {
     const expiredAt = new Date();
     expiredAt.setHours(expiredAt.getHours() + 4);
     const schools = sppg.assignedSchools.length > 0 ? sppg.assignedSchools : ['default-school'];
     for (const schoolId of schools) {
       await this.dataSource.query(
-        `INSERT INTO delivery_tokens (vendor_id, sppg_location_id, school_id, porsi_count, expired_at)
-         VALUES ($1, $2, $3, $4, $5)
+        `INSERT INTO delivery_tokens (vendor_id, sppg_location_id, operation_day_id, school_id, porsi_count, expired_at)
+         VALUES ($1, $2, $3, $4, $5, $6)
          ON CONFLICT DO NOTHING`,
-        [vendorId, sppg.id, schoolId, sppg.targetPorsi, expiredAt],
+        [vendorId, sppg.id, operationDayId, schoolId, sppg.targetPorsi, expiredAt],
       );
     }
+    await this.dataSource.query(`UPDATE operation_days SET status = 'dispatched', updated_at = NOW() WHERE id = $1`, [operationDayId]);
     this.logger.log(`[checkpoints] Generated ${schools.length} delivery token(s) for vendor ${vendorId}`);
   }
 

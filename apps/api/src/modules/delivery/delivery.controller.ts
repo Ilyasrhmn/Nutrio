@@ -32,6 +32,7 @@ export class DeliveryController {
   }
 
   @Post(':token/arrived')
+  @UseGuards(JwtAuthGuard)
   @HttpCode(HttpStatus.OK)
   recordArrival(
     @Param('token') token: string,
@@ -41,6 +42,7 @@ export class DeliveryController {
   }
 
   @Post(':token/photo')
+  @UseGuards(JwtAuthGuard)
   @UseInterceptors(FileInterceptor('file', { storage: memoryStorage(), limits: { fileSize: 10 * 1024 * 1024 } }))
   uploadPhoto(@Param('token') token: string, @UploadedFile() file: Express.Multer.File) {
     return this.service.uploadArrivalPhoto(token, file);
@@ -52,6 +54,7 @@ export class DeliveryController {
   }
 
   @Post(':token/complete')
+  @UseGuards(JwtAuthGuard)
   @HttpCode(HttpStatus.OK)
   complete(@Param('token') token: string) {
     return this.service.complete(token);
