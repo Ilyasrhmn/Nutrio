@@ -17,11 +17,18 @@ const CHECKPOINT_DEFS = [
 ];
 
 interface AiResult {
-  status: string;
-  score: number;
+  status: "pass" | "warning" | "pending";
   confidence: number;
   notes: string;
-  detectedItems: string[];
+  scoreDelta?: number;
+}
+
+interface CheckpointEvent {
+  id: string;
+  cpType: string;
+  cpStatus: string;
+  scoreDelta: number;
+  aiValidation: { pass: boolean; reason: string; confidence: number } | null;
 }
 
 function base64ToBlob(base64: string): Blob {
@@ -33,10 +40,40 @@ function base64ToBlob(base64: string): Blob {
   return new Blob([arr], { type: mime });
 }
 
+function sleep(ms: number) {
+  return new Promise((resolve) => setTimeout(resolve, ms));
+}
+
+async function pollForAiResult(cpType: string, attempts = 6, delayMs = 2000): Promise<AiResult> {
+  for (let i = 0; i < attempts; i++) {
+    await sleep(delayMs);
+    try {
+      const res = await apiClient.get<CheckpointEvent[]>("/checkpoints/today");
+      const match = res.data.find((cp) => cp.cpType === cpType);
+      if (match?.aiValidation) {
+        return {
+          status: match.aiValidation.pass ? "pass" : "warning",
+          confidence: match.aiValidation.confidence,
+          notes: match.aiValidation.reason,
+          scoreDelta: match.scoreDelta,
+        };
+      }
+    } catch {
+      // keep polling; final iteration falls through to pending result below
+    }
+  }
+  return {
+    status: "pending",
+    confidence: 0,
+    notes: "Foto tersimpan, validasi AI masih diproses di server. Anda tetap bisa lanjut ke tahap berikutnya.",
+  };
+}
+
 export default function LiveCheckpointPage() {
   const [currentStep, setCurrentStep] = useState(0);
   const [capturedImage, setCapturedImage] = useState<string | null>(null);
   const [isAnalyzing, setIsAnalyzing] = useState(false);
+  const [isPolling, setIsPolling] = useState(false);
   const [aiResult, setAiResult] = useState<AiResult | null>(null);
   const [isCompleted, setIsCompleted] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -54,26 +91,19 @@ export default function LiveCheckpointPage() {
       form.append("photo", blob, `${currentDef.id}.jpg`);
 
       await apiClient.post(`/checkpoints/${currentDef.id}/submit`, form);
+      setIsAnalyzing(false);
+      setIsPolling(true);
 
-      setAiResult({
-        status: "pass",
-        score: 90,
-        confidence: 0.88,
-        notes: `${currentDef.label} berhasil diverifikasi dan disimpan.`,
-        detectedItems: [],
-      });
+      // AI validation runs async server-side; poll for the real result
+      // instead of fabricating one immediately.
+      const result = await pollForAiResult(currentDef.id);
+      setAiResult(result);
     } catch (err: any) {
       const msg: string = err?.response?.data?.message ?? err?.message ?? "Gagal mengirim foto";
       setError(msg);
-      setAiResult({
-        status: "warning",
-        score: 0,
-        confidence: 0,
-        notes: msg,
-        detectedItems: [],
-      });
-    } finally {
       setIsAnalyzing(false);
+    } finally {
+      setIsPolling(false);
     }
   };
 
@@ -137,8 +167,24 @@ export default function LiveCheckpointPage() {
             <Loader2 className="h-8 w-8 text-green-600 animate-spin" />
             <div className="text-center">
               <p className="font-bold text-slate-900">Mengirim foto...</p>
-              <p className="text-xs text-slate-500">Memverifikasi standar checkpoint</p>
+              <p className="text-xs text-slate-500">Mengunggah ke server</p>
             </div>
+          </div>
+        )}
+
+        {isPolling && (
+          <div className="flex flex-col items-center justify-center p-8 space-y-4 bg-slate-50 rounded-2xl border border-dashed border-slate-300">
+            <Loader2 className="h-8 w-8 text-green-600 animate-spin" />
+            <div className="text-center">
+              <p className="font-bold text-slate-900">Menunggu hasil AI...</p>
+              <p className="text-xs text-slate-500">Foto sedang diverifikasi server</p>
+            </div>
+          </div>
+        )}
+
+        {error && !aiResult && (
+          <div className="flex items-start gap-3 p-4 bg-red-50 border border-red-100 rounded-2xl">
+            <p className="text-sm text-red-700 font-medium">{error}</p>
           </div>
         )}
 
