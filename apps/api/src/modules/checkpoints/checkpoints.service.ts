@@ -140,6 +140,20 @@ export class CheckpointsService {
       const day = await this.operationDays.activeForVendor(manager, vendorId);
       if (cpType === "CP1")
         await this.operationDays.consumeForCp1(manager, day.id, userId ?? "");
+      if (cpType === "CP4") {
+        const [delivery] = await manager.query(
+          `SELECT id FROM delivery_tokens
+           WHERE operation_day_id = $1
+             AND status IN ('active', 'in_progress', 'waiting_school_confirm')
+           LIMIT 1`,
+          [day.id],
+        );
+        if (!delivery) {
+          throw new BadRequestException(
+            "CP4 membutuhkan token pengantaran operation day yang aktif",
+          );
+        }
+      }
       const [checkpoint] = await manager.query(
         `INSERT INTO checkpoint_events (vendor_id, sppg_location_id, operation_day_id, cp_type, cp_status, photos, started_at, completed_at)
          VALUES ($1, $2, $3, $4, 'done', $5::jsonb, $6, $6)
@@ -166,14 +180,12 @@ export class CheckpointsService {
       return checkpoint;
     });
 
-    // Async AI validation (fire and forget)
-    this.validatePhotoAsync(
+    // Persist the validation before responding so checkpoint evidence is complete.
+    saved.ai_validation = await this.validatePhotoAsync(
       vendorId,
       saved.id,
       uploadResult.fileUrl,
       cpType,
-    ).catch((e) =>
-      this.logger.error(`AI validation failed for ${saved.id}: ${e.message}`),
     );
 
     // Broadcast to Mission Control
@@ -208,7 +220,13 @@ export class CheckpointsService {
     checkpointId: string,
     fileUrl: string,
     cpType: CpType,
-  ): Promise<void> {
+  ): Promise<{
+    pass: boolean;
+    reason: string;
+    confidence: number;
+    model: string;
+    version: string;
+  }> {
     const result = await this.visionService.validatePhoto(fileUrl, {
       feature: "checkpoint",
       cpType,
@@ -240,6 +258,7 @@ export class CheckpointsService {
       );
       await this.scoringService.applyPenalty(vendorId, "PHOTO_QUALITY_POOR");
     }
+    return validation;
   }
 
   private async generateDeliveryTokens(

@@ -86,13 +86,6 @@ export class SchoolConfirmService {
         `UPDATE delivery_tokens SET status = 'used', used_at = NOW() WHERE id = $1`,
         [token.id],
       );
-      if (token.operation_day_id) {
-        await manager.query(
-          `UPDATE operation_days SET status = 'school_confirmed', updated_at = NOW()
-           WHERE id = $1 AND status = 'dispatched'`,
-          [token.operation_day_id],
-        );
-      }
       const hasIssue =
         payload.kondisi === "ada_masalah" ||
         payload.jumlahDiterima !== Number(token.porsi_count);
@@ -118,6 +111,20 @@ export class SchoolConfirmService {
           jumlahDiterima: payload.jumlahDiterima,
         },
       });
+      if (token.operation_day_id) {
+        const [pending] = await manager.query(
+          `SELECT id FROM delivery_tokens
+           WHERE operation_day_id = $1 AND status <> 'used' LIMIT 1`,
+          [token.operation_day_id],
+        );
+        if (!pending) {
+          await manager.query(
+            `UPDATE operation_days SET status = 'school_confirmed', updated_at = NOW()
+             WHERE id = $1 AND status = 'dispatched'`,
+            [token.operation_day_id],
+          );
+        }
+      }
       return { ...token, hasIssue };
     });
 

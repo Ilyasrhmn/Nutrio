@@ -67,10 +67,10 @@ Operasional: planned -> CP1 -> CP2 -> CP3 -> dispatched -> CP4 -> school_confirm
 
 - [x] Implementasikan domain Purchase Order di modul baru `orders` atau modul `suppliers` yang fokus; jangan menggunakan halaman frontend sebagai sumber status.
 - [x] Gunakan tabel migrasi supplier yang sudah ada bila cocok; audit dahulu agar tidak menduplikasi schema. Buat migration tambahan hanya untuk kolom/tabel yang benar-benar belum tersedia.
-- [ ] Tambahkan cart/PO item, submit/cancel/accept/reject/dispatch/receive, invoice reference, riwayat status, dan validasi stok/harga server-side.
+- [x] Tambahkan cart/PO item, submit/cancel/accept/reject/dispatch/receive, invoice reference, riwayat status, dan validasi stok/harga server-side.
 - [x] Implementasikan inventory ledger dan snapshot opname: sumber dapat berasal dari goods receipt, pemakaian recipe, waste, atau penyesuaian opname; jangan hanya menyimpan angka stok terakhir.
 - [x] Tambahkan menu harian/recipe/bahan baku dan endpoint perhitungan kebutuhan terhadap kapasitas/pax serta stok tersedia.
-- [ ] Buat event `order.*`, `inventory.*`, dan notifikasi in-app untuk perubahan status yang relevan.
+- [x] Buat event `order.*`, `inventory.*`, dan notifikasi in-app untuk perubahan status yang relevan.
 - [x] Tulis e2e test: vendor membuat PO -> supplier menerima -> vendor menerima barang -> stok meningkat.
 
 ### Sprint 2 — Orkestrasi hari operasional (hari 7–10)
@@ -78,11 +78,11 @@ Operasional: planned -> CP1 -> CP2 -> CP3 -> dispatched -> CP4 -> school_confirm
 **Deliverable:** satu `operationDay` menjadi aggregate tunggal yang menautkan menu, PO/stock, checkpoint, delivery, dan sekolah.
 
 - [x] Tambahkan `operation-day`/service orchestration dengan state-machine; operasi tidak boleh lompat CP1–CP4 dan harus idempotent terhadap retry dari PWA.
-- [ ] Kaitkan CP1 dengan bahan/PO atau stock reference, CP2/CP3 dengan menu dan jumlah porsi, serta CP4 dengan delivery token yang benar.
-- [ ] Ubah hasil validasi AI menjadi respons checkpoint nyata yang disimpan: skor, temuan, model/version, URL bukti, dan keputusan pass/warning/fail. Mock tetap boleh ada di environment demo, tetapi melalui antarmuka yang sama.
+- [x] Kaitkan CP1 dengan bahan/PO atau stock reference, CP2/CP3 dengan menu dan jumlah porsi, serta CP4 dengan delivery token yang benar.
+- [x] Ubah hasil validasi AI menjadi respons checkpoint nyata yang disimpan: skor, temuan, model/version, URL bukti, dan keputusan pass/warning/fail. Mock tetap boleh ada di environment demo, tetapi melalui antarmuka yang sama.
 - [x] Buat alur penugasan delivery dari operation day hingga token QR, lokasi/waktu tiba, foto, dan complete.
 - [x] Konfirmasi sekolah harus menutup delivery yang tepat dan menerbitkan event `school.confirmed`; token harus sekali pakai, kedaluwarsa, dan tercatat auditornya.
-- [ ] Tambahkan incident ketika validasi gagal, telat, jumlah tidak cocok, atau konfirmasi ditolak; jangan menyembunyikan kasus gagal sebagai skor nol semata.
+- [x] Tambahkan incident ketika validasi gagal, telat, jumlah tidak cocok, atau konfirmasi ditolak; jangan menyembunyikan kasus gagal sebagai skor nol semata.
 - [x] Tulis e2e test untuk jalur sukses dan jalur ditolak: CP urut, QR kedaluwarsa, token dipakai ulang, dan akses lintas vendor.
 
 ### Sprint 3 — Closing the loop (hari 11–13)
@@ -94,7 +94,7 @@ Operasional: planned -> CP1 -> CP2 -> CP3 -> dispatched -> CP4 -> school_confirm
 - [x] Tambahkan audit-event append-only untuk perubahan state kritis: PO, stok, checkpoint, delivery, sekolah, skor, dan dana.
 - [ ] Implementasikan proyeksi query untuk command center, laporan, dan public aggregate dengan filter tanggal/vendor/wilayah. Jangan menghitung dari data dummy di controller.
 - [ ] Emisikan event Socket.IO dan notification per transisi penting; email/Resend hanya adapter tambahan dan tidak boleh menjadi satu-satunya bukti notifikasi.
-- [ ] Tambahkan endpoint health yang memeriksa konfigurasi wajib secara aman dan log correlation ID untuk alur satu operation day.
+- [x] Tambahkan endpoint health yang memeriksa konfigurasi wajib secara aman dan log correlation ID untuk alur satu operation day.
 
 ### Sprint 4 — Penguatan rilis (hari 14)
 

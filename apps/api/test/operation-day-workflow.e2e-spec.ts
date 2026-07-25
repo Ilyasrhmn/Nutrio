@@ -173,6 +173,10 @@ describe("Operation-day workflow (e2e)", () => {
 
   it("covers PO, inventory, operation-day, checkpoint, delivery, school confirmation, score/funds/audit", async () => {
     await request(app.getHttpServer())
+      .get("/health")
+      .expect(200)
+      .expect((response) => expect(response.body.checks.database).toBe(true));
+    await request(app.getHttpServer())
       .get("/auth/me")
       .set(auth(vendorToken))
       .expect(200)
@@ -182,7 +186,7 @@ describe("Operation-day workflow (e2e)", () => {
 
     const orderPayload = {
       supplierId,
-      items: [{ productId, quantity: 10 }],
+      items: [{ productId, quantity: 11 }],
       requestedDeliveryDate: new Date().toISOString().slice(0, 10),
     };
     const createdOrder = await request(app.getHttpServer())
@@ -232,16 +236,65 @@ describe("Operation-day workflow (e2e)", () => {
         ),
       );
     await request(app.getHttpServer())
+      .get(`/orders/${orderId}`)
+      .set(auth(vendorToken))
+      .expect(200)
+      .expect((response) => {
+        expect(response.body.invoiceNumber).toMatch(/^INV-/);
+        expect(response.body.history).toEqual(
+          expect.arrayContaining([
+            expect.objectContaining({ to_status: "delivered" }),
+          ]),
+        );
+      });
+
+    const cancellable = await request(app.getHttpServer())
+      .post("/orders")
+      .set(auth(vendorToken))
+      .set("Idempotency-Key", `${runId}-order-cancel`)
+      .send(orderPayload)
+      .expect(201);
+    const cancellableId = cancellable.body.body.id as string;
+    await request(app.getHttpServer())
+      .post(`/orders/${cancellableId}/cancel`)
+      .set(auth(vendorToken))
+      .set("Idempotency-Key", `${runId}-cancel`)
+      .send({ reason: "Kebutuhan dapur berubah" })
+      .expect(201);
+    await request(app.getHttpServer())
+      .get(`/orders/${cancellableId}`)
+      .set(auth(vendorToken))
+      .expect(200)
+      .expect((response) => expect(response.body.status).toBe("cancelled"));
+    await request(app.getHttpServer())
+      .post(`/orders/${cancellableId}/cancel`)
+      .set(auth(vendorToken))
+      .set("Idempotency-Key", `${runId}-cancel`)
+      .send({ reason: "Kebutuhan dapur berubah" })
+      .expect(201)
+      .expect((response) => expect(response.body.replayed).toBe(true));
+    await request(app.getHttpServer())
       .get("/inventory/current")
       .set(auth(vendorToken))
       .expect(200)
       .expect((response) =>
         expect(response.body).toEqual(
           expect.arrayContaining([
-            expect.objectContaining({ productId, quantity: 10 }),
+            expect.objectContaining({ productId, quantity: 11 }),
           ]),
         ),
       );
+    await request(app.getHttpServer())
+      .post("/inventory/waste")
+      .set(auth(vendorToken))
+      .set("Idempotency-Key", `${runId}-waste`)
+      .send({
+        productId,
+        unit: "kg",
+        quantity: 1,
+        reason: "Kemasan rusak saat penerimaan",
+      })
+      .expect(201);
 
     const date = new Date().toISOString().slice(0, 10);
     const menu = await request(app.getHttpServer())
@@ -352,8 +405,8 @@ describe("Operation-day workflow (e2e)", () => {
 
     const [expired] = await dataSource.query(
       `INSERT INTO delivery_tokens
-         (vendor_id, sppg_location_id, operation_day_id, school_id, porsi_count, expired_at)
-       SELECT vendor_id, sppg_location_id, operation_day_id, 'Sekolah E2E Kedaluwarsa', 1, NOW() - INTERVAL '1 minute'
+         (vendor_id, sppg_location_id, school_id, porsi_count, expired_at)
+       SELECT vendor_id, sppg_location_id, 'Sekolah E2E Kedaluwarsa', 1, NOW() - INTERVAL '1 minute'
        FROM delivery_tokens WHERE token = $1::uuid RETURNING token`,
       [deliveryToken],
     );
@@ -370,19 +423,24 @@ describe("Operation-day workflow (e2e)", () => {
     const [facts] = await dataSource.query(
       `SELECT
          (SELECT COUNT(*)::int FROM checkpoint_events WHERE operation_day_id = $1 AND cp_status = 'done') AS checkpoint_count,
+         (SELECT COUNT(*)::int FROM checkpoint_events WHERE operation_day_id = $1 AND ai_validation IS NOT NULL) AS validated_checkpoint_count,
          (SELECT COUNT(*)::int FROM inventory_ledger WHERE source_id = $1 AND entry_type = 'consumption') AS consumption_count,
          (SELECT COUNT(*)::int FROM fund_projections WHERE operation_day_id = $1) AS projection_count,
-         (SELECT COUNT(*)::int FROM audit_events WHERE aggregate_id = $1) AS audit_count`,
-      [operationDayId],
+         (SELECT COUNT(*)::int FROM audit_events WHERE aggregate_id = $1) AS audit_count,
+         (SELECT COUNT(*)::int FROM notifications n
+          JOIN users u ON u.id = n.user_id
+          WHERE u.email LIKE $2) AS notification_count`,
+      [operationDayId, `${runId}%`],
     );
     expect(facts).toMatchObject({
       checkpoint_count: 4,
+      validated_checkpoint_count: 4,
       consumption_count: 1,
       projection_count: 1,
     });
     expect(Number(facts.audit_count)).toBeGreaterThanOrEqual(1);
+    expect(Number(facts.notification_count)).toBe(6);
     expect(storageMock.upload).toHaveBeenCalledTimes(6);
-    await new Promise((resolve) => setTimeout(resolve, 100));
     expect(visionMock.validatePhoto).toHaveBeenCalledTimes(5);
   }, 60000);
 });
