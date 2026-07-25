@@ -5,11 +5,12 @@ import {
   ConflictException,
   BadRequestException,
   Logger,
-} from '@nestjs/common';
-import { DataSource } from 'typeorm';
-import { StorageService } from '../storage/storage.service';
-import { ScoringService } from '../scoring/scoring.service';
-import { RealtimeService } from '../realtime/realtime.service';
+} from "@nestjs/common";
+import { DataSource } from "typeorm";
+import { StorageService } from "../storage/storage.service";
+import { ScoringService } from "../scoring/scoring.service";
+import { RealtimeService } from "../realtime/realtime.service";
+import { AuditService } from "../../common/audit/audit.service";
 
 export interface DeliveryInfo {
   token: string;
@@ -32,6 +33,7 @@ export class DeliveryService {
     private readonly storageService: StorageService,
     private readonly scoringService: ScoringService,
     private readonly realtimeService: RealtimeService,
+    private readonly audit: AuditService,
   ) {}
 
   private async getToken(token: string) {
@@ -45,11 +47,24 @@ export class DeliveryService {
     return row ?? null;
   }
 
+  private async assertTokenOwner(userId: string, token: string) {
+    const [row] = await this.dataSource.query(
+      `SELECT dt.*, v.business_name AS vendor_name
+       FROM delivery_tokens dt
+       JOIN vendors v ON v.id = dt.vendor_id
+       WHERE dt.token = $1::uuid AND v.user_id = $2`,
+      [token, userId],
+    );
+    if (!row) throw new NotFoundException("Token pengantaran tidak ditemukan");
+    return row;
+  }
+
   async getInfo(token: string): Promise<DeliveryInfo> {
     const row = await this.getToken(token);
-    if (!row) throw new NotFoundException('Token tidak ditemukan');
-    if (row.status === 'used') throw new GoneException('Token sudah digunakan');
-    if (new Date(row.expired_at) < new Date()) throw new GoneException('Token sudah kedaluwarsa');
+    if (!row) throw new NotFoundException("Token tidak ditemukan");
+    if (row.status === "used") throw new GoneException("Token sudah digunakan");
+    if (new Date(row.expired_at) < new Date())
+      throw new GoneException("Token sudah kedaluwarsa");
 
     return {
       token: row.token,
@@ -64,50 +79,85 @@ export class DeliveryService {
     };
   }
 
-  async recordArrival(token: string, gpsLat?: number, gpsLng?: number): Promise<{ ok: boolean }> {
-    const row = await this.getToken(token);
-    if (!row) throw new NotFoundException('Token tidak ditemukan');
-    if (row.status === 'used') throw new GoneException('Token sudah digunakan');
+  async recordArrival(
+    userId: string,
+    token: string,
+    gpsLat?: number,
+    gpsLng?: number,
+  ): Promise<{ ok: boolean }> {
+    const row = await this.assertTokenOwner(userId, token);
+    if (row.status === "used") throw new GoneException("Token sudah digunakan");
     if (new Date(row.expired_at) < new Date()) {
-      await this.scoringService.applyPenalty(row.vendor_id, 'DELIVERY_LATE');
-      throw new GoneException('Token sudah kedaluwarsa');
+      await this.scoringService.applyPenalty(row.vendor_id, "DELIVERY_LATE");
+      throw new GoneException("Token sudah kedaluwarsa");
     }
 
-    const gps =
-      gpsLat != null && gpsLng != null
-        ? `ST_SetSRID(ST_MakePoint(${gpsLng}, ${gpsLat}), 4326)`
-        : null;
-
-    await this.dataSource.query(
-      `UPDATE delivery_tokens SET arrived_at = NOW(), status = 'in_progress'${gps ? `, gps = ${gps}` : ''} WHERE token = $1::uuid`,
-      [token],
-    );
+    await this.dataSource.transaction(async (manager) => {
+      if (gpsLat != null && gpsLng != null) {
+        await manager.query(
+          `UPDATE delivery_tokens SET arrived_at = NOW(), status = 'in_progress',
+             gps = ST_SetSRID(ST_MakePoint($2, $3), 4326) WHERE token = $1::uuid`,
+          [token, gpsLng, gpsLat],
+        );
+      } else {
+        await manager.query(
+          `UPDATE delivery_tokens SET arrived_at = NOW(), status = 'in_progress' WHERE token = $1::uuid`,
+          [token],
+        );
+      }
+      await this.audit.record(manager, {
+        actorUserId: userId,
+        aggregateType: "delivery",
+        aggregateId: row.id,
+        action: "delivery.arrived",
+        after: { operationDayId: row.operation_day_id, status: "in_progress" },
+      });
+    });
 
     return { ok: true };
   }
 
-  async uploadArrivalPhoto(token: string, file: Express.Multer.File): Promise<{ fileUrl: string }> {
-    const row = await this.getToken(token);
-    if (!row) throw new NotFoundException('Token tidak ditemukan');
-    if (row.status === 'used') throw new GoneException('Token sudah digunakan');
+  async uploadArrivalPhoto(
+    userId: string,
+    token: string,
+    file: Express.Multer.File,
+  ): Promise<{ fileUrl: string }> {
+    const row = await this.assertTokenOwner(userId, token);
+    if (row.status === "used") throw new GoneException("Token sudah digunakan");
 
     const key = `delivery/${row.vendor_id}/${token}.jpg`;
-    const result = await this.storageService.upload(file.buffer, key, file.mimetype);
-
-    await this.dataSource.query(
-      `UPDATE delivery_tokens SET arrival_photo = $1 WHERE token = $2::uuid`,
-      [result.fileUrl, token],
+    const result = await this.storageService.upload(
+      file.buffer,
+      key,
+      file.mimetype,
     );
+
+    await this.dataSource.transaction(async (manager) => {
+      await manager.query(
+        `UPDATE delivery_tokens SET arrival_photo = $1 WHERE token = $2::uuid`,
+        [result.fileUrl, token],
+      );
+      await this.audit.record(manager, {
+        actorUserId: userId,
+        aggregateType: "delivery",
+        aggregateId: row.id,
+        action: "delivery.photo_uploaded",
+        after: { operationDayId: row.operation_day_id },
+      });
+    });
 
     return { fileUrl: result.fileUrl };
   }
 
-  async getQrPayload(token: string): Promise<{ token: string; qrValue: string; status: string }> {
+  async getQrPayload(
+    token: string,
+  ): Promise<{ token: string; qrValue: string; status: string }> {
     const row = await this.getToken(token);
-    if (!row) throw new NotFoundException('Token tidak ditemukan');
-    if (row.status === 'used') throw new GoneException('Token sudah digunakan');
+    if (!row) throw new NotFoundException("Token tidak ditemukan");
+    if (row.status === "used") throw new GoneException("Token sudah digunakan");
 
-    const appBaseUrl = process.env.NEXT_PUBLIC_WEB_URL ?? 'http://localhost:3000';
+    const appBaseUrl =
+      process.env.NEXT_PUBLIC_WEB_URL ?? "http://localhost:3000";
     return {
       token: row.token,
       qrValue: `${appBaseUrl}/sekolah/confirm/${row.token}`,
@@ -146,19 +196,27 @@ export class DeliveryService {
 
     const byDate: Record<string, typeof rows> = {};
     for (const r of rows) {
-      const k = new Date(r.delivery_date).toISOString().split('T')[0]!;
+      const k = new Date(r.delivery_date).toISOString().split("T")[0]!;
       if (!byDate[k]) byDate[k] = [];
       byDate[k].push(r);
     }
 
-    const dayNames = ['Minggu', 'Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu'];
+    const dayNames = [
+      "Minggu",
+      "Senin",
+      "Selasa",
+      "Rabu",
+      "Kamis",
+      "Jumat",
+      "Sabtu",
+    ];
     const result = [];
     for (let i = 0; i < 7; i++) {
       const d = new Date();
       d.setDate(d.getDate() - d.getDay() + i);
-      const key = d.toISOString().split('T')[0]!;
+      const key = d.toISOString().split("T")[0]!;
       const deliveries = byDate[key] ?? [];
-      const isToday = key === new Date().toISOString().split('T')[0];
+      const isToday = key === new Date().toISOString().split("T")[0];
 
       result.push({
         date: key,
@@ -181,23 +239,42 @@ export class DeliveryService {
     return { days: result };
   }
 
-  async complete(token: string): Promise<{ ok: boolean }> {
-    const row = await this.getToken(token);
-    if (!row) throw new NotFoundException('Token tidak ditemukan');
-    if (row.status === 'used') throw new ConflictException('Token sudah digunakan');
-    if (!row.arrived_at) throw new BadRequestException('Harus catat kedatangan dulu');
+  async complete(userId: string, token: string): Promise<{ ok: boolean }> {
+    const row = await this.assertTokenOwner(userId, token);
+    if (row.status === "used")
+      throw new ConflictException("Token sudah digunakan");
+    if (!row.arrived_at)
+      throw new BadRequestException("Harus catat kedatangan dulu");
 
-    await this.dataSource.query(
-      `UPDATE delivery_tokens SET completed_at = NOW(), status = 'waiting_school_confirm' WHERE token = $1::uuid`,
-      [token],
-    );
-
-    this.realtimeService.broadcastToVendor(row.vendor_id, 'delivery:waiting_confirm', {
-      token,
-      schoolId: row.school_id,
+    await this.dataSource.transaction(async (manager) => {
+      await manager.query(
+        `UPDATE delivery_tokens SET completed_at = NOW(), status = 'waiting_school_confirm' WHERE token = $1::uuid`,
+        [token],
+      );
+      await this.audit.record(manager, {
+        actorUserId: userId,
+        aggregateType: "delivery",
+        aggregateId: row.id,
+        action: "delivery.completed",
+        after: {
+          operationDayId: row.operation_day_id,
+          status: "waiting_school_confirm",
+        },
+      });
     });
 
-    this.logger.log(`[delivery] Token ${token} completed, waiting school confirm`);
+    this.realtimeService.broadcastToVendor(
+      row.vendor_id,
+      "delivery:waiting_confirm",
+      {
+        token,
+        schoolId: row.school_id,
+      },
+    );
+
+    this.logger.log(
+      `[delivery] Token ${token} completed, waiting school confirm`,
+    );
     return { ok: true };
   }
 }
