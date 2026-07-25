@@ -102,6 +102,8 @@ import { Badge } from "@workspace/ui/components/badge";
 import { LucideIcon } from "lucide-react";
 import { useCallback, useEffect, useState } from "react";
 import { ConfirmModal } from "@workspace/ui/components/confirm-modal";
+import { QueryState, QueryStatus } from "@workspace/ui/components/query-state";
+import { toQueryError } from "@/lib/services/error-handler";
 
 // Icon mapping for preview
 const ICON_MAP: Record<string, LucideIcon> = {
@@ -188,6 +190,7 @@ const COMMON_SUBJECTS: AppSubject[] = [
 export default function MenusPage() {
   const [menus, setMenus] = useState<MenuTree[]>([]);
   const [loading, setLoading] = useState(true);
+  const [loadError, setLoadError] = useState<{ status: QueryStatus; errorMessage: string; isNetworkError: boolean } | null>(null);
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [selectedMenu, setSelectedMenu] = useState<MenuTree | null>(null);
   const [roleMenuToManage, setRoleMenuToManage] = useState<MenuTree | null>(
@@ -206,10 +209,11 @@ export default function MenusPage() {
   async function loadData() {
     try {
       setLoading(true);
+      setLoadError(null);
       const menusData = await menusService.getTree();
       setMenus(menusData);
     } catch (error) {
-      console.error("Failed to load data:", error);
+      setLoadError(toQueryError(error));
     } finally {
       setLoading(false);
     }
@@ -337,11 +341,16 @@ export default function MenusPage() {
 
   const filteredMenus = searchQuery ? filterMenus(menus) : menus;
 
-  if (loading && menus.length === 0) {
+  if ((loading && menus.length === 0) || loadError) {
     return (
-      <div className="flex items-center justify-center h-64">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
-      </div>
+      <QueryState
+        status={loadError ? loadError.status : 'loading'}
+        errorMessage={loadError?.errorMessage}
+        isNetworkError={loadError?.isNetworkError}
+        onRetry={loadData}
+      >
+        {null}
+      </QueryState>
     );
   }
 

@@ -22,11 +22,14 @@ import { Checkbox } from '@workspace/ui/components/checkbox';
 import { Label } from '@workspace/ui/components/label';
 import { useToast } from '@workspace/ui/hooks/use-toast';
 import { ConfirmModal } from '@workspace/ui/components/confirm-modal';
+import { QueryState, QueryStatus } from '@workspace/ui/components/query-state';
+import { toQueryError } from '@/lib/services/error-handler';
 
 export default function RolesPage() {
   const [roles, setRoles] = useState<RoleWithPermissions[]>([]);
   const [permissions, setPermissions] = useState<Record<string, DatabasePermission[]>>({});
   const [loading, setLoading] = useState(true);
+  const [loadError, setLoadError] = useState<{ status: QueryStatus; errorMessage: string; isNetworkError: boolean } | null>(null);
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [selectedRole, setSelectedRole] = useState<RoleWithPermissions | null>(null);
   const [roleToDelete, setRoleToDelete] = useState<RoleWithPermissions | null>(null);
@@ -41,6 +44,7 @@ export default function RolesPage() {
   async function loadData() {
     try {
       setLoading(true);
+      setLoadError(null);
       const [rolesData, permissionsData] = await Promise.all([
         rolesService.getAll(1, 100),
         permissionsService.getAll(),
@@ -48,7 +52,7 @@ export default function RolesPage() {
       setRoles(rolesData.items);
       setPermissions(permissionsData);
     } catch (error) {
-      console.error('Failed to load data:', error);
+      setLoadError(toQueryError(error));
     } finally {
       setLoading(false);
     }
@@ -88,11 +92,16 @@ export default function RolesPage() {
     (role.description && role.description.toLowerCase().includes(searchQuery.toLowerCase()))
   );
 
-  if (loading && roles.length === 0) {
+  if ((loading && roles.length === 0) || loadError) {
     return (
-      <div className="flex items-center justify-center h-64">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
-      </div>
+      <QueryState
+        status={loadError ? loadError.status : 'loading'}
+        errorMessage={loadError?.errorMessage}
+        isNetworkError={loadError?.isNetworkError}
+        onRetry={loadData}
+      >
+        {null}
+      </QueryState>
     );
   }
 
