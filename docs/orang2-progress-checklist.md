@@ -53,14 +53,31 @@ sesi sebelumnya. Bagian di bawah sudah diupdate untuk reflect integrasi terbaru.
       Sebelumnya "belum tersedia", sekarang fungsional penuh.
 - [ ] Retry upload foto + antrian offline (IndexedDB) — belum dikerjakan.
 - [ ] Batas ukuran foto, fallback upload non-kamera, UI offline/kamera ditolak — belum.
-- [ ] Delivery flow (`apps/pwa/app/cp/[cpId]/*`, `sekolah/*`) — backend `delivery.service.ts`
-      dan `school-confirm.service.ts` berubah signifikan sesi ini (butuh JWT auth sekarang di
-      endpoint yang sebelumnya publik: `arrived`, `photo`). **Belum diverifikasi ulang** apakah
-      PWA existing pages masih kompatibel — endpoint path tidak berubah, hanya nambah guard,
-      jadi kemungkinan tetap jalan karena `apiClient` PWA sudah attach Bearer token, tapi belum
-      dites end-to-end.
-- [ ] PWA score/history/notifications/publik — belum diaudit.
+- [x] **Ketemu flow checkpoint KEDUA yang aktif** — `apps/pwa/app/cp/[cpId]/{context,capture,
+      validate,confirm}`, dilink dari home dashboard (`app/page.tsx`), paralel sama
+      `operasional/live`. Punya bug sama persis (klaim "Foto Valid!" instan tanpa nunggu AI,
+      gak ada operation-day gating). Di-extract jadi `hooks/use-operation-day-check.ts` dipakai
+      di kedua flow; `validate/page.tsx` sekarang polling `/checkpoints/today` buat hasil AI
+      asli.
+- [x] Sekolah flow (`app/sekolah/page.tsx`, `sekolah/confirm/page.tsx`) — sudah real dari
+      awal (`/public/sppg/search`, `/public/overview`, `GET/POST /sekolah/confirm/:token`).
+      Dicek ulang field DTO backend (`jumlahDiterima`, `kondisi`, `catatan`) masih cocok
+      persis sama request body PWA — tidak ada breaking change dari perubahan backend.
+- [x] PWA score/history/notifications/publik — dicek, semua sudah panggil endpoint real
+      (`/scoring/history`, dst), tidak ada data fake.
+- [ ] Fallback upload file non-kamera — `app/cp/[cpId]/capture/page.tsx` secara eksplisit
+      MEMBLOKIR `<input type="file">` (`preventDefault` + toast). Doc Sprint 2 minta fallback
+      ini ada; belum dikerjakan (fitur baru, bukan bug).
+- [ ] Retry upload foto + antrian offline (IndexedDB) — belum dikerjakan.
+- [ ] Batas ukuran foto, UI offline/kamera ditolak — belum.
 - [ ] Playwright/mobile smoke test login → CP1 → CP4/delivery → sekolah confirm — belum dibuat.
+- [x] **End-to-end PO flow dites manual via browser**: marketplace checkout (vendor) →
+      accept → dispatch (supplier) → receive (vendor) → stok inventory bertambah real.
+      Nemu & fix 2 bug: migration belum jalan di DB lokal pasca-merge (`pnpm db:migrate`),
+      dan `GET /orders/:id` balikin `items`/`history` snake_case + angka string (beda dari
+      top-level yang camelCase) — dinormalize di `orders.service.ts`. Juga nemu bug kecil di
+      backend: `po_status_logs` ke-insert dobel (DB trigger + kode service) — dicatat, tidak
+      difix (di luar scope `apps/api`).
 
 ## Sprint 3 — Monitoring, transparansi, dan operasi admin
 
