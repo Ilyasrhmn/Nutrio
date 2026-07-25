@@ -118,6 +118,26 @@ sesi sebelumnya. Bagian di bawah sudah diupdate untuk reflect integrasi terbaru.
       alasannya; satu-satunya metrik real yang ada (`GET /scoring/history`) dipertahankan
       sebagai chart tren skor.
 
+## Lanjutan sesi keempat ("gass" #3, exclude e2e)
+
+- [x] Command-center vendor detail — sudah ada drill-down alert→vendor dari sesi sebelumnya;
+      ditambah kartu **Hari Operasional** (target pax, checkpoint, delivery dikonfirmasi,
+      estimasi dana) dari `GET /command-center/operation-days?vendorId=` yang sebelumnya belum
+      dipakai sama sekali. Drill-down ke incident masih belum bisa — endpoint-nya gak ada
+      (lihat kontrak baru).
+- [x] **IndexedDB offline retry queue** — `apps/pwa/lib/offline-queue.ts` +
+      `hooks/use-offline-queue-sync.ts` + banner global di layout. Kegagalan submit foto
+      checkpoint akibat network (bukan validasi server) sekarang disimpan ke IndexedDB dan
+      di-retry otomatis pas online lagi. Dipasang di kedua flow checkpoint
+      (`operasional/live` dan `cp/[cpId]/validate`).
+- [x] 3 kontrak issue baru ditulis buat gap backend yang genuinely gak bisa dikerjain dari
+      sisi frontend: `docs/contract-audit-trail.md` (audit log + incidents read/patch),
+      `docs/contract-vendor-coordinates.md` (lat/lng vendor buat peta),
+      `docs/contract-vendor-bookkeeping.md` (income vendor-scoped + expense tracking).
+      **Ketemu isu keamanan sekalian**: `GET /funds/transactions` gak di-scope per role —
+      semua user login bisa lihat payment history vendor lain. Dicatat di kontrak, bukan
+      difix (backend, di luar scope).
+
 ## Sprint 4 — QA lintas peran
 
 - [ ] `pnpm test:e2e` — belum dijalankan.
