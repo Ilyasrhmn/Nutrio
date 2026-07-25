@@ -55,16 +55,24 @@ export class FundsService {
 
   async getTransactions(limit = 20): Promise<FundTransaction[]> {
     const rows = await this.dataSource.query(
-      `SELECT
+      `SELECT * FROM (
+       SELECT
          p.id,
          v.business_name AS vendor_name,
          p.paid_at,
          p.amount,
          p.status,
-         p.invoice_number
+         p.invoice_number,
+         p.created_at
        FROM payments p
        JOIN vendors v ON v.id = p.vendor_id
-       ORDER BY p.created_at DESC
+       UNION ALL
+       SELECT fp.id, v.business_name AS vendor_name, NULL AS paid_at,
+              fp.amount, fp.status, NULL AS invoice_number, fp.created_at
+       FROM fund_projections fp
+       JOIN vendors v ON v.id = fp.vendor_id
+       ) transactions
+       ORDER BY created_at DESC
        LIMIT $1`,
       [limit],
     );
