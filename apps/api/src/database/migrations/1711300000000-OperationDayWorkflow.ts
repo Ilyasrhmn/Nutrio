@@ -57,7 +57,7 @@ export class OperationDayWorkflow1711300000000
         source_id UUID NOT NULL,
         actor_user_id UUID NULL REFERENCES users(id) ON DELETE SET NULL,
         created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
-        UNIQUE (source_type, source_id, entry_type)
+        UNIQUE (source_type, source_id, entry_type, product_id, unit)
       );
 
       CREATE TABLE incidents (
