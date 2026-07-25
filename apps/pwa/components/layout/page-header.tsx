@@ -20,7 +20,7 @@ export function PageHeader({ title, showNotifications = true, showProfile = true
         {showProfile && user && (
           <Link href="/settings">
             <div className="h-8 w-8 rounded-full bg-green-100 flex items-center justify-center text-green-700 font-bold text-xs border border-green-200">
-              {user.avatar || user.name.charAt(0)}
+              {user.name.charAt(0)}
             </div>
           </Link>
         )}

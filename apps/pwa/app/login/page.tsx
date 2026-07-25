@@ -1,79 +1,86 @@
 "use client";
 
+import { useState } from "react";
 import { useAuth } from "@/components/providers/auth-provider";
-import { UserRole } from "@workspace/common/types";
 import { Button } from "@workspace/ui/components/button";
+import { Input } from "@workspace/ui/components/input";
+import { Label } from "@workspace/ui/components/label";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@workspace/ui/components/card";
-import { ClipboardList, Package, School, Globe, ChevronRight } from "lucide-react";
-
-const ROLE_CONFIGS = [
-  {
-    role: UserRole.VENDOR,
-    label: "Vendor Makan",
-    description: "Kelola dapur, checkpoint, dan tagihan.",
-    icon: ClipboardList,
-    color: "bg-green-100 text-green-700",
-  },
-  {
-    role: UserRole.SUPPLIER,
-    label: "Supplier Bahan",
-    description: "Terima pesanan dan upload bukti kirim.",
-    icon: Package,
-    color: "bg-blue-100 text-blue-700",
-  },
-  {
-    role: UserRole.COORDINATOR_SPPG,
-    label: "Pihak Sekolah",
-    description: "Scan QR penerimaan dan lapor gizi.",
-    icon: School,
-    color: "bg-amber-100 text-amber-700",
-  },
-  {
-    role: UserRole.PUBLIC,
-    label: "Publik / Warga",
-    description: "Pantau transparansi program MBG.",
-    icon: Globe,
-    color: "bg-slate-100 text-slate-700",
-  },
-];
+import { AlertCircle } from "lucide-react";
 
 export default function LoginPage() {
   const { login } = useAuth();
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [error, setError] = useState<string | null>(null);
+  const [submitting, setSubmitting] = useState(false);
+
+  async function handleSubmit(e: React.FormEvent) {
+    e.preventDefault();
+    setError(null);
+    setSubmitting(true);
+    try {
+      await login(email, password);
+    } catch (err) {
+      const message = err instanceof Error ? err.message : "Login gagal";
+      setError(message);
+    } finally {
+      setSubmitting(false);
+    }
+  }
 
   return (
-    <div className="min-h-screen bg-slate-50 flex flex-col items-center justify-center p-6 space-y-8">
-      <div className="text-center space-y-2">
-        <h1 className="text-3xl font-black text-slate-900 tracking-tight">MBG Platform</h1>
-        <p className="text-slate-500 font-medium">Pilih akses masuk (Demo Mode)</p>
-      </div>
+    <div className="min-h-screen bg-slate-50 flex flex-col items-center justify-center p-6">
+      <div className="w-full max-w-sm space-y-6">
+        <div className="text-center space-y-2">
+          <h1 className="text-3xl font-black text-slate-900 tracking-tight">Nutrio</h1>
+          <p className="text-slate-500 font-medium text-sm">Masuk dengan akun MBG Anda</p>
+        </div>
 
-      <div className="w-full max-w-md space-y-3">
-        {ROLE_CONFIGS.map((config) => (
-          <Button
-            key={config.role}
-            variant="ghost"
-            className="w-full h-auto p-0 hover:bg-transparent"
-            onClick={() => login(config.role)}
-          >
-            <Card className="w-full border-none shadow-sm hover:shadow-md transition-shadow">
-              <CardContent className="p-4 flex items-center gap-4">
-                <div className={`h-12 w-12 rounded-xl flex items-center justify-center ${config.color}`}>
-                  <config.icon className="h-6 w-6" />
+        <Card className="border-none shadow-sm">
+          <CardHeader>
+            <CardTitle className="text-lg">Masuk</CardTitle>
+            <CardDescription>Gunakan email dan kata sandi terdaftar.</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <form onSubmit={handleSubmit} className="space-y-4">
+              <div className="space-y-2">
+                <Label htmlFor="email">Email</Label>
+                <Input
+                  id="email"
+                  type="email"
+                  autoComplete="email"
+                  required
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  placeholder="nama@instansi.go.id"
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="password">Kata Sandi</Label>
+                <Input
+                  id="password"
+                  type="password"
+                  autoComplete="current-password"
+                  required
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  placeholder="••••••••"
+                />
+              </div>
+              {error && (
+                <div className="flex items-center gap-2 text-sm text-red-600 bg-red-50 rounded-lg p-3">
+                  <AlertCircle className="size-4 shrink-0" />
+                  {error}
                 </div>
-                <div className="flex-1 text-left">
-                  <h3 className="font-bold text-slate-900 leading-none">{config.label}</h3>
-                  <p className="text-xs text-slate-500 mt-1 font-medium">{config.description}</p>
-                </div>
-                <ChevronRight className="h-5 w-5 text-slate-300" />
-              </CardContent>
-            </Card>
-          </Button>
-        ))}
+              )}
+              <Button type="submit" disabled={submitting} className="w-full">
+                {submitting ? "Memproses..." : "Masuk"}
+              </Button>
+            </form>
+          </CardContent>
+        </Card>
       </div>
-
-      <p className="text-[10px] text-slate-400 font-bold uppercase tracking-widest text-center max-w-[200px]">
-        Sistem Verifikasi Berbasis Blockchain & AI
-      </p>
     </div>
   );
 }
