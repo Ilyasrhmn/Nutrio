@@ -2,6 +2,9 @@
 
 import { useParams, useRouter } from "next/navigation"
 import { Button } from "@workspace/ui/components/button"
+import { Card, CardContent } from "@workspace/ui/components/card"
+import { Loader2, CalendarClock, AlertTriangle } from "lucide-react"
+import { useOperationDayCheck } from "@/hooks/use-operation-day-check"
 
 const CP_CONTEXT: Record<string, { title: string; body: string; checklist: string[] }> = {
   CP1: {
@@ -29,10 +32,77 @@ const CP_CONTEXT: Record<string, { title: string; body: string; checklist: strin
 export default function CPContextPage() {
   const { cpId } = useParams<{ cpId: string }>()
   const router = useRouter()
+  const { check, retry } = useOperationDayCheck()
   const ctx = CP_CONTEXT[cpId] ?? {
     title: `${cpId} — Checkpoint`,
     body: 'Ambil foto untuk checkpoint ini.',
     checklist: [],
+  }
+
+  if (check.status === "checking") {
+    return (
+      <div className="min-h-screen bg-slate-900 flex flex-col items-center justify-center gap-4">
+        <Loader2 className="h-8 w-8 text-white animate-spin" />
+        <p className="text-slate-300 text-sm">Memeriksa hari operasional...</p>
+      </div>
+    )
+  }
+
+  if (check.status === "no-menu-plan") {
+    return (
+      <div className="min-h-screen bg-slate-900 text-white flex flex-col items-center justify-center p-6 text-center" style={{ maxWidth: 480, margin: '0 auto' }}>
+        <Card className="border-none shadow-sm w-full">
+          <CardContent className="p-8 flex flex-col items-center text-center gap-3">
+            <div className="h-14 w-14 rounded-full bg-amber-100 flex items-center justify-center text-amber-600">
+              <CalendarClock className="h-7 w-7" />
+            </div>
+            <p className="font-bold text-slate-900">Rencana Menu Belum Dibuat</p>
+            <p className="text-sm text-slate-500">
+              Susun target porsi dan bahan hari ini di halaman Kalkulasi Bahan (portal web)
+              sebelum memulai checkpoint.
+            </p>
+            <Button variant="outline" onClick={retry}>Coba Lagi</Button>
+          </CardContent>
+        </Card>
+      </div>
+    )
+  }
+
+  if (check.status === "insufficient-inventory") {
+    return (
+      <div className="min-h-screen bg-slate-900 text-white flex flex-col items-center justify-center p-6" style={{ maxWidth: 480, margin: '0 auto' }}>
+        <Card className="border-none shadow-sm w-full">
+          <CardContent className="p-6 space-y-4">
+            <div className="flex items-center gap-3">
+              <div className="h-12 w-12 rounded-full bg-red-100 flex items-center justify-center text-red-600 shrink-0">
+                <AlertTriangle className="h-6 w-6" />
+              </div>
+              <div>
+                <p className="font-bold text-slate-900">Stok Belum Cukup</p>
+                <p className="text-sm text-slate-500">Kebutuhan menu hari ini melebihi stok tersedia.</p>
+              </div>
+            </div>
+            <div className="space-y-1.5">
+              {check.shortages.map((s, i) => (
+                <div key={i} className="flex items-center justify-between text-sm bg-red-50 rounded-lg px-3 py-2">
+                  <span className="text-red-700 font-medium">Kurang {s.shortage} {s.unit}</span>
+                </div>
+              ))}
+            </div>
+            <Button variant="outline" onClick={retry} className="w-full">Sudah Belanja, Coba Lagi</Button>
+          </CardContent>
+        </Card>
+      </div>
+    )
+  }
+
+  if (check.status === "error") {
+    return (
+      <div className="min-h-screen bg-slate-900 text-white flex flex-col items-center justify-center p-6 text-center gap-3" style={{ maxWidth: 480, margin: '0 auto' }}>
+        <p className="text-sm text-red-300">{check.message}</p>
+        <Button variant="outline" onClick={retry}>Coba Lagi</Button>
+      </div>
+    )
   }
 
   return (

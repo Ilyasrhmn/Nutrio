@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { PageHeader } from "@/components/layout/page-header";
 import { StepIndicator } from "@/components/checkpoint/step-indicator";
 import { CameraCapture } from "@/components/checkpoint/camera-capture";
@@ -9,6 +9,7 @@ import { Button } from "@workspace/ui/components/button";
 import { Card, CardContent } from "@workspace/ui/components/card";
 import { Loader2, ArrowRight, CheckCircle2, AlertTriangle, CalendarClock } from "lucide-react";
 import { apiClient } from "@/lib/api-client";
+import { useOperationDayCheck } from "@/hooks/use-operation-day-check";
 
 const CHECKPOINT_DEFS = [
   { id: "CP1", label: "Bahan Mentah", instruction: "Foto semua bahan yang diterima hari ini" },
@@ -30,33 +31,6 @@ interface CheckpointEvent {
   cpStatus: string;
   scoreDelta: number;
   aiValidation: { pass: boolean; reason: string; confidence: number } | null;
-}
-
-interface OperationDay {
-  id: string;
-  status: string;
-  allowedNext: string[];
-}
-
-interface MenuPlanShortage {
-  productId: string;
-  unit: string;
-  shortage: string | number;
-}
-
-type DayCheckState =
-  | { status: "checking" }
-  | { status: "ready" }
-  | { status: "no-menu-plan" }
-  | { status: "insufficient-inventory"; shortages: MenuPlanShortage[] }
-  | { status: "error"; message: string };
-
-function todayString() {
-  return new Date().toISOString().slice(0, 10);
-}
-
-function idempotencyHeaders() {
-  return { headers: { "Idempotency-Key": crypto.randomUUID() } };
 }
 
 function base64ToBlob(base64: string): Blob {
@@ -95,52 +69,6 @@ async function pollForAiResult(cpType: string, attempts = 6, delayMs = 2000): Pr
     confidence: 0,
     notes: "Foto tersimpan, validasi AI masih diproses di server. Anda tetap bisa lanjut ke tahap berikutnya.",
   };
-}
-
-function useOperationDayCheck() {
-  const [check, setCheck] = useState<DayCheckState>({ status: "checking" });
-
-  const run = async () => {
-    setCheck({ status: "checking" });
-    try {
-      const dayRes = await apiClient.get<OperationDay | null>("/operation-days/today");
-      if (dayRes.data) {
-        setCheck({ status: "ready" });
-        return;
-      }
-
-      // No operation day yet — try to create one from today's menu plan.
-      let plan: { id: string } | null = null;
-      try {
-        const planRes = await apiClient.get<{ id: string }>(`/menu-plans/${todayString()}`);
-        plan = planRes.data;
-      } catch {
-        setCheck({ status: "no-menu-plan" });
-        return;
-      }
-
-      try {
-        await apiClient.post("/operation-days", { menuPlanId: plan.id }, idempotencyHeaders());
-        setCheck({ status: "ready" });
-      } catch (err: any) {
-        const shortages = err?.response?.data?.details?.shortages ?? err?.response?.data?.shortages;
-        if (Array.isArray(shortages)) {
-          setCheck({ status: "insufficient-inventory", shortages });
-        } else {
-          setCheck({ status: "error", message: err?.message ?? "Gagal membuat hari operasional" });
-        }
-      }
-    } catch (err: any) {
-      setCheck({ status: "error", message: err?.message ?? "Gagal memeriksa status hari operasional" });
-    }
-  };
-
-  useEffect(() => {
-    run();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
-
-  return { check, retry: run };
 }
 
 export default function LiveCheckpointPage() {
