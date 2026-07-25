@@ -1,12 +1,13 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { PageHeader } from "@/components/layout/page-header";
 import { StepIndicator } from "@/components/checkpoint/step-indicator";
 import { CameraCapture } from "@/components/checkpoint/camera-capture";
 import { AIResultCard } from "@/components/checkpoint/ai-result-card";
 import { Button } from "@workspace/ui/components/button";
-import { Loader2, ArrowRight, CheckCircle2 } from "lucide-react";
+import { Card, CardContent } from "@workspace/ui/components/card";
+import { Loader2, ArrowRight, CheckCircle2, AlertTriangle, CalendarClock } from "lucide-react";
 import { apiClient } from "@/lib/api-client";
 
 const CHECKPOINT_DEFS = [
@@ -29,6 +30,33 @@ interface CheckpointEvent {
   cpStatus: string;
   scoreDelta: number;
   aiValidation: { pass: boolean; reason: string; confidence: number } | null;
+}
+
+interface OperationDay {
+  id: string;
+  status: string;
+  allowedNext: string[];
+}
+
+interface MenuPlanShortage {
+  productId: string;
+  unit: string;
+  shortage: string | number;
+}
+
+type DayCheckState =
+  | { status: "checking" }
+  | { status: "ready" }
+  | { status: "no-menu-plan" }
+  | { status: "insufficient-inventory"; shortages: MenuPlanShortage[] }
+  | { status: "error"; message: string };
+
+function todayString() {
+  return new Date().toISOString().slice(0, 10);
+}
+
+function idempotencyHeaders() {
+  return { headers: { "Idempotency-Key": crypto.randomUUID() } };
 }
 
 function base64ToBlob(base64: string): Blob {
@@ -69,7 +97,54 @@ async function pollForAiResult(cpType: string, attempts = 6, delayMs = 2000): Pr
   };
 }
 
+function useOperationDayCheck() {
+  const [check, setCheck] = useState<DayCheckState>({ status: "checking" });
+
+  const run = async () => {
+    setCheck({ status: "checking" });
+    try {
+      const dayRes = await apiClient.get<OperationDay | null>("/operation-days/today");
+      if (dayRes.data) {
+        setCheck({ status: "ready" });
+        return;
+      }
+
+      // No operation day yet — try to create one from today's menu plan.
+      let plan: { id: string } | null = null;
+      try {
+        const planRes = await apiClient.get<{ id: string }>(`/menu-plans/${todayString()}`);
+        plan = planRes.data;
+      } catch {
+        setCheck({ status: "no-menu-plan" });
+        return;
+      }
+
+      try {
+        await apiClient.post("/operation-days", { menuPlanId: plan.id }, idempotencyHeaders());
+        setCheck({ status: "ready" });
+      } catch (err: any) {
+        const shortages = err?.response?.data?.details?.shortages ?? err?.response?.data?.shortages;
+        if (Array.isArray(shortages)) {
+          setCheck({ status: "insufficient-inventory", shortages });
+        } else {
+          setCheck({ status: "error", message: err?.message ?? "Gagal membuat hari operasional" });
+        }
+      }
+    } catch (err: any) {
+      setCheck({ status: "error", message: err?.message ?? "Gagal memeriksa status hari operasional" });
+    }
+  };
+
+  useEffect(() => {
+    run();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  return { check, retry: run };
+}
+
 export default function LiveCheckpointPage() {
+  const { check: dayCheck, retry: retryDayCheck } = useOperationDayCheck();
   const [currentStep, setCurrentStep] = useState(0);
   const [capturedImage, setCapturedImage] = useState<string | null>(null);
   const [isAnalyzing, setIsAnalyzing] = useState(false);
@@ -117,6 +192,94 @@ export default function LiveCheckpointPage() {
       setIsCompleted(true);
     }
   };
+
+  if (dayCheck.status === "checking") {
+    return (
+      <div className="flex flex-col min-h-screen">
+        <PageHeader title="Live Checkpoint" />
+        <div className="flex-1 flex flex-col items-center justify-center p-8 gap-4">
+          <Loader2 className="h-8 w-8 text-primary animate-spin" />
+          <p className="text-sm text-slate-500">Memeriksa hari operasional...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (dayCheck.status === "no-menu-plan") {
+    return (
+      <div className="flex flex-col min-h-screen">
+        <PageHeader title="Live Checkpoint" />
+        <div className="p-4">
+          <Card className="border-none shadow-sm">
+            <CardContent className="p-8 flex flex-col items-center text-center gap-3">
+              <div className="h-14 w-14 rounded-full bg-amber-100 flex items-center justify-center text-amber-600">
+                <CalendarClock className="h-7 w-7" />
+              </div>
+              <div>
+                <p className="font-bold text-slate-900">Rencana Menu Belum Dibuat</p>
+                <p className="text-sm text-slate-500 mt-1">
+                  Susun target porsi dan bahan hari ini di halaman Kalkulasi Bahan (portal web)
+                  sebelum memulai checkpoint.
+                </p>
+              </div>
+              <Button variant="outline" onClick={retryDayCheck} className="mt-2">
+                Coba Lagi
+              </Button>
+            </CardContent>
+          </Card>
+        </div>
+      </div>
+    );
+  }
+
+  if (dayCheck.status === "insufficient-inventory") {
+    return (
+      <div className="flex flex-col min-h-screen">
+        <PageHeader title="Live Checkpoint" />
+        <div className="p-4">
+          <Card className="border-none shadow-sm">
+            <CardContent className="p-6 space-y-4">
+              <div className="flex items-center gap-3">
+                <div className="h-12 w-12 rounded-full bg-red-100 flex items-center justify-center text-red-600 shrink-0">
+                  <AlertTriangle className="h-6 w-6" />
+                </div>
+                <div>
+                  <p className="font-bold text-slate-900">Stok Belum Cukup</p>
+                  <p className="text-sm text-slate-500">Kebutuhan menu hari ini melebihi stok tersedia.</p>
+                </div>
+              </div>
+              <div className="space-y-1.5">
+                {dayCheck.shortages.map((s, i) => (
+                  <div key={i} className="flex items-center justify-between text-sm bg-red-50 rounded-lg px-3 py-2">
+                    <span className="text-red-700 font-medium">Kurang {s.shortage} {s.unit}</span>
+                  </div>
+                ))}
+              </div>
+              <Button variant="outline" onClick={retryDayCheck} className="w-full">
+                Sudah Belanja, Coba Lagi
+              </Button>
+            </CardContent>
+          </Card>
+        </div>
+      </div>
+    );
+  }
+
+  if (dayCheck.status === "error") {
+    return (
+      <div className="flex flex-col min-h-screen">
+        <PageHeader title="Live Checkpoint" />
+        <div className="p-4">
+          <Card className="border-none shadow-sm">
+            <CardContent className="p-6 text-center space-y-3">
+              <p className="text-sm text-red-600">{dayCheck.message}</p>
+              <Button variant="outline" onClick={retryDayCheck}>Coba Lagi</Button>
+            </CardContent>
+          </Card>
+        </div>
+      </div>
+    );
+  }
 
   if (isCompleted) {
     return (
