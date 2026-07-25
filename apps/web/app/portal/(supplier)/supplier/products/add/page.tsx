@@ -25,6 +25,8 @@ import {
 import { Badge } from "@workspace/ui/components/badge"
 import { Separator } from "@workspace/ui/components/separator"
 import { useToast } from "@workspace/ui/hooks/use-toast"
+import { suppliersService } from "@/lib/services/suppliers.service"
+import { toQueryError } from "@/lib/services/error-handler"
 
 export default function AddProductPage() {
   const router = useRouter()
@@ -46,8 +48,7 @@ export default function AddProductPage() {
     }
     setIsSubmitting(true)
     try {
-      const { api } = await import("@/lib/api-client")
-      await api.post("/suppliers/me/products", {
+      await suppliersService.createMyProduct({
         name: name.trim(),
         category,
         unit,
@@ -60,8 +61,9 @@ export default function AddProductPage() {
         description: "Produk baru Anda telah masuk ke katalog dan siap dilihat Vendor.",
       })
       router.push("/portal/supplier/products")
-    } catch {
-      toast({ title: "Gagal menyimpan produk", variant: "destructive" })
+    } catch (error) {
+      const { errorMessage } = toQueryError(error)
+      toast({ title: "Gagal menyimpan produk", description: errorMessage, variant: "destructive" })
       setIsSubmitting(false)
     }
   }

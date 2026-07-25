@@ -29,8 +29,8 @@ export function StepIndicator({ currentStep, totalSteps, steps }: StepIndicatorP
             <div
               className={cn(
                 "h-10 w-10 rounded-full flex items-center justify-center border-2 transition-all duration-300",
-                isCompleted ? "bg-green-600 border-green-600 text-white" : 
-                isActive ? "bg-white border-green-600 text-green-600 shadow-sm" : 
+                isCompleted ? "bg-green-600 border-green-600 text-white" :
+                isActive ? "bg-white border-primary text-primary shadow-sm" :
                 "bg-white border-slate-200 text-slate-400"
               )}
             >
@@ -38,7 +38,7 @@ export function StepIndicator({ currentStep, totalSteps, steps }: StepIndicatorP
             </div>
             <span className={cn(
               "text-[10px] mt-2 font-medium transition-colors",
-              isActive ? "text-green-700 font-bold" : "text-slate-500"
+              isActive ? "text-primary font-bold" : "text-slate-500"
             )}>
               {step.label}
             </span>

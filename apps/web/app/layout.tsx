@@ -1,6 +1,6 @@
 import { Plus_Jakarta_Sans, Geist_Mono } from "next/font/google";
 
-import "@workspace/ui/globals.css";
+import "@workspace/ui/styles/globals.css";
 import { Providers } from "@/components/providers";
 import { Toaster } from "@workspace/ui/components/toaster";
 import { FloatingAIButton } from "@/components/floating-ai-button";

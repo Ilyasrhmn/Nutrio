@@ -44,3 +44,15 @@ export function mapApiError(error: any): UserFriendlyError {
     statusCode: 0,
   };
 }
+
+/**
+ * Derives QueryState props from a caught error for the standard status UI.
+ */
+export function toQueryError(error: unknown) {
+  const mapped = mapApiError(error);
+  return {
+    status: mapped.statusCode === 403 ? ('forbidden' as const) : ('error' as const),
+    errorMessage: mapped.errors?.join(', ') || mapped.message,
+    isNetworkError: mapped.statusCode === 0,
+  };
+}

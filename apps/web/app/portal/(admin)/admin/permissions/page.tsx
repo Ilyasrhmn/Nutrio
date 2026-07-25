@@ -19,10 +19,13 @@ import {
 import { Badge } from '@workspace/ui/components/badge';
 import { useToast } from '@workspace/ui/hooks/use-toast';
 import { ConfirmModal } from '@workspace/ui/components/confirm-modal';
+import { QueryState, QueryStatus } from '@workspace/ui/components/query-state';
+import { toQueryError } from '@/lib/services/error-handler';
 
 export default function PermissionsPage() {
   const [permissions, setPermissions] = useState<Record<string, DatabasePermission[]>>({});
   const [loading, setLoading] = useState(true);
+  const [loadError, setLoadError] = useState<{ status: QueryStatus; errorMessage: string; isNetworkError: boolean } | null>(null);
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const [expandedSubjects, setExpandedSubjects] = useState<string[]>([]);
@@ -37,12 +40,13 @@ export default function PermissionsPage() {
   async function loadPermissions() {
     try {
       setLoading(true);
+      setLoadError(null);
       const data = await permissionsService.getAll();
       setPermissions(data);
       // Expand all by default
       setExpandedSubjects(Object.keys(data));
     } catch (error) {
-      console.error('Failed to load permissions:', error);
+      setLoadError(toQueryError(error));
     } finally {
       setLoading(false);
     }
@@ -97,11 +101,16 @@ export default function PermissionsPage() {
     }
   });
 
-  if (loading && Object.keys(permissions).length === 0) {
+  if ((loading && Object.keys(permissions).length === 0) || loadError) {
     return (
-      <div className="flex items-center justify-center h-64">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
-      </div>
+      <QueryState
+        status={loadError ? loadError.status : 'loading'}
+        errorMessage={loadError?.errorMessage}
+        isNetworkError={loadError?.isNetworkError}
+        onRetry={loadPermissions}
+      >
+        {null}
+      </QueryState>
     );
   }
 

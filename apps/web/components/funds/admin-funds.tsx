@@ -30,11 +30,60 @@ import {
   TableRow
 } from "@workspace/ui/components/table"
 import { cn } from "@workspace/ui/lib/utils"
+import { QueryState, QueryStatus } from "@workspace/ui/components/query-state"
+import { api } from "@/lib/api-client"
+import { toQueryError } from "@/lib/services/error-handler"
 
 const ReactApexChart = dynamic(() => import('react-apexcharts'), { ssr: false });
 
+interface FundSummary {
+  totalAlokasi: number;
+  totalTersalurkan: number;
+  sisaAnggaran: number;
+  realisasiPct: number;
+  trendData: { date: string; amount: number }[];
+}
+
+interface FundTransaction {
+  id: string;
+  vendorName: string;
+  paidAt: string;
+  amount: number;
+  status: string;
+  invoiceNumber: string | null;
+}
+
+function formatTriliun(value: number) {
+  return (value / 1_000_000_000_000).toFixed(1)
+}
+
 export function AdminFundsDashboard() {
   const [hoveredRow, setHoveredRow] = React.useState<number | null>(null);
+  const [summary, setSummary] = React.useState<FundSummary | null>(null)
+  const [transactions, setTransactions] = React.useState<FundTransaction[]>([])
+  const [loading, setLoading] = React.useState(true)
+  const [loadError, setLoadError] = React.useState<{ status: QueryStatus; errorMessage: string; isNetworkError: boolean } | null>(null)
+
+  const load = React.useCallback(async () => {
+    try {
+      setLoading(true)
+      setLoadError(null)
+      const [summaryData, txData] = await Promise.all([
+        api.get<FundSummary>('/funds/summary'),
+        api.get<FundTransaction[]>('/funds/transactions'),
+      ])
+      setSummary(summaryData)
+      setTransactions(txData)
+    } catch (error) {
+      setLoadError(toQueryError(error))
+    } finally {
+      setLoading(false)
+    }
+  }, [])
+
+  React.useEffect(() => {
+    load()
+  }, [load])
 
   const chartOptions: any = {
     chart: {
@@ -67,7 +116,7 @@ export function AdminFundsDashboard() {
       yaxis: { lines: { show: true } },
     },
     xaxis: {
-      categories: ['1 Mar', '5 Mar', '10 Mar', '15 Mar', '20 Mar', '25 Mar', '30 Mar'],
+      categories: summary?.trendData.map(t => t.date) ?? [],
       axisBorder: { show: false },
       axisTicks: { show: false },
       labels: {
@@ -96,12 +145,21 @@ export function AdminFundsDashboard() {
 
   const chartSeries = [{
     name: 'Pencairan',
-    data: [1.2, 2.5, 4.1, 6.8, 8.2, 9.5, 10.2]
+    data: (summary?.trendData.map(t => t.amount / 1_000_000_000_000)) ?? []
   }]
 
   return (
+    <QueryState
+      status={loadError ? loadError.status : loading ? "loading" : !summary ? "empty" : "success"}
+      errorMessage={loadError?.errorMessage}
+      isNetworkError={loadError?.isNetworkError}
+      onRetry={load}
+      emptyTitle="Data dana belum tersedia"
+      emptyMessage="Belum ada data alokasi anggaran yang dikonfigurasi."
+    >
+    {summary && (
     <div className="min-h-screen bg-[#F0F3F7] animate-in fade-in duration-500 pb-12">
-      
+
       {/* VIBRANT EMERALD HERO SECTION */}
       <div className="relative bg-gradient-to-br from-teal-800 via-emerald-800 to-emerald-900 pt-12 pb-32 px-6 lg:px-12 overflow-hidden">
         {/* Abstract Background Patterns */}
@@ -119,18 +177,14 @@ export function AdminFundsDashboard() {
                 Transparansi & Pencairan Dana
               </h1>
               <p className="text-emerald-100 font-medium text-sm max-w-2xl">
-                Buku besar publik secara real-time untuk alokasi anggaran APBN dan pembayaran mitra SPPG berbasis Smart Contract.
+                Ringkasan alokasi anggaran dan pencairan pembayaran mitra SPPG.
               </p>
             </div>
             
             <div className="flex flex-col sm:flex-row gap-3">
-              <Button className="h-12 px-6 bg-white/10 text-white hover:bg-white/20 backdrop-blur-md border border-white/20 shadow-lg font-bold rounded-2xl gap-2 transition-transform active:scale-95">
-                <Calendar className="size-4" />
-                Pilih Periode
-              </Button>
-              <Button className="h-12 px-6 bg-white text-emerald-800 hover:bg-emerald-50 shadow-lg shadow-black/10 font-bold rounded-2xl gap-2 transition-transform active:scale-95">
-                <Download className="size-4" />
-                Laporan BPK
+              <Button onClick={load} className="h-12 px-6 bg-white/10 text-white hover:bg-white/20 backdrop-blur-md border border-white/20 shadow-lg font-bold rounded-2xl gap-2 transition-transform active:scale-95">
+                <RefreshCw className="size-4" />
+                Muat Ulang
               </Button>
             </div>
           </div>
@@ -154,9 +208,9 @@ export function AdminFundsDashboard() {
                  </div>
               </div>
               <div className="space-y-1">
-                <h3 className="text-3xl lg:text-4xl font-black text-slate-900 tracking-tighter">Rp 71.0 <span className="text-xl text-slate-400 font-bold">Triliun</span></h3>
+                <h3 className="text-3xl lg:text-4xl font-black text-slate-900 tracking-tighter">Rp {formatTriliun(summary.totalAlokasi)} <span className="text-xl text-slate-400 font-bold">Triliun</span></h3>
                 <p className="text-[11px] text-slate-400 font-bold flex items-center gap-1.5 mt-2">
-                  <ShieldCheck className="size-3.5 text-emerald-500" /> Disahkan Kemenkeu
+                  <ShieldCheck className="size-3.5 text-emerald-500" /> Alokasi Terkonfigurasi
                 </p>
               </div>
             </CardContent>
@@ -174,13 +228,13 @@ export function AdminFundsDashboard() {
                  </div>
               </div>
               <div className="space-y-3">
-                <h3 className="text-3xl lg:text-4xl font-black text-slate-900 tracking-tighter">Rp 14.2 <span className="text-xl text-slate-400 font-bold">Triliun</span></h3>
+                <h3 className="text-3xl lg:text-4xl font-black text-slate-900 tracking-tighter">Rp {formatTriliun(summary.totalTersalurkan)} <span className="text-xl text-slate-400 font-bold">Triliun</span></h3>
                 <div className="space-y-1.5">
                   <div className="flex items-center justify-between text-[10px] font-bold uppercase tracking-widest">
                     <span className="text-slate-400">Realisasi</span>
-                    <span className="text-emerald-600">20.1%</span>
+                    <span className="text-emerald-600">{summary.realisasiPct.toFixed(1)}%</span>
                   </div>
-                  <Progress value={20.1} className="h-2 bg-slate-100 [&>div]:bg-emerald-500" />
+                  <Progress value={summary.realisasiPct} className="h-2 bg-slate-100 [&>div]:bg-emerald-500" />
                 </div>
               </div>
             </CardContent>
@@ -198,10 +252,10 @@ export function AdminFundsDashboard() {
                  </div>
               </div>
               <div className="space-y-1">
-                <h3 className="text-3xl lg:text-4xl font-black text-amber-500 tracking-tighter">Rp 56.7 <span className="text-xl text-amber-700/50 font-bold">Triliun</span></h3>
+                <h3 className="text-3xl lg:text-4xl font-black text-amber-500 tracking-tighter">Rp {formatTriliun(summary.sisaAnggaran)} <span className="text-xl text-amber-700/50 font-bold">Triliun</span></h3>
                 <div className="flex items-center gap-1.5 text-[11px] font-bold text-slate-500 mt-2 bg-slate-50 w-fit px-2.5 py-1 rounded-md">
-                  <div className="size-1.5 bg-emerald-500 rounded-full animate-pulse" />
-                  Alokasi Aman (Tersedia &gt; 70%)
+                  <div className={cn("size-1.5 rounded-full animate-pulse", summary.realisasiPct < 70 ? "bg-emerald-500" : "bg-amber-500")} />
+                  {summary.realisasiPct < 70 ? "Alokasi Aman (Tersedia > 30%)" : "Alokasi Menipis"}
                 </div>
               </div>
             </CardContent>
@@ -215,12 +269,8 @@ export function AdminFundsDashboard() {
               <div className="flex items-center justify-between">
                 <div className="space-y-1">
                   <CardTitle className="text-lg font-bold">Kecepatan Pencairan Dana MBG</CardTitle>
-                  <CardDescription className="text-xs font-medium text-slate-500">Tren pengeluaran APBN 30 hari terakhir (Maret 2026)</CardDescription>
+                  <CardDescription className="text-xs font-medium text-slate-500">Tren pengeluaran APBN 30 hari terakhir</CardDescription>
                 </div>
-                <Badge className="flex items-center gap-1.5 px-3 py-1 bg-emerald-50 text-emerald-700 hover:bg-emerald-100 border-none rounded-full">
-                  <TrendingUp className="size-3.5" />
-                  <span className="text-[10px] font-bold tracking-widest uppercase">+18.4%</span>
-                </Badge>
               </div>
             </CardHeader>
             <CardContent className="p-6">
@@ -243,14 +293,17 @@ export function AdminFundsDashboard() {
                  <div className="size-12 bg-white/10 backdrop-blur-sm rounded-2xl flex items-center justify-center text-white mb-6 border border-white/10">
                    <ShieldCheck className="size-6" />
                  </div>
-                 <h3 className="text-lg font-bold mb-2">Smart Contract BGN</h3>
+                 <div className="flex items-center gap-2 mb-2">
+                   <h3 className="text-lg font-bold">Pencairan Otomatis</h3>
+                   <Badge className="bg-amber-500/20 text-amber-200 border-none text-[9px] font-bold uppercase">Konsep — Belum Aktif</Badge>
+                 </div>
                  <p className="text-xs font-medium text-slate-300 leading-relaxed">
-                   Seluruh pencairan dana di-trigger otomatis oleh AI saat 3 parameter terpenuhi:
+                   Rencana ke depan: pencairan dana otomatis tervalidasi saat 3 syarat terpenuhi. Saat ini pencairan masih diproses manual.
                  </p>
                  <ul className="mt-4 space-y-3">
                    {["Validasi Gizi AI (Foto)", "Validasi GPS Armada", "Scan QR Kedatangan"].map((rule, i) => (
                      <li key={i} className="flex items-center gap-2 text-xs font-bold text-slate-100">
-                       <CheckCircle2 className="size-4 text-emerald-400" /> {rule}
+                       <CheckCircle2 className="size-4 text-slate-500" /> {rule}
                      </li>
                    ))}
                  </ul>
@@ -261,16 +314,16 @@ export function AdminFundsDashboard() {
 
         {/* Smart Contract Ledger Table */}
         <Card className="rounded-[24px] border border-slate-200/60 shadow-sm bg-white overflow-hidden">
-          <CardHeader className="flex flex-row items-center justify-between p-6 md:px-8 border-b border-slate-100">
+          <CardHeader className="p-6 md:px-8 border-b border-slate-100">
             <div className="space-y-1">
               <CardTitle className="text-lg font-bold">Riwayat Transaksi Terkini</CardTitle>
-              <CardDescription className="text-xs font-medium text-slate-500">Buku besar publik untuk pencairan dana via Smart Contract.</CardDescription>
+              <CardDescription className="text-xs font-medium text-slate-500">Pencairan dana ke mitra SPPG.</CardDescription>
             </div>
-            <Button variant="ghost" className="text-sm font-bold text-emerald-600 hover:bg-emerald-50 rounded-xl gap-2">
-              Lihat Semua <ArrowRight className="size-4" />
-            </Button>
           </CardHeader>
           <div className="p-2">
+            {transactions.length === 0 ? (
+              <div className="p-12 text-center text-sm text-slate-400">Belum ada transaksi.</div>
+            ) : (
             <Table>
               <TableHeader>
                 <TableRow className="hover:bg-transparent border-none">
@@ -278,18 +331,16 @@ export function AdminFundsDashboard() {
                   <TableHead className="font-bold text-slate-400 text-[10px] uppercase tracking-widest h-12 hidden md:table-cell">Tanggal & Waktu</TableHead>
                   <TableHead className="font-bold text-slate-400 text-[10px] uppercase tracking-widest h-12">Nominal (Rp)</TableHead>
                   <TableHead className="font-bold text-slate-400 text-[10px] uppercase tracking-widest h-12">Status</TableHead>
-                  <TableHead className="font-bold text-slate-400 text-[10px] uppercase tracking-widest pr-6 h-12 text-right">Bukti</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {[
-                  { vendor: "Catering Ibu Budi", time: "14 Mar 2026, 09:30", amount: "Rp 45.000.000", status: "Tercairkan", color: "emerald", icon: CheckCircle2 },
-                  { vendor: "Dapur Nusantara", time: "14 Mar 2026, 11:15", amount: "Rp 120.500.000", status: "Tertahan", color: "amber", icon: AlertTriangle },
-                  { vendor: "Berkah Catering Jaya", time: "13 Mar 2026, 16:45", amount: "Rp 88.200.000", status: "Tercairkan", color: "emerald", icon: CheckCircle2 },
-                  { vendor: "Sari Rasa Katering", time: "13 Mar 2026, 15:20", amount: "Rp 210.000.000", status: "Tercairkan", color: "emerald", icon: CheckCircle2 },
-                ].map((item, i) => (
-                  <TableRow 
-                    key={i} 
+                {transactions.map((item, i) => {
+                  const isPaid = item.status === 'paid'
+                  const Icon = isPaid ? CheckCircle2 : AlertTriangle
+                  const color = isPaid ? 'emerald' : 'amber'
+                  return (
+                  <TableRow
+                    key={item.id}
                     className={cn(
                       "group border-none transition-colors cursor-pointer rounded-xl overflow-hidden relative",
                       hoveredRow === i ? "bg-slate-50" : "bg-transparent"
@@ -301,46 +352,42 @@ export function AdminFundsDashboard() {
                       <div className="flex items-center gap-4">
                         <div className={cn(
                           "size-10 rounded-full flex items-center justify-center shrink-0 border",
-                          `bg-${item.color}-50 border-${item.color}-100 text-${item.color}-600`
+                          `bg-${color}-50 border-${color}-100 text-${color}-600`
                         )}>
-                          <item.icon className="size-5" />
+                          <Icon className="size-5" />
                         </div>
                         <div>
-                          <p className="font-black text-slate-900 text-sm group-hover:text-emerald-600 transition-colors">{item.vendor}</p>
-                          <p className="text-[10px] font-bold text-slate-400 mt-0.5 md:hidden">{item.time}</p>
+                          <p className="font-black text-slate-900 text-sm group-hover:text-emerald-600 transition-colors">{item.vendorName}</p>
+                          <p className="text-[10px] font-bold text-slate-400 mt-0.5 md:hidden">{new Date(item.paidAt).toLocaleString('id-ID')}</p>
                         </div>
                       </div>
                     </TableCell>
                     <TableCell className="py-4 hidden md:table-cell">
-                      <span className="font-bold text-slate-500 text-xs">{item.time}</span>
+                      <span className="font-bold text-slate-500 text-xs">{new Date(item.paidAt).toLocaleString('id-ID')}</span>
                     </TableCell>
                     <TableCell className="py-4">
-                      <span className="font-black text-slate-900 text-sm">{item.amount}</span>
+                      <span className="font-black text-slate-900 text-sm">Rp {item.amount.toLocaleString('id-ID')}</span>
                     </TableCell>
                     <TableCell className="py-4">
                       <Badge className={cn(
                         "border-none font-bold uppercase text-[9px] px-3 py-1 tracking-widest",
-                        item.status === 'Tercairkan' ? 'bg-emerald-100 text-emerald-700' : 'bg-amber-100 text-amber-700'
+                        isPaid ? 'bg-emerald-100 text-emerald-700' : 'bg-amber-100 text-amber-700'
                       )}>
                         {item.status}
                       </Badge>
                     </TableCell>
-                    <TableCell className="pr-6 py-4 text-right">
-                      <Button variant="ghost" size="icon" className={cn(
-                        "size-8 rounded-full transition-all",
-                        hoveredRow === i ? "bg-white shadow-sm text-slate-900 border border-slate-200" : "text-slate-400"
-                      )}>
-                        <ExternalLink className="size-4" />
-                      </Button>
-                    </TableCell>
                   </TableRow>
-                ))}
+                  )
+                })}
               </TableBody>
             </Table>
+            )}
           </div>
         </Card>
 
       </div>
     </div>
+    )}
+    </QueryState>
   )
 }

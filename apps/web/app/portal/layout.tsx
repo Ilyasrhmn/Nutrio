@@ -150,10 +150,17 @@ export default function PortalLayout({
     );
   };
 
+  const isDemoMode = process.env.NEXT_PUBLIC_DEMO_MODE === "true";
+
   return (
-    <div className="flex min-h-screen bg-[#F0F3F7]">
+    <div className={cn("flex min-h-screen bg-[#F0F3F7]", isDemoMode && "pt-6")}>
+      {isDemoMode && (
+        <div className="fixed top-0 inset-x-0 z-[60] bg-amber-500 text-white text-center text-xs font-bold py-1 tracking-wide">
+          MODE DEMO — data yang ditampilkan bukan data akun sebenarnya
+        </div>
+      )}
       {/* Sidebar */}
-      <aside className="fixed inset-y-0 left-0 w-[260px] bg-white border-r border-slate-200/80 flex flex-col z-50 shadow-sm">
+      <aside className={cn("fixed left-0 w-[260px] bg-white border-r border-slate-200/80 flex flex-col z-50 shadow-sm", isDemoMode ? "top-6 bottom-0" : "inset-y-0")}>
         {/* Logo Area */}
         <div className="h-16 flex items-center px-6 border-b border-slate-100">
           <div className="flex items-center gap-3">
