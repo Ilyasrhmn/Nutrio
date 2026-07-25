@@ -47,7 +47,7 @@ interface FundSummary {
 interface FundTransaction {
   id: string;
   vendorName: string;
-  paidAt: string;
+  paidAt: string | null;
   amount: number;
   status: string;
   invoiceNumber: string | null;
@@ -358,12 +358,12 @@ export function AdminFundsDashboard() {
                         </div>
                         <div>
                           <p className="font-black text-slate-900 text-sm group-hover:text-emerald-600 transition-colors">{item.vendorName}</p>
-                          <p className="text-[10px] font-bold text-slate-400 mt-0.5 md:hidden">{new Date(item.paidAt).toLocaleString('id-ID')}</p>
+                          <p className="text-[10px] font-bold text-slate-400 mt-0.5 md:hidden">{item.paidAt ? new Date(item.paidAt).toLocaleString('id-ID') : 'Estimasi'}</p>
                         </div>
                       </div>
                     </TableCell>
                     <TableCell className="py-4 hidden md:table-cell">
-                      <span className="font-bold text-slate-500 text-xs">{new Date(item.paidAt).toLocaleString('id-ID')}</span>
+                      <span className="font-bold text-slate-500 text-xs">{item.paidAt ? new Date(item.paidAt).toLocaleString('id-ID') : 'Estimasi'}</span>
                     </TableCell>
                     <TableCell className="py-4">
                       <span className="font-black text-slate-900 text-sm">Rp {item.amount.toLocaleString('id-ID')}</span>
