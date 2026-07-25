@@ -52,7 +52,8 @@ export class SchoolConfirmService {
 
   async confirm(qrToken: string, payload: ConfirmPayload) {
     const [tokenRow] = await this.dataSource.query(
-      `SELECT dt.id, dt.vendor_id, dt.school_id, dt.operation_day_id, sc.id AS existing_confirm
+      `SELECT dt.id, dt.vendor_id, dt.school_id, dt.operation_day_id, dt.completed_at,
+              dt.expired_at, sc.id AS existing_confirm
        FROM delivery_tokens dt
        LEFT JOIN school_confirmations sc ON sc.delivery_token_id = dt.id
        WHERE dt.token = $1::uuid`,
@@ -60,6 +61,8 @@ export class SchoolConfirmService {
     );
     if (!tokenRow) throw new NotFoundException('QR token tidak valid');
     if (tokenRow.existing_confirm) throw new ConflictException('Sudah dikonfirmasi sebelumnya');
+    if (new Date(tokenRow.expired_at) < new Date()) throw new GoneException('Token sudah kedaluwarsa');
+    if (!tokenRow.completed_at) throw new ConflictException('Pengantaran belum selesai');
 
     await this.dataSource.query(
       `INSERT INTO school_confirmations (delivery_token_id, jumlah_diterima, kondisi, masalah_jenis, catatan)
