@@ -92,7 +92,7 @@ Operasional: planned -> CP1 -> CP2 -> CP3 -> dispatched -> CP4 -> school_confirm
 - [ ] Jadikan scoring membaca checkpoint/delivery/school confirmation/incident, bukan input terpisah. Simpan alasan per perubahan skor.
 - [x] Hubungkan eligibility dana/fund ledger dengan operation day yang `closed`; pembayaran nyata dapat tetap di luar scope hackathon, tetapi status simulasi wajib berasal dari event dan aman untuk diproses ulang.
 - [x] Tambahkan audit-event append-only untuk perubahan state kritis: PO, stok, checkpoint, delivery, sekolah, skor, dan dana.
-- [ ] Implementasikan proyeksi query untuk command center, laporan, dan public aggregate dengan filter tanggal/vendor/wilayah. Jangan menghitung dari data dummy di controller.
+- [x] Implementasikan proyeksi query untuk command center, laporan, dan public aggregate dengan filter tanggal/vendor/wilayah. Jangan menghitung dari data dummy di controller.
 - [ ] Emisikan event Socket.IO dan notification per transisi penting; email/Resend hanya adapter tambahan dan tidak boleh menjadi satu-satunya bukti notifikasi.
 - [x] Tambahkan endpoint health yang memeriksa konfigurasi wajib secara aman dan log correlation ID untuk alur satu operation day.
 

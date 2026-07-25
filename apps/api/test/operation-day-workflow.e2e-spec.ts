@@ -420,6 +420,30 @@ describe("Operation-day workflow (e2e)", () => {
       .set("Idempotency-Key", `${runId}-close`)
       .expect(201)
       .expect((response) => expect(response.body.body.status).toBe("closed"));
+    await request(app.getHttpServer())
+      .get(
+        `/command-center/operation-days?vendorId=${encodeURIComponent((await dataSource.query("SELECT vendor_id FROM operation_days WHERE id = $1", [operationDayId]))[0].vendor_id)}`,
+      )
+      .set(auth(vendorToken))
+      .expect(200)
+      .expect((response) =>
+        expect(response.body).toEqual(
+          expect.arrayContaining([
+            expect.objectContaining({
+              id: operationDayId,
+              status: "closed",
+              checkpointsDone: 4,
+              deliveriesConfirmed: 1,
+            }),
+          ]),
+        ),
+      );
+    await request(app.getHttpServer())
+      .get("/public/overview")
+      .expect(200)
+      .expect((response) =>
+        expect(response.body.totalPorsiToday).toBeGreaterThan(0),
+      );
     const [facts] = await dataSource.query(
       `SELECT
          (SELECT COUNT(*)::int FROM checkpoint_events WHERE operation_day_id = $1 AND cp_status = 'done') AS checkpoint_count,
