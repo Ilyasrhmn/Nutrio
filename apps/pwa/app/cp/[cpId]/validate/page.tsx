@@ -6,8 +6,9 @@ import { useEffect, useState } from "react"
 import { Button } from "@workspace/ui/components/button"
 import { useToast } from "@workspace/ui/hooks/use-toast"
 import { apiClient } from "@/lib/api-client"
+import { enqueueCheckpointSubmit, isNetworkFailure } from "@/lib/offline-queue"
 
-type ValidationState = 'loading' | 'polling' | 'pass' | 'pending' | 'fail' | 'manual'
+type ValidationState = 'loading' | 'polling' | 'pass' | 'pending' | 'queued' | 'fail' | 'manual'
 
 interface CheckpointEvent {
   cpType: string
@@ -87,6 +88,21 @@ export default function CPValidatePage() {
       }
     } catch (err: unknown) {
       setUploading(false)
+
+      if (isNetworkFailure(err)) {
+        try {
+          const res = await fetch(dataUrl)
+          const blob = await res.blob()
+          await enqueueCheckpointSubmit({ cpId, photoBlob: blob, photoType: 'image/jpeg' })
+          sessionStorage.removeItem(`capture_${cpId}`)
+          sessionStorage.removeItem(`capture_${cpId}_type`)
+          setState('queued')
+          return
+        } catch {
+          // fall through to normal failure handling below
+        }
+      }
+
       const axiosError = err as { response?: { data?: { message?: string } } }
       const msg: string = axiosError?.response?.data?.message ?? 'Validasi gagal'
       setFailReason(msg)
@@ -142,6 +158,23 @@ export default function CPValidatePage() {
         <div className="w-16 h-16 border-4 border-white/20 border-t-white rounded-full animate-spin" />
         <p className="text-white text-lg">Menunggu hasil AI...</p>
         <p className="text-slate-400 text-sm">Foto sudah tersimpan, sedang diverifikasi</p>
+      </div>
+    )
+  }
+
+  if (state === 'queued') {
+    return (
+      <div className="min-h-screen bg-amber-600 flex flex-col items-center justify-center gap-4 text-white p-6 text-center" style={{ maxWidth: 480, margin: '0 auto' }}>
+        <div className="text-6xl">📡</div>
+        <h1 className="text-2xl font-bold">Tersimpan Offline</h1>
+        <p className="text-amber-50 text-sm">Tidak ada koneksi internet. Foto disimpan di perangkat dan akan otomatis terkirim saat online kembali.</p>
+        <Button
+          size="lg"
+          className="mt-4 bg-white text-amber-700 hover:bg-amber-50 font-bold"
+          onClick={() => router.push(`/cp/${cpId}/confirm`)}
+        >
+          Lanjut ke Konfirmasi →
+        </Button>
       </div>
     )
   }

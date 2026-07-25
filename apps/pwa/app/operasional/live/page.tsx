@@ -10,6 +10,7 @@ import { Card, CardContent } from "@workspace/ui/components/card";
 import { Loader2, ArrowRight, CheckCircle2, AlertTriangle, CalendarClock } from "lucide-react";
 import { apiClient } from "@/lib/api-client";
 import { useOperationDayCheck } from "@/hooks/use-operation-day-check";
+import { enqueueCheckpointSubmit, isNetworkFailure } from "@/lib/offline-queue";
 
 const CHECKPOINT_DEFS = [
   { id: "CP1", label: "Bahan Mentah", instruction: "Foto semua bahan yang diterima hari ini" },
@@ -19,7 +20,7 @@ const CHECKPOINT_DEFS = [
 ];
 
 interface AiResult {
-  status: "pass" | "warning" | "pending";
+  status: "pass" | "warning" | "pending" | "queued";
   confidence: number;
   notes: string;
   scoreDelta?: number;
@@ -88,8 +89,9 @@ export default function LiveCheckpointPage() {
     setIsAnalyzing(true);
     setError(null);
 
+    const blob = base64ToBlob(image);
+
     try {
-      const blob = base64ToBlob(image);
       const form = new FormData();
       form.append("photo", blob, `${currentDef.id}.jpg`);
 
@@ -102,6 +104,16 @@ export default function LiveCheckpointPage() {
       const result = await pollForAiResult(currentDef.id);
       setAiResult(result);
     } catch (err: any) {
+      if (isNetworkFailure(err)) {
+        await enqueueCheckpointSubmit({ cpId: currentDef.id, photoBlob: blob, photoType: "image/jpeg" });
+        setIsAnalyzing(false);
+        setAiResult({
+          status: "queued",
+          confidence: 0,
+          notes: "Tidak ada koneksi internet. Foto disimpan di perangkat dan akan otomatis terkirim saat online kembali.",
+        });
+        return;
+      }
       const msg: string = err?.response?.data?.message ?? err?.message ?? "Gagal mengirim foto";
       setError(msg);
       setIsAnalyzing(false);
