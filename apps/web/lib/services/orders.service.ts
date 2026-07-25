@@ -66,8 +66,35 @@ export const ordersService = {
     return api.get('/orders/supplier');
   },
 
-  detail(id: string): Promise<OrderDetail> {
-    return api.get(`/orders/${id}`);
+  async detail(id: string): Promise<OrderDetail> {
+    // Backend returns top-level fields camelCased but items/history raw
+    // snake_case with numeric columns as strings — normalize here.
+    const raw = await api.get<any>(`/orders/${id}`);
+    return {
+      id: raw.id,
+      poNumber: raw.poNumber,
+      supplierId: raw.supplierId,
+      vendorId: raw.vendorId,
+      status: raw.status,
+      requestedDeliveryDate: raw.requestedDeliveryDate,
+      totalAmount: Number(raw.totalAmount),
+      rejectionReason: raw.rejectionReason,
+      invoiceNumber: raw.invoiceNumber,
+      items: (raw.items ?? []).map((i: any) => ({
+        productId: i.productId ?? i.product_id,
+        productName: i.productName ?? i.product_name,
+        unit: i.unit,
+        qty: Number(i.qty),
+        unitPrice: Number(i.unitPrice ?? i.unit_price),
+        lineTotal: Number(i.lineTotal ?? i.line_total),
+      })),
+      history: (raw.history ?? []).map((h: any) => ({
+        fromStatus: h.fromStatus ?? h.from_status,
+        toStatus: h.toStatus ?? h.to_status,
+        notes: h.notes,
+        createdAt: h.createdAt ?? h.created_at,
+      })),
+    };
   },
 
   cancel(id: string, reason: string) {
