@@ -88,6 +88,17 @@ export class SchoolConfirmService {
     );
 
     if (payload.kondisi === 'ada_masalah') {
+      await this.dataSource.query(
+        `INSERT INTO incidents
+           (vendor_id, operation_day_id, source_type, source_id, severity, reason)
+         VALUES ($1, $2, 'school_confirmation', $3, 'critical', $4)`,
+        [
+          tokenRow.vendor_id,
+          tokenRow.operation_day_id ?? null,
+          tokenRow.id,
+          payload.masalahJenis?.join(', ') ?? 'Masalah tidak dirinci',
+        ],
+      );
       await this.scoringService.applyPenalty(tokenRow.vendor_id, 'SCHOOL_COMPLAINT', {
         reason: payload.masalahJenis?.join(', ') ?? 'Masalah tidak dirinci',
       });
