@@ -31,6 +31,8 @@ import { SuppliersModule } from "./modules/suppliers/suppliers.module";
 import { WorkflowCommonModule } from './common/workflow-common.module';
 import { OrdersModule } from './modules/orders/orders.module';
 import { InventoryModule } from './modules/inventory/inventory.module';
+import { MenuPlansModule } from './modules/menu-plans/menu-plans.module';
+import { OperationDaysModule } from './modules/operation-days/operation-days.module';
 
 @Module({
   imports: [
@@ -72,6 +74,8 @@ import { InventoryModule } from './modules/inventory/inventory.module';
     WorkflowCommonModule,
     OrdersModule,
     InventoryModule,
+    MenuPlansModule,
+    OperationDaysModule,
   ],
   controllers: [AppController],
   providers: [AppService],

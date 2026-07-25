@@ -1,0 +1,1 @@
+import { Module } from '@nestjs/common'; import { OperationDaysController } from './operation-days.controller'; import { OperationDaysService } from './operation-days.service'; @Module({controllers:[OperationDaysController],providers:[OperationDaysService],exports:[OperationDaysService]}) export class OperationDaysModule{}
