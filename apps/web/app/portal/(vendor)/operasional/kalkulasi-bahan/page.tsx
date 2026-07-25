@@ -2,17 +2,15 @@
 
 import * as React from "react"
 import Link from "next/link"
-import { 
-  ShoppingCart, 
-  Save, 
-  Scale, 
-  Info, 
-  Utensils, 
-  ArrowRight,
-  TrendingUp,
+import {
+  ShoppingCart,
+  Save,
+  Scale,
+  Info,
   Users,
   PackageCheck,
-  CheckCircle2
+  Plus,
+  Trash2,
 } from "lucide-react"
 
 import { Button } from "@workspace/ui/components/button"
@@ -40,22 +38,52 @@ interface Ingredient {
   availableStock: number // in grams
 }
 
+const STORAGE_KEY = "nutrio.kalkulasi-bahan.draft"
+const EMPTY_ROW = (): Ingredient => ({
+  id: Date.now() + Math.floor(Math.random() * 1000),
+  name: "",
+  stdQtyPerPortion: 0,
+  unit: "gr",
+  pricePerUnit: 0,
+  availableStock: 0,
+})
+
 export default function KalkulasiBahanPage() {
-  const targetPortions = 650
+  const [targetPortions, setTargetPortions] = React.useState(0)
+  const [ingredients, setIngredients] = React.useState<Ingredient[]>([])
+  const [lastSaved, setLastSaved] = React.useState<string | null>(null)
 
-  const [ingredients, setIngredients] = React.useState<Ingredient[]>([
-    { id: 1, name: "Daging Ayam Fillet", stdQtyPerPortion: 80, unit: "gr", pricePerUnit: 45, availableStock: 0 },
-    { id: 2, name: "Beras Putih", stdQtyPerPortion: 100, unit: "gr", pricePerUnit: 15, availableStock: 0 },
-    { id: 3, name: "Wortel Segar", stdQtyPerPortion: 30, unit: "gr", pricePerUnit: 12, availableStock: 0 },
-    { id: 4, name: "Buncis", stdQtyPerPortion: 20, unit: "gr", pricePerUnit: 14, availableStock: 0 },
-    { id: 5, name: "Minyak Goreng", stdQtyPerPortion: 5, unit: "gr", pricePerUnit: 20, availableStock: 0 },
-  ])
+  React.useEffect(() => {
+    try {
+      const raw = localStorage.getItem(STORAGE_KEY)
+      if (raw) {
+        const parsed = JSON.parse(raw)
+        setTargetPortions(parsed.targetPortions ?? 0)
+        setIngredients(parsed.ingredients ?? [])
+        setLastSaved(parsed.savedAt ?? null)
+      }
+    } catch {
+      // ignore corrupt local draft
+    }
+  }, [])
 
-  const handleStockChange = (id: number, value: string) => {
-    const numValue = Math.max(0, parseFloat(value) || 0)
-    setIngredients(prev => prev.map(item => 
-      item.id === id ? { ...item, availableStock: numValue * 1000 } : item // Convert input kg to gr
-    ))
+  const handleFieldChange = (id: number, field: keyof Ingredient, value: string) => {
+    setIngredients(prev => prev.map(item => {
+      if (item.id !== id) return item
+      if (field === 'name' || field === 'unit') return { ...item, [field]: value }
+      const numValue = Math.max(0, parseFloat(value) || 0)
+      if (field === 'availableStock') return { ...item, availableStock: numValue * 1000 } // input kg -> gr
+      return { ...item, [field]: numValue }
+    }))
+  }
+
+  const addRow = () => setIngredients(prev => [...prev, EMPTY_ROW()])
+  const removeRow = (id: number) => setIngredients(prev => prev.filter(item => item.id !== id))
+
+  const handleSaveDraft = () => {
+    const savedAt = new Date().toISOString()
+    localStorage.setItem(STORAGE_KEY, JSON.stringify({ targetPortions, ingredients, savedAt }))
+    setLastSaved(savedAt)
   }
 
   const formatIDR = (amount: number) => {
@@ -89,64 +117,43 @@ export default function KalkulasiBahanPage() {
         <div className="relative p-8 flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
           <div className="space-y-3">
             <Badge className="bg-teal-500/20 text-teal-100 border border-teal-500/30 font-bold uppercase tracking-widest text-[10px] px-3 py-1 rounded-full backdrop-blur-sm">
-              <span className="size-1.5 rounded-full bg-emerald-400 animate-pulse mr-2 inline-block" /> Auto Calculation
+              <span className="size-1.5 rounded-full bg-amber-400 animate-pulse mr-2 inline-block" /> Kalkulator Manual
             </Badge>
             <h1 className="text-3xl font-bold text-white tracking-tight">Kalkulasi Logistik & Bahan</h1>
             <p className="text-teal-100/80 text-sm max-w-xl leading-relaxed">
-              Otomatisasi kebutuhan belanja bahan baku dapur secara real-time berdasarkan rencana menu dan porsi harian.
+              Input target porsi dan bahan secara manual — belum tersambung ke rencana menu server.
             </p>
           </div>
-          
+
           <div className="flex items-center gap-3 bg-black/20 backdrop-blur-md rounded-2xl border border-white/10 p-4 shrink-0">
-            <PackageCheck className="size-5 text-emerald-400" />
+            <PackageCheck className="size-5 text-amber-300" />
             <div>
-              <p className="text-[10px] font-bold text-teal-200 uppercase tracking-widest">Inventory Sync</p>
-              <p className="text-sm font-bold text-emerald-400 mt-0.5">Ready & Connected</p>
+              <p className="text-[10px] font-bold text-teal-200 uppercase tracking-widest">Status</p>
+              <p className="text-sm font-bold text-amber-300 mt-0.5">Draft Lokal</p>
             </div>
           </div>
         </div>
       </div>
 
-      {/* 2. Context Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        <Card className="bg-white/95 backdrop-blur-xl border border-white/40 shadow-xl shadow-teal-900/5 rounded-[24px] hover:-translate-y-1 transition-all duration-300 overflow-hidden">
-          <CardContent className="p-6 md:p-8 flex items-center gap-4">
-            <div className="size-14 bg-teal-50 rounded-2xl flex items-center justify-center text-teal-600 shadow-sm border border-teal-100">
-              <Users className="size-6" />
-            </div>
-            <div>
-              <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest leading-none mb-1">Total Demand Zona</p>
-              <p className="text-2xl font-black text-slate-900">{targetPortions} <span className="text-xs font-bold opacity-40">Porsi</span></p>
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card className="bg-white/95 backdrop-blur-xl border border-white/40 shadow-xl shadow-teal-900/5 rounded-[24px] hover:-translate-y-1 transition-all duration-300 overflow-hidden">
-          <CardContent className="p-6 md:p-8 flex items-center gap-4">
-            <div className="size-14 bg-amber-50 rounded-2xl flex items-center justify-center text-amber-600 shadow-sm border border-amber-100">
-              <Utensils className="size-6" />
-            </div>
-            <div>
-              <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest leading-none mb-1">Rencana Menu</p>
-              <p className="text-lg font-black text-slate-900 truncate max-w-[200px]">Nasi Ayam Teriyaki</p>
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card className="bg-white/95 backdrop-blur-xl border border-white/40 shadow-xl shadow-teal-900/5 rounded-[24px] hover:-translate-y-1 transition-all duration-300 overflow-hidden">
-          <CardContent className="p-6 md:p-8 flex items-center gap-4">
-            <div className="size-14 bg-emerald-50 rounded-2xl flex items-center justify-center text-emerald-600 shadow-sm border border-emerald-100">
-              <TrendingUp className="size-6" />
-            </div>
-            <div>
-              <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest leading-none mb-1">Status Efisiensi</p>
-              <p className="text-lg font-black text-emerald-600 flex items-center gap-2">
-                Optimal <CheckCircle2 className="size-4" />
-              </p>
-            </div>
-          </CardContent>
-        </Card>
-      </div>
+      {/* 2. Target portions */}
+      <Card className="bg-white/95 backdrop-blur-xl border border-white/40 shadow-xl shadow-teal-900/5 rounded-[24px] overflow-hidden max-w-sm">
+        <CardContent className="p-6 md:p-8 flex items-center gap-4">
+          <div className="size-14 bg-teal-50 rounded-2xl flex items-center justify-center text-teal-600 shadow-sm border border-teal-100">
+            <Users className="size-6" />
+          </div>
+          <div className="flex-1">
+            <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest leading-none mb-1">Target Porsi Hari Ini</p>
+            <Input
+              type="number"
+              min="0"
+              value={targetPortions || ''}
+              onChange={(e) => setTargetPortions(Math.max(0, parseInt(e.target.value) || 0))}
+              placeholder="0"
+              className="h-9 mt-1 w-32 rounded-lg border-slate-200 font-black text-lg"
+            />
+          </div>
+        </CardContent>
+      </Card>
 
       {/* 3. Main Calculator Table */}
       <Card className="bg-white border-none shadow-sm rounded-2xl overflow-hidden ring-1 ring-slate-200/60">
@@ -159,7 +166,7 @@ export default function KalkulasiBahanPage() {
             <div className="p-4 bg-teal-50 border border-teal-100 rounded-2xl flex items-center gap-3">
               <Info className="size-5 text-teal-600 shrink-0" />
               <p className="text-[11px] font-bold text-teal-800 leading-tight">
-                Input stok sisa dapur di kolom "Stok Fisik (KG)" untuk mengurangi total belanja.
+                Isi nama bahan, takaran per porsi, dan harga secara manual. Total dihitung otomatis.
               </p>
             </div>
           </div>
@@ -171,29 +178,56 @@ export default function KalkulasiBahanPage() {
               <TableHeader className="bg-slate-50/50">
                 <TableRow className="hover:bg-transparent border-slate-100">
                   <TableHead className="font-bold text-slate-400 text-[10px] uppercase tracking-widest h-14 pl-8">Nama Bahan</TableHead>
-                  <TableHead className="font-bold text-slate-400 text-[10px] uppercase tracking-widest text-center h-14">Takaran / Porsi</TableHead>
+                  <TableHead className="font-bold text-slate-400 text-[10px] uppercase tracking-widest text-center h-14">Takaran/Porsi (gr)</TableHead>
+                  <TableHead className="font-bold text-slate-400 text-[10px] uppercase tracking-widest text-center h-14">Harga/kg (Rp)</TableHead>
                   <TableHead className="font-bold text-slate-400 text-[10px] uppercase tracking-widest text-center h-14">Total Kebutuhan</TableHead>
                   <TableHead className="font-bold text-slate-400 text-[10px] uppercase tracking-widest text-center h-14">Stok Fisik (KG)</TableHead>
                   <TableHead className="font-bold text-slate-400 text-[10px] uppercase tracking-widest text-center h-14">Harus Dibeli</TableHead>
                   <TableHead className="font-bold text-slate-400 text-[10px] uppercase tracking-widest pr-8 text-right h-14">Estimasi Biaya</TableHead>
+                  <TableHead className="w-10" />
                 </TableRow>
               </TableHeader>
               <TableBody>
                 {rows.map((row) => (
                   <TableRow key={row.id} className="hover:bg-slate-50/80 transition-colors border-slate-100">
-                    <TableCell className="font-extrabold text-slate-900 py-6 pl-8">{row.name}</TableCell>
-                    <TableCell className="text-center text-slate-500 font-bold text-xs bg-slate-50/30">
-                      {row.stdQtyPerPortion} gr
+                    <TableCell className="py-4 pl-8">
+                      <Input
+                        value={row.name}
+                        placeholder="Nama bahan"
+                        onChange={(e) => handleFieldChange(row.id, 'name', e.target.value)}
+                        className="h-10 rounded-lg border-slate-200 bg-white font-bold text-slate-900 min-w-[160px]"
+                      />
+                    </TableCell>
+                    <TableCell className="text-center">
+                      <Input
+                        type="number"
+                        min="0"
+                        value={row.stdQtyPerPortion || ''}
+                        placeholder="0"
+                        onChange={(e) => handleFieldChange(row.id, 'stdQtyPerPortion', e.target.value)}
+                        className="h-10 text-center rounded-lg border-slate-200 bg-white font-bold w-24 mx-auto"
+                      />
+                    </TableCell>
+                    <TableCell className="text-center">
+                      <Input
+                        type="number"
+                        min="0"
+                        value={row.pricePerUnit || ''}
+                        placeholder="0"
+                        onChange={(e) => handleFieldChange(row.id, 'pricePerUnit', e.target.value)}
+                        className="h-10 text-center rounded-lg border-slate-200 bg-white font-bold w-28 mx-auto"
+                      />
                     </TableCell>
                     <TableCell className="text-center font-extrabold text-slate-700">
                       {(row.totalRequiredGr / 1000).toFixed(2)} kg
                     </TableCell>
                     <TableCell className="text-center">
                       <div className="max-w-[120px] mx-auto">
-                        <Input 
+                        <Input
                           type="number"
+                          min="0"
                           placeholder="0"
-                          onChange={(e) => handleStockChange(row.id, e.target.value)}
+                          onChange={(e) => handleFieldChange(row.id, 'availableStock', e.target.value)}
                           className="h-10 text-center rounded-xl border-slate-200 bg-white font-bold text-slate-900 focus:ring-2 focus:ring-teal-500/20 focus:border-teal-500 shadow-sm"
                         />
                       </div>
@@ -209,10 +243,20 @@ export default function KalkulasiBahanPage() {
                     <TableCell className="text-right pr-8 font-black text-slate-900 text-sm">
                       {formatIDR(row.rowCost)}
                     </TableCell>
+                    <TableCell className="pr-4">
+                      <Button variant="ghost" size="icon" onClick={() => removeRow(row.id)} className="size-8 text-slate-400 hover:text-red-600 hover:bg-red-50">
+                        <Trash2 className="size-3.5" />
+                      </Button>
+                    </TableCell>
                   </TableRow>
                 ))}
               </TableBody>
             </Table>
+            <div className="p-4 border-t border-slate-100">
+              <Button variant="outline" onClick={addRow} className="rounded-xl font-bold text-xs gap-2 border-slate-200">
+                <Plus className="size-3.5" /> Tambah Bahan
+              </Button>
+            </div>
           </div>
 
           <div className="p-8 border-t border-slate-100 bg-slate-50/50">
@@ -235,20 +279,22 @@ export default function KalkulasiBahanPage() {
           </div>
         </CardContent>
 
-        <CardFooter className="p-6 md:p-8 bg-white border-t border-slate-100 flex flex-col sm:flex-row items-center justify-end gap-4">
-          <Button variant="ghost" className="rounded-xl h-12 px-8 font-bold text-slate-500 hover:text-slate-900 w-full sm:w-auto">
-            Batal
-          </Button>
-          <Button variant="outline" className="rounded-xl h-12 px-8 font-bold gap-2 w-full sm:w-auto border-slate-200 text-slate-700 hover:bg-slate-50">
-            <Save className="size-4" />
-            Simpan Draft
-          </Button>
-          <Link href="/portal/marketplace" className="w-full sm:w-auto">
-            <Button className="w-full rounded-xl h-12 px-10 font-bold shadow-md bg-teal-600 hover:bg-teal-700 text-white gap-2 transition-all">
-              <ShoppingCart className="size-4" />
-              Lanjut ke E-Katalog
+        <CardFooter className="p-6 md:p-8 bg-white border-t border-slate-100 flex flex-col sm:flex-row items-center justify-between gap-4">
+          <p className="text-[11px] font-semibold text-slate-400 italic">
+            {lastSaved ? `Tersimpan lokal: ${new Date(lastSaved).toLocaleString('id-ID')}` : 'Belum disimpan di perangkat ini.'}
+          </p>
+          <div className="flex flex-col sm:flex-row items-center gap-4 w-full sm:w-auto">
+            <Button variant="outline" onClick={handleSaveDraft} className="rounded-xl h-12 px-8 font-bold gap-2 w-full sm:w-auto border-slate-200 text-slate-700 hover:bg-slate-50">
+              <Save className="size-4" />
+              Simpan Draft (Lokal)
             </Button>
-          </Link>
+            <Link href="/portal/marketplace" className="w-full sm:w-auto">
+              <Button className="w-full rounded-xl h-12 px-10 font-bold shadow-md bg-teal-600 hover:bg-teal-700 text-white gap-2 transition-all">
+                <ShoppingCart className="size-4" />
+                Lanjut ke E-Katalog
+              </Button>
+            </Link>
+          </div>
         </CardFooter>
       </Card>
     </div>

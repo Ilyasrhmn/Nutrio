@@ -44,14 +44,26 @@ interface StockItem {
   condition: string
 }
 
+const STORAGE_KEY = "nutrio.stock-opname.draft"
+
 export default function StockOpnamePage() {
   const { toast } = useToast()
-  
-  const [stockItems, setStockItems] = React.useState<StockItem[]>([
-    { id: "1", category: "Sembako", name: "Beras Putih (Premium)", qty: 5, unit: "kg", condition: "Layak Pakai" },
-    { id: "2", category: "Daging & Unggas", name: "Daging Ayam Fillet", qty: 2.5, unit: "kg", condition: "Layak Pakai" },
-    { id: "3", category: "Sayur & Buah", name: "Tomat Merah", qty: 1.2, unit: "kg", condition: "Rusak" },
-  ])
+
+  const [stockItems, setStockItems] = React.useState<StockItem[]>([])
+  const [lastSaved, setLastSaved] = React.useState<string | null>(null)
+
+  React.useEffect(() => {
+    try {
+      const raw = localStorage.getItem(STORAGE_KEY)
+      if (raw) {
+        const parsed = JSON.parse(raw)
+        setStockItems(parsed.items ?? [])
+        setLastSaved(parsed.savedAt ?? null)
+      }
+    } catch {
+      // ignore corrupt local draft
+    }
+  }, [])
 
   const handleUpdateField = (id: string, field: keyof StockItem, value: any) => {
     setStockItems(prev => prev.map(item => 
@@ -80,9 +92,12 @@ export default function StockOpnamePage() {
   }
 
   const handleSave = () => {
+    const savedAt = new Date().toISOString()
+    localStorage.setItem(STORAGE_KEY, JSON.stringify({ items: stockItems, savedAt }))
+    setLastSaved(savedAt)
     toast({
-      title: "Data Tersimpan",
-      description: "Stock opname hari ini telah dikunci dan masuk ke sistem.",
+      title: "Draft Tersimpan di Perangkat Ini",
+      description: "Data belum tersinkron ke server — fitur sinkronisasi stock opname belum tersedia.",
     })
   }
 
@@ -110,8 +125,10 @@ export default function StockOpnamePage() {
           <div className="flex items-center gap-3 bg-black/20 backdrop-blur-md rounded-2xl border border-white/10 p-4 shrink-0">
             <History className="size-5 text-teal-300" />
             <div>
-              <p className="text-[10px] font-bold text-teal-200 uppercase tracking-widest">Log Terakhir</p>
-              <p className="text-sm font-bold text-white mt-0.5">15 Mar 2026</p>
+              <p className="text-[10px] font-bold text-teal-200 uppercase tracking-widest">Draft Tersimpan</p>
+              <p className="text-sm font-bold text-white mt-0.5">
+                {lastSaved ? new Date(lastSaved).toLocaleString('id-ID') : 'Belum ada'}
+              </p>
             </div>
           </div>
         </div>
@@ -120,10 +137,11 @@ export default function StockOpnamePage() {
       <Alert className="bg-amber-50 border-amber-200 rounded-2xl shadow-sm p-6 flex gap-4 items-start">
         <AlertTriangle className="size-6 text-amber-600 shrink-0 mt-0.5" />
         <div>
-          <AlertTitle className="text-amber-900 font-bold uppercase text-xs tracking-widest mb-1.5">PENTING: Sinkronisasi Inventaris</AlertTitle>
+          <AlertTitle className="text-amber-900 font-bold uppercase text-xs tracking-widest mb-1.5">Draft Lokal, Belum Tersinkron</AlertTitle>
           <AlertDescription className="text-amber-800 text-sm font-semibold leading-relaxed">
-            Data sisa fisik yang diinput sebagai <Badge className="bg-emerald-100 text-emerald-800 border-none px-2 mx-1 rounded-md">Layak Pakai</Badge> 
-            akan otomatis terhubung menjadi pengurang target belanja Anda pada halaman Kalkulasi Bahan besok pagi.
+            Data ini tersimpan hanya di perangkat ini. Salin manual sisa stok
+            <Badge className="bg-emerald-100 text-emerald-800 border-none px-2 mx-1 rounded-md">Layak Pakai</Badge>
+            ke halaman Kalkulasi Bahan — sinkronisasi otomatis antar halaman belum tersedia.
           </AlertDescription>
         </div>
       </Alert>
@@ -272,8 +290,10 @@ export default function StockOpnamePage() {
               ?
             </div>
             <div className="space-y-1">
-              <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Status Dokumen</p>
-              <p className="text-xs font-semibold text-slate-500 italic">Terakhir diperbarui: Belum disimpan.</p>
+              <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Status Draft</p>
+              <p className="text-xs font-semibold text-slate-500 italic">
+                {lastSaved ? `Tersimpan lokal: ${new Date(lastSaved).toLocaleString('id-ID')}` : 'Belum disimpan.'}
+              </p>
             </div>
           </div>
 
