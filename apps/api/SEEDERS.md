@@ -7,43 +7,49 @@ Menggunakan **typeorm-extension** untuk CLI yang lebih mirip Sequelize.
 ## 📋 Daftar User yang Di-seed
 
 ### Admin BGN (Superuser)
-| Email | Password | Role |
-|-------|----------|------|
+
+| Email             | Password    | Role                    |
+| ----------------- | ----------- | ----------------------- |
 | `admin@bgn.go.id` | `Admin123!` | Administrator BGN Pusat |
 
 ### Vendor (Mitra SPPG)
-| Email | Password | Role | Status |
-|-------|----------|------|--------|
-| `vendor@sppg.go.id` | `Vendor123!` | Mitra SPPG Jakarta | `ACTIVE` — 30-day history, CP1-4, deliveries, POs |
-| `vendor2@sppg.go.id` | `Vendor123!` | Mitra SPPG Bandung | `INSPECTION_SCHEDULED` — mid-onboarding |
-| `vendor3@sppg.go.id` | `Vendor123!` | Mitra SPPG Surabaya | `PREPARING_DOCS` |
-| `vendor4@sppg.go.id` | `Vendor123!` | Mitra SPPG Medan | `UNDER_REVIEW` |
-| `vendor5@sppg.go.id` | `Vendor123!` | Mitra SPPG Yogyakarta | `ONBOARDING` |
+
+| Email                | Password     | Role                  | Status                                            |
+| -------------------- | ------------ | --------------------- | ------------------------------------------------- |
+| `vendor@sppg.go.id`  | `Vendor123!` | Mitra SPPG Jakarta    | `ACTIVE` — 30-day history, CP1-4, deliveries, POs |
+| `vendor2@sppg.go.id` | `Vendor123!` | Mitra SPPG Bandung    | `INSPECTION_SCHEDULED` — mid-onboarding           |
+| `vendor3@sppg.go.id` | `Vendor123!` | Mitra SPPG Surabaya   | `PREPARING_DOCS`                                  |
+| `vendor4@sppg.go.id` | `Vendor123!` | Mitra SPPG Medan      | `UNDER_REVIEW`                                    |
+| `vendor5@sppg.go.id` | `Vendor123!` | Mitra SPPG Yogyakarta | `ONBOARDING`                                      |
 
 ### Inspector (Pengawas)
-| Email | Password | Role |
-|-------|----------|------|
-| `inspector@bgn.go.id` | `Inspector123!` | Pengawas BGN Wilayah 1 |
+
+| Email                  | Password        | Role                   |
+| ---------------------- | --------------- | ---------------------- |
+| `inspector@bgn.go.id`  | `Inspector123!` | Pengawas BGN Wilayah 1 |
 | `inspector2@bgn.go.id` | `Inspector123!` | Pengawas BGN Wilayah 2 |
 
 ### Coordinator SPPG
-| Email | Password | Role |
-|-------|----------|------|
-| `coordinator@sppg.go.id` | `Coordinator123!` | Koordinator SPPG Nasional |
+
+| Email                     | Password          | Role                      |
+| ------------------------- | ----------------- | ------------------------- |
+| `coordinator@sppg.go.id`  | `Coordinator123!` | Koordinator SPPG Nasional |
 | `coordinator2@sppg.go.id` | `Coordinator123!` | Koordinator SPPG Provinsi |
 
 ### Dinkes (Dinas Kesehatan)
-| Email | Password | Role |
-|-------|----------|------|
-| `dinkes@kesehatan.go.id` | `Dinkes123!` | Dinas Kesehatan Kota Jakarta |
+
+| Email                     | Password     | Role                         |
+| ------------------------- | ------------ | ---------------------------- |
+| `dinkes@kesehatan.go.id`  | `Dinkes123!` | Dinas Kesehatan Kota Jakarta |
 | `dinkes2@kesehatan.go.id` | `Dinkes123!` | Dinas Kesehatan Kota Bandung |
 
 ### Public (Sekolah / Umum)
-| Email | Password | Role |
-|-------|----------|------|
-| `school@sdn01.sch.id` | `School123!` | SDN 01 Jakarta Pusat |
-| `school2@sdn02.sch.id` | `School123!` | SDN 02 Bandung |
-| `parent@family.com` | `Parent123!` | Wali Murid Ahmad |
+
+| Email                  | Password     | Role                 |
+| ---------------------- | ------------ | -------------------- |
+| `school@sdn01.sch.id`  | `School123!` | SDN 01 Jakarta Pusat |
+| `school2@sdn02.sch.id` | `School123!` | SDN 02 Bandung       |
+| `parent@family.com`    | `Parent123!` | Wali Murid Ahmad     |
 
 ## 🚀 Cara Menggunakan
 
@@ -80,11 +86,13 @@ npm run seed:generate -- product-seeder
 Setelah menjalankan seeder, Anda dapat login dengan salah satu user di atas.
 
 **Contoh Login sebagai Admin:**
+
 1. Buka halaman login: `http://localhost:3333/login`
 2. Email: `admin@bgn.go.id`
 3. Password: `Admin123!`
 
 **Contoh Login sebagai Vendor:**
+
 1. Buka halaman login: `http://localhost:3333/login`
 2. Email: `vendor@sppg.go.id`
 3. Password: `Vendor123!`
@@ -94,25 +102,31 @@ Setelah menjalankan seeder, Anda dapat login dengan salah satu user di atas.
 Setiap role memiliki permissions yang berbeda-beda:
 
 ### Admin BGN
+
 - ✅ Manage all (semua akses)
 
 ### Vendor
+
 - ✅ View: Dashboard, Map, Funds, Menu, LiveExecution, Logistics, Checkpoints, Marketplace, Settings
 - ❌ Cannot view: Audit, Reports
 
 ### Inspector
+
 - ✅ View: Dashboard, Map, LiveExecution, Logistics, Checkpoints, Audit, Reports
 - ❌ Cannot view: Funds, Menu, Marketplace
 
 ### Coordinator SPPG
+
 - ✅ View: Dashboard, Map, LiveExecution, Logistics, Checkpoints, Audit, Reports, Settings
 - ❌ Cannot view: Funds, Menu, Marketplace
 
 ### Dinkes
+
 - ✅ View: Dashboard, Map, LiveExecution, Audit, Reports
 - ❌ Cannot view: Funds, Menu, Marketplace
 
 ### Public (Sekolah/Parent)
+
 - ✅ View: Dashboard, Map, LiveExecution
 - ❌ Cannot view: Funds, Menu, Marketplace, Audit, Reports
 
@@ -122,6 +136,25 @@ Setiap role memiliki permissions yang berbeda-beda:
 - Password di-hash menggunakan bcrypt sebelum disimpan ke database
 - Semua user yang di-seed memiliki `isEmailVerified: true` untuk memudahkan testing
 - Seeders menggunakan **typeorm-extension** untuk CLI yang lebih baik
+
+## Kontrak workflow operation day
+
+Semua mutation vendor/supplier memakai header `Authorization: Bearer <token>` dan `Idempotency-Key` yang unik per aksi. Status yang dikembalikan API dinormalisasi: `submitted`, `accepted`, `rejected`, `dispatched`, dan `received`.
+
+| Method        | Route                                        | Pemilik aksi                         |
+| ------------- | -------------------------------------------- | ------------------------------------ |
+| `POST`        | `/orders`                                    | Vendor membuat PO                    |
+| `GET`         | `/orders/my`                                 | Vendor membaca PO miliknya           |
+| `GET`         | `/orders/supplier`                           | Supplier membaca PO masuk            |
+| `POST`        | `/orders/:id/accept`, `/reject`, `/dispatch` | Supplier tujuan                      |
+| `POST`        | `/orders/:id/receive`                        | Vendor pembeli                       |
+| `GET`         | `/inventory/current`                         | Vendor                               |
+| `POST`        | `/inventory/opname`                          | Vendor                               |
+| `POST`, `GET` | `/menu-plans`, `/menu-plans/:date`           | Vendor                               |
+| `POST`, `GET` | `/operation-days`, `/operation-days/today`   | Vendor                               |
+| `POST`        | `/operation-days/:id/close`                  | Vendor setelah sekolah mengonfirmasi |
+
+`pnpm db:seed` menjalankan `OperationDaySeed` setelah marketplace seed dan aman dijalankan berulang; seed tersebut menyiapkan menu harian untuk produk demo yang tersedia.
 
 ## 📝 Menambahkan User Baru
 

@@ -10,6 +10,7 @@ import { AiModule } from '../ai/ai.module';
 import { ScoringModule } from '../scoring/scoring.module';
 import { RealtimeModule } from '../realtime/realtime.module';
 import { DebriefModule } from '../debrief/debrief.module';
+import { OperationDaysModule } from '../operation-days/operation-days.module';
 
 @Module({
   imports: [
@@ -23,6 +24,7 @@ import { DebriefModule } from '../debrief/debrief.module';
     ScoringModule,
     RealtimeModule,
     DebriefModule,
+    OperationDaysModule,
   ],
   providers: [CheckpointsService],
   controllers: [CheckpointsController],

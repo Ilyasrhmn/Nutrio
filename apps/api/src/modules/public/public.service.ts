@@ -1,5 +1,5 @@
-import { Injectable } from '@nestjs/common';
-import { DataSource } from 'typeorm';
+import { Injectable } from "@nestjs/common";
+import { DataSource } from "typeorm";
 
 @Injectable()
 export class PublicService {
@@ -9,8 +9,11 @@ export class PublicService {
     const [stats] = await this.dataSource.query(`
       SELECT
         (SELECT COUNT(*) FROM vendors WHERE lifecycle_status = 'ACTIVE')  AS total_active_vendors,
-        (SELECT COALESCE(SUM(target_porsi), 0)
-           FROM sppg_locations WHERE is_active = true)                    AS total_porsi_today,
+        (SELECT COALESCE(SUM(mp.target_pax), 0)
+           FROM operation_days od
+           JOIN menu_plans mp ON mp.id = od.menu_plan_id
+          WHERE od.operation_date = CURRENT_DATE
+            AND od.status <> 'planned')                                   AS total_porsi_today,
         (SELECT COUNT(*) FROM daily_score_records
            WHERE score_date = CURRENT_DATE AND score_current >= 80)       AS vendors_excellent,
         (SELECT COUNT(*) FROM school_confirmations
@@ -51,7 +54,7 @@ export class PublicService {
        LEFT JOIN daily_score_records dsr
               ON dsr.vendor_id = v.id AND dsr.score_date = CURRENT_DATE
        LEFT JOIN sppg_locations sl ON sl.vendor_id = v.id AND sl.is_active = true
-       WHERE ${conditions.join(' AND ')}
+       WHERE ${conditions.join(" AND ")}
        ORDER BY dsr.score_current DESC NULLS LAST
        LIMIT $1`,
       params,
@@ -64,7 +67,9 @@ export class PublicService {
       addressProvince: r.address_province,
       score: Number(r.score_current),
       targetPorsi: r.target_porsi ?? 0,
-      schoolCount: Array.isArray(r.assigned_schools) ? r.assigned_schools.length : 0,
+      schoolCount: Array.isArray(r.assigned_schools)
+        ? r.assigned_schools.length
+        : 0,
       lat: r.lat ? Number(r.lat) : null,
       lng: r.lng ? Number(r.lng) : null,
     }));

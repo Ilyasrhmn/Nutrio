@@ -19,6 +19,7 @@ import VendorLifecycleSeed from './seeds/vendor-lifecycle.seed';
 import DailyOpsSeed from './seeds/daily-ops.seed';
 import MarketplaceSupplierSeed from './seeds/marketplace-supplier.seed';
 import ComplianceSeed from './seeds/compliance.seed';
+import OperationDaySeed from './seeds/operation-day.seed';
 
 // Urutan penting — FK dependencies:
 // 1. Access control (roles, permissions, menus)
@@ -40,6 +41,7 @@ const SEEDERS = [
   DailyOpsSeed,
   MarketplaceSupplierSeed,
   ComplianceSeed,
+  OperationDaySeed,
 ];
 
 async function main() {

@@ -11,6 +11,9 @@ export class DeliveryToken {
   @Column({ name: 'vendor_id', type: 'uuid' })
   vendorId!: string;
 
+  @Column({ name: 'operation_day_id', type: 'uuid', nullable: true })
+  operationDayId!: string | null;
+
   @Column({ name: 'sppg_location_id', type: 'uuid' })
   sppgLocationId!: string;
 

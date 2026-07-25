@@ -1,5 +1,5 @@
-import { Injectable } from '@nestjs/common';
-import { DataSource } from 'typeorm';
+import { Injectable } from "@nestjs/common";
+import { DataSource } from "typeorm";
 
 @Injectable()
 export class CommandCenterService {
@@ -26,9 +26,53 @@ export class CommandCenterService {
     };
   }
 
+  async getOperationDays(date?: string, vendorId?: string) {
+    const conditions = ["od.operation_date = $1::date"];
+    const params: unknown[] = [date ?? new Date().toISOString().slice(0, 10)];
+    if (vendorId) {
+      params.push(vendorId);
+      conditions.push(`od.vendor_id = $${params.length}::uuid`);
+    }
+    const rows = await this.dataSource.query(
+      `SELECT od.id, od.operation_date, od.status, od.closed_at, od.vendor_id,
+              v.business_name AS vendor_name, mp.target_pax,
+              COUNT(DISTINCT ce.id) FILTER (WHERE ce.cp_status = 'done') AS checkpoints_done,
+              COUNT(DISTINCT dt.id) AS deliveries_total,
+              COUNT(DISTINCT dt.id) FILTER (WHERE dt.status = 'used') AS deliveries_confirmed,
+              fp.amount AS fund_projection,
+              COALESCE(dsr.score_final, dsr.score_current) AS score
+       FROM operation_days od
+       JOIN vendors v ON v.id = od.vendor_id
+       LEFT JOIN menu_plans mp ON mp.id = od.menu_plan_id
+       LEFT JOIN checkpoint_events ce ON ce.operation_day_id = od.id
+       LEFT JOIN delivery_tokens dt ON dt.operation_day_id = od.id
+       LEFT JOIN fund_projections fp ON fp.operation_day_id = od.id
+       LEFT JOIN daily_score_records dsr ON dsr.vendor_id = od.vendor_id AND dsr.score_date = od.operation_date
+       WHERE ${conditions.join(" AND ")}
+       GROUP BY od.id, v.business_name, mp.target_pax, fp.amount, dsr.score_final, dsr.score_current
+       ORDER BY v.business_name`,
+      params,
+    );
+    return rows.map((row: any) => ({
+      id: row.id,
+      operationDate: row.operation_date,
+      status: row.status,
+      closedAt: row.closed_at,
+      vendorId: row.vendor_id,
+      vendorName: row.vendor_name,
+      targetPax: Number(row.target_pax ?? 0),
+      checkpointsDone: Number(row.checkpoints_done),
+      deliveriesTotal: Number(row.deliveries_total),
+      deliveriesConfirmed: Number(row.deliveries_confirmed),
+      score: row.score === null ? null : Number(row.score),
+      fundProjection:
+        row.fund_projection === null ? null : Number(row.fund_projection),
+    }));
+  }
+
   async getAlerts(severity?: string, page = 1, limit = 20) {
     const offset = (page - 1) * limit;
-    const conditions = ['a.is_read = false'];
+    const conditions = ["a.is_read = false"];
     const params: unknown[] = [limit, offset];
 
     if (severity) {
@@ -36,7 +80,7 @@ export class CommandCenterService {
       conditions.push(`a.severity = $${params.length}`);
     }
 
-    const where = conditions.join(' AND ');
+    const where = conditions.join(" AND ");
 
     const rows = await this.dataSource.query(
       `SELECT a.id, a.vendor_id, a.alert_type, a.severity, a.title, a.body,
@@ -63,7 +107,7 @@ export class CommandCenterService {
       data: rows.map((r: any) => ({
         id: r.id,
         vendorId: r.vendor_id,
-        vendorName: r.vendor_name ?? '—',
+        vendorName: r.vendor_name ?? "—",
         alertType: r.alert_type,
         severity: r.severity,
         title: r.title,
@@ -160,7 +204,7 @@ export class CommandCenterService {
   }
 
   async getDeliveries(date?: string, limit = 50) {
-    const d = date ?? new Date().toISOString().split('T')[0];
+    const d = date ?? new Date().toISOString().split("T")[0];
     const rows = await this.dataSource.query(
       `SELECT dt.token, dt.status, dt.porsi_count,
               dt.generated_at, dt.expired_at,
@@ -224,13 +268,13 @@ export class CommandCenterService {
     const cpDone = Number(cpStats.cp_done) || 0;
     const cpTotal = Number(cpStats.cp_total) || 1;
 
-    const complianceRate = totalWithData > 0
-      ? Math.round((highScore / totalWithData) * 100)
-      : 0;
+    const complianceRate =
+      totalWithData > 0 ? Math.round((highScore / totalWithData) * 100) : 0;
 
-    const fraudPreventionRate = totalActive > 0
-      ? Math.round(((totalActive - lowScore) / totalActive) * 100)
-      : 100;
+    const fraudPreventionRate =
+      totalActive > 0
+        ? Math.round(((totalActive - lowScore) / totalActive) * 100)
+        : 100;
 
     const anomalies = await this.dataSource.query(`
       SELECT v.id, v.business_name, dsr.score_current,
@@ -262,7 +306,7 @@ export class CommandCenterService {
         vendorId: r.id,
         vendorName: r.business_name,
         score: Number(r.score_current),
-        lastReason: r.last_reason ?? 'Tidak ada data',
+        lastReason: r.last_reason ?? "Tidak ada data",
       })),
     };
   }

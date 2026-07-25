@@ -1,5 +1,5 @@
-import { Injectable } from '@nestjs/common';
-import { Server } from 'socket.io';
+import { Injectable } from "@nestjs/common";
+import { Server } from "socket.io";
 
 @Injectable()
 export class RealtimeService {
@@ -18,15 +18,23 @@ export class RealtimeService {
     this.opsServer?.to(`vendor:${vendorId}`).emit(event, payload);
   }
 
+  broadcastToUser(userId: string, event: string, payload: unknown) {
+    this.opsServer?.to(`user:${userId}`).emit(event, payload);
+    this.bgnServer?.to(`user:${userId}`).emit(event, payload);
+  }
+
   broadcastToAllVendors(event: string, payload: unknown) {
     this.opsServer?.emit(event, payload);
   }
 
   broadcastToBGN(event: string, payload: unknown) {
-    this.bgnServer?.to('bgn:all').emit(event, payload);
+    this.bgnServer?.to("bgn:all").emit(event, payload);
   }
 
-  private presence = new Map<string, { connectedAt: Date; vendorId?: string }>();
+  private presence = new Map<
+    string,
+    { connectedAt: Date; vendorId?: string }
+  >();
 
   setPresence(userId: string, vendorId?: string) {
     this.presence.set(userId, { connectedAt: new Date(), vendorId });
@@ -36,10 +44,13 @@ export class RealtimeService {
     this.presence.delete(userId);
   }
 
-  getPresenceForVendor(vendorId: string): Array<{ userId: string; connectedAt: Date }> {
+  getPresenceForVendor(
+    vendorId: string,
+  ): Array<{ userId: string; connectedAt: Date }> {
     const result: Array<{ userId: string; connectedAt: Date }> = [];
     this.presence.forEach((v, userId) => {
-      if (v.vendorId === vendorId) result.push({ userId, connectedAt: v.connectedAt });
+      if (v.vendorId === vendorId)
+        result.push({ userId, connectedAt: v.connectedAt });
     });
     return result;
   }

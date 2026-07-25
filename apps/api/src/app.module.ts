@@ -28,6 +28,11 @@ import { PublicModule } from "./modules/public/public.module";
 import { RagModule } from "./modules/rag/rag.module";
 import { FundsModule } from "./modules/funds/funds.module";
 import { SuppliersModule } from "./modules/suppliers/suppliers.module";
+import { WorkflowCommonModule } from './common/workflow-common.module';
+import { OrdersModule } from './modules/orders/orders.module';
+import { InventoryModule } from './modules/inventory/inventory.module';
+import { MenuPlansModule } from './modules/menu-plans/menu-plans.module';
+import { OperationDaysModule } from './modules/operation-days/operation-days.module';
 
 @Module({
   imports: [
@@ -66,6 +71,11 @@ import { SuppliersModule } from "./modules/suppliers/suppliers.module";
     FundsModule,
     // Supplier Marketplace
     SuppliersModule,
+    WorkflowCommonModule,
+    OrdersModule,
+    InventoryModule,
+    MenuPlansModule,
+    OperationDaysModule,
   ],
   controllers: [AppController],
   providers: [AppService],
