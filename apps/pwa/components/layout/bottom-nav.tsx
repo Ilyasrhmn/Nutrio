@@ -10,7 +10,7 @@ import { UserRole } from "@workspace/common/types";
 const ALL_NAV_ITEMS = [
   { label: "Home", href: "/", icon: Home, roles: [UserRole.VENDOR, UserRole.SUPPLIER, UserRole.COORDINATOR_SPPG, UserRole.PUBLIC] },
   { label: "Operasional", href: "/operasional/live", icon: ClipboardList, roles: [UserRole.VENDOR] },
-  { label: "Orders", href: "/orders", icon: Package, roles: [UserRole.SUPPLIER] },
+  { label: "Pesanan", href: "/pesanan", icon: Package, roles: [UserRole.SUPPLIER] },
   { label: "Sekolah", href: "/sekolah", icon: School, roles: [UserRole.COORDINATOR_SPPG] },
   { label: "Publik", href: "/publik", icon: Globe, roles: [UserRole.VENDOR, UserRole.SUPPLIER, UserRole.COORDINATOR_SPPG, UserRole.PUBLIC] },
 ];

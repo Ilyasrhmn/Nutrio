@@ -133,6 +133,9 @@ export default function LiveCheckpointPage() {
           <Button className="w-full bg-green-600 hover:bg-green-700 h-12 font-bold" asChild>
             <a href="/">Kembali ke Dashboard</a>
           </Button>
+          <Button variant="ghost" className="w-full font-bold text-slate-500" asChild>
+            <a href="/operasional/progress">Lihat Progress Checkpoint</a>
+          </Button>
         </div>
       </div>
     );
