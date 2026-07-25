@@ -65,9 +65,7 @@ sesi sebelumnya. Bagian di bawah sudah diupdate untuk reflect integrasi terbaru.
       persis sama request body PWA — tidak ada breaking change dari perubahan backend.
 - [x] PWA score/history/notifications/publik — dicek, semua sudah panggil endpoint real
       (`/scoring/history`, dst), tidak ada data fake.
-- [ ] Fallback upload file non-kamera — `app/cp/[cpId]/capture/page.tsx` secara eksplisit
-      MEMBLOKIR `<input type="file">` (`preventDefault` + toast). Doc Sprint 2 minta fallback
-      ini ada; belum dikerjakan (fitur baru, bukan bug).
+- [x] Fallback upload file non-kamera — sudah, lihat bagian "Lanjutan sesi ketiga" di bawah.
 - [ ] Retry upload foto + antrian offline (IndexedDB) — belum dikerjakan.
 - [ ] Batas ukuran foto, UI offline/kamera ditolak — belum.
 - [ ] Playwright/mobile smoke test login → CP1 → CP4/delivery → sekolah confirm — belum dibuat.
@@ -90,10 +88,35 @@ sesi sebelumnya. Bagian di bawah sudah diupdate untuk reflect integrasi terbaru.
 - [x] `GET /command-center/operation-days` — endpoint baru (overview operation day per vendor:
       checkpoint done, delivery confirmed, fund projection, score). **Belum dipakai** di web —
       peluang bagus buat command-center/mission-control drill-down, belum digarap sesi ini.
-- [ ] Vendor reports & supplier reports charts — masih fake, belum diaudit ulang.
+- [x] Vendor reports & supplier reports — lihat bagian "Lanjutan sesi ketiga" di bawah.
 - [ ] Drill-down alert → vendor → operation day → checkpoint/delivery → incident → audit trail
       — belum. Audit trail sendiri masih belum ada endpoint lintas-vendor.
 - [ ] Halaman publik — belum diaudit.
+
+## Lanjutan sesi ketiga (setelah "gass" #2)
+
+- [x] `pnpm lint` dijalankan (`next lint` sudah deprecated di Next 16, dipakai `eslint .`
+      langsung) — 0 error, ~21rb warning `no-explicit-any` yang mayoritas baseline lama
+      (pre-existing di repo, bukan dari kerjaan sesi ini). Tidak di-fix massal karena scope
+      di luar permintaan dan bukan bug.
+- [x] `apps/web/app/portal/(vendor)/operasional/jadwal/page.tsx` — halaman jadwal minggu
+      ini yang tadinya 100% hardcode (menu ngarang, alamat/jarak sekolah ngarang, badge kalori
+      ngarang), sekarang pakai `GET /delivery/my/week-schedule` asli. Klaim yang gak bisa
+      dibuktikan (alamat, jarak, kalori) dihapus, bukan dipertahankan.
+- [x] Delivery kurir flow (`apps/web/app/delivery/[token]/page.tsx`) dicek — sudah **fully
+      real** dari awal (GPS, foto native camera+galeri, QR, complete), tidak perlu diubah.
+- [x] `/cp/[cpId]/capture` — tadinya blokir total `<input type="file">` di seluruh dokumen,
+      tanpa jalan keluar kalau izin kamera ditolak. Ditambah fallback upload galeri
+      eksplisit + retry kamera, konsisten sama pola yang dipakai `operasional/live` dan
+      halaman delivery kurir.
+- [x] Supplier reports (`reports/components/supplier-reports.tsx`) — diganti total pakai
+      `GET /orders/supplier` real (total PO, nilai, status breakdown, tren mingguan dari
+      tanggal kirim, tabel PO terbaru).
+- [x] Vendor reports (`vendor-reports.tsx`) — food cost / wastage-per-kategori / log produksi
+      **tidak ada endpoint sama sekali** di backend (inventory cuma expose saldo saat ini,
+      bukan riwayat harian). Bagian itu diganti alert eksplisit "belum tersedia" +
+      alasannya; satu-satunya metrik real yang ada (`GET /scoring/history`) dipertahankan
+      sebagai chart tren skor.
 
 ## Sprint 4 — QA lintas peran
 
