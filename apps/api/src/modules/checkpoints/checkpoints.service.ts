@@ -81,6 +81,17 @@ export class CheckpointsService {
       .getMany();
   }
 
+  async getPhotoUrl(vendorId: string, checkpointId: string) {
+    const [checkpoint] = await this.dataSource.query(
+      `SELECT photos FROM checkpoint_events WHERE id = $1 AND vendor_id = $2`,
+      [checkpointId, vendorId],
+    );
+    const fileKey = checkpoint?.photos?.[0]?.fileKey;
+    if (!fileKey)
+      throw new NotFoundException("Bukti foto checkpoint tidak ditemukan");
+    return { url: await this.storageService.getSignedUrl(fileKey) };
+  }
+
   async submitCheckpoint(
     vendorId: string,
     cpType: CpType,
@@ -166,7 +177,13 @@ export class CheckpointsService {
           sppg.id,
           day.id,
           cpType,
-          JSON.stringify([uploadResult]),
+          JSON.stringify([
+            {
+              fileKey: uploadResult.fileKey,
+              fileHash: uploadResult.fileHash,
+              mimeType: file.mimetype,
+            },
+          ]),
           now,
         ],
       );
@@ -184,7 +201,7 @@ export class CheckpointsService {
     saved.ai_validation = await this.validatePhotoAsync(
       vendorId,
       saved.id,
-      uploadResult.fileUrl,
+      await this.storageService.getSignedUrl(uploadResult.fileKey),
       cpType,
     );
 

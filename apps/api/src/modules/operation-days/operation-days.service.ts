@@ -163,13 +163,45 @@ export class OperationDaysService {
           throw new ConflictException(
             "Operation day belum dikonfirmasi sekolah",
           );
+        const [facts] = await manager.query(
+          `SELECT
+             (SELECT COUNT(*)::int FROM checkpoint_events
+              WHERE operation_day_id = $1 AND cp_status = 'done') AS checkpoints_done,
+             (SELECT COUNT(*)::int FROM delivery_tokens
+              WHERE operation_day_id = $1) AS deliveries_total,
+             (SELECT COUNT(*)::int FROM school_confirmations sc
+              JOIN delivery_tokens dt ON dt.id = sc.delivery_token_id
+              WHERE dt.operation_day_id = $1) AS schools_confirmed,
+             (SELECT COUNT(*)::int FROM incidents
+              WHERE operation_day_id = $1) AS incident_count,
+             (SELECT COALESCE(SUM(se.score_delta), 0)::int
+              FROM score_events se
+              JOIN daily_score_records dsr ON dsr.id = se.daily_score_record_id
+              WHERE dsr.vendor_id = $2 AND dsr.score_date = $3::date) AS score_delta`,
+          [operationDayId, vendorId, day.operation_date],
+        );
+        if (Number(facts.checkpoints_done) !== 4)
+          throw new ConflictException(
+            "Empat checkpoint wajib selesai sebelum closing",
+          );
+        if (
+          Number(facts.deliveries_total) === 0 ||
+          Number(facts.deliveries_total) !== Number(facts.schools_confirmed)
+        )
+          throw new ConflictException(
+            "Semua pengantaran harus dikonfirmasi sekolah sebelum closing",
+          );
         const [score] = await manager.query(
           `INSERT INTO daily_score_records (vendor_id,score_date,score_current) VALUES ($1,CURRENT_DATE,100) ON CONFLICT (vendor_id,score_date) DO UPDATE SET score_current=daily_score_records.score_current RETURNING *`,
           [vendorId],
         );
-        const scoreFinal = Number(score.score_current);
+        const scoreFinal = Math.max(
+          0,
+          Math.min(100, 100 + Number(facts.score_delta)),
+        );
         await manager.query(
-          `UPDATE daily_score_records SET score_final=$2,finalized_at=NOW() WHERE id=$1`,
+          `UPDATE daily_score_records
+           SET score_current=$2, score_final=$2, finalized_at=NOW() WHERE id=$1`,
           [score.id, scoreFinal],
         );
         const [sppg] = await manager.query(
@@ -194,7 +226,17 @@ export class OperationDaysService {
           aggregateType: "operation_day",
           aggregateId: operationDayId,
           action: "operation.closed",
-          after: { scoreFinal, fundProjectionId: projection.id },
+          after: {
+            scoreFinal,
+            fundProjectionId: projection.id,
+            facts: {
+              checkpointsDone: Number(facts.checkpoints_done),
+              deliveriesTotal: Number(facts.deliveries_total),
+              schoolsConfirmed: Number(facts.schools_confirmed),
+              incidentCount: Number(facts.incident_count),
+              scoreDelta: Number(facts.score_delta),
+            },
+          },
           correlationId,
         });
         return {

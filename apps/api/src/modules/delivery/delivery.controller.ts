@@ -32,6 +32,12 @@ export class DeliveryController {
     return this.service.getInfo(token);
   }
 
+  @Get(":token/photo-url")
+  @UseGuards(JwtAuthGuard)
+  getPhotoUrl(@Req() req: any, @Param("token") token: string) {
+    return this.service.getArrivalPhotoUrl(req.user.id, token);
+  }
+
   @Post(":token/arrived")
   @UseGuards(JwtAuthGuard)
   @HttpCode(HttpStatus.OK)
@@ -54,6 +60,14 @@ export class DeliveryController {
     FileInterceptor("file", {
       storage: memoryStorage(),
       limits: { fileSize: 10 * 1024 * 1024 },
+      fileFilter: (_request, file, callback) => {
+        callback(
+          ["image/jpeg", "image/png", "image/webp"].includes(file.mimetype)
+            ? null
+            : new BadRequestException("Format foto harus JPEG, PNG, atau WebP"),
+          ["image/jpeg", "image/png", "image/webp"].includes(file.mimetype),
+        );
+      },
     }),
   )
   uploadPhoto(

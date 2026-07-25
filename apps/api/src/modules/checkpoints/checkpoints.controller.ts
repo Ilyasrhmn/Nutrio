@@ -50,11 +50,25 @@ export class CheckpointsController {
     return this.checkpointsService.getCheckpointState(vendorId);
   }
 
+  @Get(":id/photo-url")
+  async getPhotoUrl(@CurrentUser() user: JwtPayload, @Param("id") id: string) {
+    const vendorId = await this.getVendorId(user.id);
+    return this.checkpointsService.getPhotoUrl(vendorId, id);
+  }
+
   @Post(":cpType/submit")
   @UseInterceptors(
     FileInterceptor("photo", {
       storage: memoryStorage(),
       limits: { fileSize: 10 * 1024 * 1024 },
+      fileFilter: (_request, file, callback) => {
+        callback(
+          ["image/jpeg", "image/png", "image/webp"].includes(file.mimetype)
+            ? null
+            : new BadRequestException("Format foto harus JPEG, PNG, atau WebP"),
+          ["image/jpeg", "image/png", "image/webp"].includes(file.mimetype),
+        );
+      },
     }),
   )
   async submit(

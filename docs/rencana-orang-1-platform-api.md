@@ -56,9 +56,9 @@ Operasional: planned -> CP1 -> CP2 -> CP3 -> dispatched -> CP4 -> school_confirm
 ### Sprint 0 — Fondasi kolaborasi (hari 1–2)
 
 - [x] Buat `apps/api` e2e scenario dengan satu vendor, satu supplier, satu sekolah, dan satu hari operasional; tambahkan seed yang idempotent.
-- [ ] Tentukan DTO/enum publik di `packages/common` hanya bila benar-benar dipakai dua aplikasi; selain itu simpan DTO di modul NestJS agar shared package tidak menjadi tempat sampah.
+- [x] Tentukan DTO/enum publik di `packages/common` hanya bila benar-benar dipakai dua aplikasi; selain itu simpan DTO di modul NestJS agar shared package tidak menjadi tempat sampah. Keputusan v1: `UserRole` tetap shared; DTO request/response workflow tetap di modul NestJS karena belum dipakai langsung oleh dua aplikasi.
 - [x] Dokumentasikan endpoint dan contoh respons untuk Orang 2, lalu tandai versi `v1` sebagai stabil.
-- [ ] Pastikan validasi role pada setiap endpoint: vendor hanya melihat datanya, supplier hanya melihat tokonya, sekolah hanya token sah, admin lintas data.
+- [x] Pastikan validasi role pada setiap endpoint: vendor hanya melihat datanya, supplier hanya melihat tokonya, sekolah hanya token sah, admin lintas data. Endpoint workflow memverifikasi ownership di service; command center menggunakan `RolesGuard` untuk `admin_bgn`, `coordinator_sppg`, dan `dinkes`.
 - [x] Tambahkan test API untuk auth, otorisasi, dan error state utama sebagai pagar regresi.
 
 ### Sprint 1 — Procurement dan inventaris (hari 3–6)
@@ -89,11 +89,11 @@ Operasional: planned -> CP1 -> CP2 -> CP3 -> dispatched -> CP4 -> school_confirm
 
 **Deliverable:** skor, dana, audit, notifikasi, dan dashboard merupakan konsekuensi dari operation day yang sama.
 
-- [ ] Jadikan scoring membaca checkpoint/delivery/school confirmation/incident, bukan input terpisah. Simpan alasan per perubahan skor.
+- [x] Jadikan scoring membaca checkpoint/delivery/school confirmation/incident, bukan input terpisah. Simpan alasan per perubahan skor. Closing menghitung fakta operation day dan menjumlahkan `score_events`; snapshot checkpoint/delivery/sekolah/incident dicatat di audit event, sedangkan alasan tersimpan append-only pada setiap `score_event`.
 - [x] Hubungkan eligibility dana/fund ledger dengan operation day yang `closed`; pembayaran nyata dapat tetap di luar scope hackathon, tetapi status simulasi wajib berasal dari event dan aman untuk diproses ulang.
 - [x] Tambahkan audit-event append-only untuk perubahan state kritis: PO, stok, checkpoint, delivery, sekolah, skor, dan dana.
 - [x] Implementasikan proyeksi query untuk command center, laporan, dan public aggregate dengan filter tanggal/vendor/wilayah. Jangan menghitung dari data dummy di controller.
-- [ ] Emisikan event Socket.IO dan notification per transisi penting; email/Resend hanya adapter tambahan dan tidak boleh menjadi satu-satunya bukti notifikasi.
+- [x] Emisikan event Socket.IO dan notification per transisi penting; email/Resend hanya adapter tambahan dan tidak boleh menjadi satu-satunya bukti notifikasi. Notifikasi order disimpan lalu dikirim ke Socket.IO room pengguna; checkpoint, delivery, sekolah, alert, dan score memancarkan event domain ke room vendor/BGN.
 - [x] Tambahkan endpoint health yang memeriksa konfigurasi wajib secara aman dan log correlation ID untuk alur satu operation day.
 
 ### Sprint 4 — Penguatan rilis (hari 14)
@@ -101,7 +101,7 @@ Operasional: planned -> CP1 -> CP2 -> CP3 -> dispatched -> CP4 -> school_confirm
 - [x] Jalankan migration pada database kosong dan seed skenario demo.
 - [x] Jalankan test modul baru dan e2e workflow penuh; catat command serta hasil pada PR.
 - [x] Pastikan retry tidak menduplikasi PO receipt, checkpoint, score event, atau pembayaran.
-- [ ] Review query untuk data personal dan bukti foto: signed URL, batas ukuran/mime, dan role ownership.
+- [x] Review query untuk data personal dan bukti foto: signed URL, batas ukuran/mime, dan role ownership. Foto hanya menerima JPEG/PNG/WebP maksimum 10 MB, yang tersimpan adalah object key, dan endpoint signed URL memeriksa ownership vendor.
 
 ## Batas kerja agar tidak bentrok
 
@@ -116,3 +116,8 @@ Operasional: planned -> CP1 -> CP2 -> CP3 -> dispatched -> CP4 -> school_confirm
 - Tidak ada status bisnis penting yang hanya berada di memori browser atau array hard-coded.
 - Endpoint memiliki auth, ownership check, validasi input, respons error yang konsisten, dan test jalur gagal utama.
 - Orang 2 dapat menyambungkan UI hanya dengan endpoint/DTO yang dipublikasikan, tanpa harus membaca implementasi service backend.
+
+## Bukti verifikasi terakhir
+
+- `TEST_DATABASE_URL=postgresql://postgres:postgres@localhost:5433/Nutrio_e2e_clean pnpm --filter api test:e2e -- operation-day-workflow.e2e-spec.ts` — lulus: alur PO sampai konfirmasi sekolah, closing/skor/dana/audit, otorisasi command center, MIME foto, dan signed URL milik vendor.
+- `pnpm --filter api test`, `pnpm --filter api typecheck`, dan `pnpm --filter api build` — lulus.

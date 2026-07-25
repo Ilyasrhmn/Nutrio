@@ -135,7 +135,7 @@ export class DeliveryService {
     await this.dataSource.transaction(async (manager) => {
       await manager.query(
         `UPDATE delivery_tokens SET arrival_photo = $1 WHERE token = $2::uuid`,
-        [result.fileUrl, token],
+        [result.fileKey, token],
       );
       await this.audit.record(manager, {
         actorUserId: userId,
@@ -146,7 +146,18 @@ export class DeliveryService {
       });
     });
 
-    return { fileUrl: result.fileUrl };
+    return { fileUrl: await this.storageService.getSignedUrl(result.fileKey) };
+  }
+
+  async getArrivalPhotoUrl(
+    userId: string,
+    token: string,
+  ): Promise<{ url: string }> {
+    const row = await this.assertTokenOwner(userId, token);
+    if (!row.arrival_photo || row.arrival_photo.startsWith("http")) {
+      throw new NotFoundException("Bukti foto pengantaran tidak ditemukan");
+    }
+    return { url: await this.storageService.getSignedUrl(row.arrival_photo) };
   }
 
   async getQrPayload(

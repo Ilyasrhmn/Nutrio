@@ -20,11 +20,13 @@ describe("Operation-day workflow (e2e)", () => {
   let vendorToken: string;
   let supplierToken: string;
   let otherVendorToken: string;
+  let adminToken: string;
   let vendorUserId: string;
   let supplierId: string;
   let productId: string;
   let operationDayId: string;
   let deliveryToken: string;
+  let checkpointId: string;
 
   const storageMock = {
     upload: jest.fn(async (_buffer: Buffer, key: string) => ({
@@ -32,6 +34,9 @@ describe("Operation-day workflow (e2e)", () => {
       fileUrl: `https://e2e.invalid/${key}`,
       fileHash: "e2e-file-hash",
     })),
+    getSignedUrl: jest.fn(
+      async (key: string) => `https://signed.e2e.invalid/${key}`,
+    ),
   };
   const visionMock = {
     validatePhoto: jest.fn(async () => ({
@@ -42,6 +47,7 @@ describe("Operation-day workflow (e2e)", () => {
   };
   const realtimeMock = {
     broadcastToVendor: jest.fn(),
+    broadcastToUser: jest.fn(),
     broadcastToAllVendors: jest.fn(),
     broadcastToBGN: jest.fn(),
     registerOpsServer: jest.fn(),
@@ -69,6 +75,9 @@ describe("Operation-day workflow (e2e)", () => {
     );
     const [supplierRole] = await dataSource.query(
       `SELECT id FROM roles WHERE name = 'supplier'`,
+    );
+    const [adminRole] = await dataSource.query(
+      `SELECT id FROM roles WHERE name = 'admin_bgn'`,
     );
     const makeUser = async (
       kind: string,
@@ -100,6 +109,7 @@ describe("Operation-day workflow (e2e)", () => {
       vendorRole.id,
       "vendor",
     );
+    await makeUser("admin", adminRole.id, "admin_bgn");
     const [vendor] = await dataSource.query(
       `INSERT INTO vendors
          (user_id, business_name, owner_name, phone, address_street, address_city, address_province, lifecycle_status, status)
@@ -163,6 +173,7 @@ describe("Operation-day workflow (e2e)", () => {
     vendorToken = await login(`${runId}-vendor@example.test`);
     supplierToken = await login(`${runId}-supplier@example.test`);
     otherVendorToken = await login(`${runId}-other-vendor@example.test`);
+    adminToken = await login(`${runId}-admin@example.test`);
     expect(otherVendor.id).toBeTruthy();
   }, 30000);
 
@@ -320,6 +331,14 @@ describe("Operation-day workflow (e2e)", () => {
 
     const photo = Buffer.from("e2e-photo");
     await request(app.getHttpServer())
+      .post("/checkpoints/CP1/submit")
+      .set(auth(vendorToken))
+      .attach("photo", photo, {
+        filename: "not-photo.txt",
+        contentType: "text/plain",
+      })
+      .expect(400);
+    await request(app.getHttpServer())
       .post("/checkpoints/CP2/submit")
       .set(auth(vendorToken))
       .attach("photo", photo, "cp2.jpg")
@@ -332,7 +351,10 @@ describe("Operation-day workflow (e2e)", () => {
       .attach("photo", photo, "cp1.jpg")
       .field("gpsLat", "-6.2")
       .field("gpsLng", "106.8")
-      .expect(201);
+      .expect(201)
+      .expect((response) => {
+        checkpointId = response.body.id as string;
+      });
     await request(app.getHttpServer())
       .post("/checkpoints/CP1/submit")
       .set(auth(vendorToken))
@@ -361,6 +383,19 @@ describe("Operation-day workflow (e2e)", () => {
       .field("gpsLat", "-6.2")
       .field("gpsLng", "106.8")
       .expect(201);
+    await request(app.getHttpServer())
+      .get(`/checkpoints/${checkpointId}/photo-url`)
+      .set(auth(otherVendorToken))
+      .expect(404);
+    await request(app.getHttpServer())
+      .get(`/checkpoints/${checkpointId}/photo-url`)
+      .set(auth(vendorToken))
+      .expect(200)
+      .expect((response) =>
+        expect(response.body.url).toContain(
+          "https://signed.e2e.invalid/checkpoints/",
+        ),
+      );
 
     const [delivery] = await dataSource.query(
       `SELECT token FROM delivery_tokens WHERE operation_day_id = $1`,
@@ -391,6 +426,19 @@ describe("Operation-day workflow (e2e)", () => {
       .attach("file", photo, "delivery.jpg")
       .expect(201);
     await request(app.getHttpServer())
+      .get(`/delivery/${deliveryToken}/photo-url`)
+      .set(auth(otherVendorToken))
+      .expect(404);
+    await request(app.getHttpServer())
+      .get(`/delivery/${deliveryToken}/photo-url`)
+      .set(auth(vendorToken))
+      .expect(200)
+      .expect((response) =>
+        expect(response.body.url).toContain(
+          "https://signed.e2e.invalid/delivery/",
+        ),
+      );
+    await request(app.getHttpServer())
       .post(`/delivery/${deliveryToken}/complete`)
       .set(auth(vendorToken))
       .expect(200);
@@ -420,11 +468,18 @@ describe("Operation-day workflow (e2e)", () => {
       .set("Idempotency-Key", `${runId}-close`)
       .expect(201)
       .expect((response) => expect(response.body.body.status).toBe("closed"));
+    const [operationDay] = await dataSource.query(
+      "SELECT vendor_id FROM operation_days WHERE id = $1",
+      [operationDayId],
+    );
+    const commandCenterUrl = `/command-center/operation-days?vendorId=${encodeURIComponent(operationDay.vendor_id)}`;
     await request(app.getHttpServer())
-      .get(
-        `/command-center/operation-days?vendorId=${encodeURIComponent((await dataSource.query("SELECT vendor_id FROM operation_days WHERE id = $1", [operationDayId]))[0].vendor_id)}`,
-      )
+      .get(commandCenterUrl)
       .set(auth(vendorToken))
+      .expect(403);
+    await request(app.getHttpServer())
+      .get(commandCenterUrl)
+      .set(auth(adminToken))
       .expect(200)
       .expect((response) =>
         expect(response.body).toEqual(
@@ -465,6 +520,7 @@ describe("Operation-day workflow (e2e)", () => {
     expect(Number(facts.audit_count)).toBeGreaterThanOrEqual(1);
     expect(Number(facts.notification_count)).toBe(6);
     expect(storageMock.upload).toHaveBeenCalledTimes(6);
+    expect(storageMock.getSignedUrl).toHaveBeenCalledTimes(8);
     expect(visionMock.validatePhoto).toHaveBeenCalledTimes(5);
   }, 60000);
 });
