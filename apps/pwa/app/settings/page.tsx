@@ -20,7 +20,7 @@ export default function SettingsPage() {
 
       <div className="p-4 space-y-6">
         <section className="flex flex-col items-center py-6 space-y-3">
-          <div className="h-20 w-20 rounded-full bg-green-100 flex items-center justify-center text-green-700 text-3xl font-black border-4 border-white shadow-xl">
+          <div className="h-20 w-20 rounded-full bg-primary/10 flex items-center justify-center text-primary text-3xl font-black border-4 border-white shadow-xl">
             {user.name.charAt(0)}
           </div>
           <div className="text-center">

@@ -34,7 +34,7 @@ export function BottomNavigation() {
               href={item.href}
               className={cn(
                 "flex flex-col items-center justify-center flex-1 h-full transition-all duration-200",
-                isActive ? "text-green-600 scale-110" : "text-slate-400 hover:text-slate-600"
+                isActive ? "text-primary scale-110" : "text-slate-400 hover:text-slate-600"
               )}
             >
               <item.icon className={cn("h-5 w-5 mb-1", isActive && "stroke-[2.5px]")} />

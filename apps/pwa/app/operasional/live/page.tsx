@@ -196,7 +196,7 @@ export default function LiveCheckpointPage() {
             <AIResultCard result={aiResult} />
             <div className="mt-auto pt-4 pb-8">
               <Button
-                className="w-full bg-green-600 hover:bg-green-700 h-14 text-lg font-bold shadow-lg shadow-green-200 active:scale-95 transition-transform"
+                className="w-full bg-primary hover:bg-primary/90 h-14 text-lg font-bold shadow-lg shadow-primary/20 active:scale-95 transition-transform"
                 onClick={nextStep}
                 disabled={!!error}
               >

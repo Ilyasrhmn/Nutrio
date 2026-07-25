@@ -76,7 +76,7 @@ export function CameraCapture({ onCapture, onReset, imageSrc }: CameraCapturePro
             <div className="absolute bottom-6 left-0 right-0 flex justify-center">
               <Button 
                 size="lg" 
-                className="h-16 w-16 rounded-full bg-white text-green-600 shadow-xl border-4 border-green-600/20 active:scale-95 transition-transform"
+                className="h-16 w-16 rounded-full bg-white text-primary shadow-xl border-4 border-primary/20 active:scale-95 transition-transform"
                 onClick={capture}
               >
                 <Camera className="h-8 w-8" />
@@ -94,7 +94,7 @@ export function CameraCapture({ onCapture, onReset, imageSrc }: CameraCapturePro
             </div>
             <div className="flex flex-col gap-3">
               <Button 
-                className="bg-green-600 hover:bg-green-700 text-white font-bold h-12"
+                className="bg-primary hover:bg-primary/90 text-primary-foreground font-bold h-12"
                 onClick={() => setIsCameraActive(true)}
               >
                 <Camera className="h-5 w-5 mr-2" /> Buka Kamera

@@ -1,5 +1,5 @@
 import { Plus_Jakarta_Sans, Geist_Mono } from "next/font/google";
-import "@workspace/ui/globals.css";
+import "@workspace/ui/styles/globals.css";
 import { BottomNavigation } from "@/components/layout/bottom-nav";
 import { AuthProvider } from "@/components/providers/auth-provider";
 import { Toaster } from "@workspace/ui/components/toaster";
@@ -30,7 +30,7 @@ export const metadata: Metadata = {
 };
 
 export const viewport: Viewport = {
-  themeColor: "#16a34a",
+  themeColor: "#0084d1",
   width: "device-width",
   initialScale: 1,
   maximumScale: 1,
