@@ -53,6 +53,27 @@ interface SppgDetail {
   sppg: { targetPorsi: number; assignedSchools: string[] } | null
 }
 
+interface OperationDaySummary {
+  id: string
+  operationDate: string
+  status: string
+  closedAt: string | null
+  targetPax: number
+  checkpointsDone: number
+  deliveriesTotal: number
+  deliveriesConfirmed: number
+  score: number | null
+  fundProjection: number | null
+}
+
+const OPERATION_DAY_LABEL: Record<string, string> = {
+  planned: "Direncanakan",
+  in_progress: "Berjalan",
+  dispatched: "Dikirim",
+  school_confirmed: "Dikonfirmasi Sekolah",
+  closed: "Ditutup",
+}
+
 const SEVERITY_COLOR: Record<string, string> = {
   critical: "bg-red-100 text-red-700 border-red-200",
   warning: "bg-yellow-100 text-yellow-700 border-yellow-200",
@@ -71,6 +92,7 @@ export default function CommandCenterPage() {
   const [alerts, setAlerts] = React.useState<AlertItem[]>([])
   const [vendors, setVendors] = React.useState<VendorRow[]>([])
   const [detail, setDetail] = React.useState<SppgDetail | null>(null)
+  const [opDay, setOpDay] = React.useState<OperationDaySummary | null>(null)
   const [detailOpen, setDetailOpen] = React.useState(false)
   const [loading, setLoading] = React.useState(true)
   const [search, setSearch] = React.useState("")
@@ -105,8 +127,12 @@ export default function CommandCenterPage() {
   }, [])
 
   const openDetail = async (vendorId: string) => {
-    const d = await api.get<SppgDetail>(`/command-center/sppg/${vendorId}`).catch(() => null)
+    const [d, days] = await Promise.all([
+      api.get<SppgDetail>(`/command-center/sppg/${vendorId}`).catch(() => null),
+      api.get<OperationDaySummary[]>(`/command-center/operation-days?vendorId=${vendorId}`).catch(() => null),
+    ])
     if (d) { setDetail(d); setDetailOpen(true) }
+    setOpDay(days?.[0] ?? null)
   }
 
   const markRead = async (id: string) => {
@@ -290,6 +316,41 @@ export default function CommandCenterPage() {
                   })}
                 </div>
               </div>
+
+              {/* Operation Day */}
+              {opDay && (
+                <div>
+                  <div className="flex items-center justify-between mb-2">
+                    <p className="text-xs font-bold uppercase tracking-widest text-slate-400">Hari Operasional</p>
+                    <Badge variant="outline" className="text-[10px] font-bold">
+                      {OPERATION_DAY_LABEL[opDay.status] ?? opDay.status}
+                    </Badge>
+                  </div>
+                  <div className="grid grid-cols-2 gap-2">
+                    <div className="rounded-xl p-3 bg-slate-50 border border-slate-200">
+                      <p className="text-[10px] font-bold text-slate-400 uppercase">Target Porsi</p>
+                      <p className="text-lg font-black text-slate-900">{opDay.targetPax}</p>
+                    </div>
+                    <div className="rounded-xl p-3 bg-slate-50 border border-slate-200">
+                      <p className="text-[10px] font-bold text-slate-400 uppercase">Checkpoint</p>
+                      <p className="text-lg font-black text-slate-900">{opDay.checkpointsDone}/4</p>
+                    </div>
+                    <div className="rounded-xl p-3 bg-slate-50 border border-slate-200">
+                      <p className="text-[10px] font-bold text-slate-400 uppercase">Delivery Dikonfirmasi</p>
+                      <p className="text-lg font-black text-slate-900">{opDay.deliveriesConfirmed}/{opDay.deliveriesTotal}</p>
+                    </div>
+                    <div className="rounded-xl p-3 bg-slate-50 border border-slate-200">
+                      <p className="text-[10px] font-bold text-slate-400 uppercase">Estimasi Dana</p>
+                      <p className="text-sm font-black text-slate-900">
+                        {opDay.fundProjection != null ? `Rp ${opDay.fundProjection.toLocaleString('id-ID')}` : '-'}
+                      </p>
+                    </div>
+                  </div>
+                  <a href="/portal/logistics" className="text-xs font-bold text-primary hover:underline mt-2 inline-block">
+                    Lihat pengiriman hari ini →
+                  </a>
+                </div>
+              )}
 
               {/* SPPG Info */}
               {detail.sppg && (
