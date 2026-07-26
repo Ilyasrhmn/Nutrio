@@ -155,6 +155,20 @@ bukti kerjaan konkret di transcript sesi ini. Diverifikasi ulang:
       semua user login bisa lihat payment history vendor lain. Dicatat di kontrak, bukan
       difix (backend, di luar scope).
 
+## Verifikasi ulang (post-hoc)
+
+- [x] Offline queue (IndexedDB) — diverifikasi ulang: wiring di `operasional/live/page.tsx`
+      dan `cp/[cpId]/validate/page.tsx` sudah lengkap (import, `isNetworkFailure` check,
+      `enqueueCheckpointSubmit` call, state `'queued'` dengan render branch). `typecheck` +
+      `build` PWA hijau. Tidak ada regresi.
+- [x] PWA visual parity vs web — audit ketemu ~14 file masih pakai hardcoded `green-*`
+      buat brand chrome (bukan status semantic) padahal web pakai token `--primary`
+      (biru-teal) konsisten. Diperbaiki: hero banner `operasional/history`, CTA utama
+      `cp/[cpId]/context`, step indicator, form focus ring `sekolah/confirm`, icon badge
+      `publik`, day-selector `sekolah`. Status-semantic green (skor ≥80, checkmark selesai,
+      layar sukses) sengaja dibiarkan hijau — konsisten sama pola web sendiri
+      (emerald buat "Aman"). Shared shell (`bottom-nav`, `page-header`) sudah benar dari awal.
+
 ## Sprint 4 — QA lintas peran
 
 - [ ] `pnpm test:e2e` — belum dijalankan.
