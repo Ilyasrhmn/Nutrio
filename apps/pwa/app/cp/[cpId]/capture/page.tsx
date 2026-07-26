@@ -5,7 +5,7 @@ import { useParams, useRouter } from "next/navigation"
 import { useEffect, useRef, useState } from "react"
 import { useToast } from "@workspace/ui/hooks/use-toast"
 import { Button } from "@workspace/ui/components/button"
-import { ImageIcon } from "lucide-react"
+import { ImageIcon, RotateCcw, ArrowLeft, Loader2 } from "lucide-react"
 
 export default function CPCapturePage() {
   const { cpId } = useParams<{ cpId: string }>()
@@ -121,18 +121,18 @@ export default function CPCapturePage() {
         {!cameraDenied && (
           <button
             onClick={() => setFacingMode(m => m === 'environment' ? 'user' : 'environment')}
-            className="absolute top-4 right-4 bg-black/60 text-white p-2 rounded-full text-xl"
+            className="absolute top-4 right-4 bg-black/60 text-white p-2 rounded-full"
             aria-label="Flip camera"
           >
-            🔄
+            <RotateCcw className="h-5 w-5" />
           </button>
         )}
 
         <button
           onClick={() => router.back()}
-          className="absolute top-4 left-1/2 -translate-x-1/2 bg-black/60 text-white px-3 py-1 rounded-full text-sm"
+          className="absolute top-4 left-1/2 -translate-x-1/2 bg-black/60 text-white px-3 py-1.5 rounded-full text-sm flex items-center gap-1.5"
         >
-          ← Kembali
+          <ArrowLeft className="h-3.5 w-3.5" /> Kembali
         </button>
       </div>
 
@@ -145,7 +145,7 @@ export default function CPCapturePage() {
             aria-label="Ambil foto"
           >
             {capturing ? (
-              <span className="text-white text-2xl">⏳</span>
+              <Loader2 className="h-7 w-7 text-white animate-spin" />
             ) : (
               <span className="w-14 h-14 bg-white rounded-full block" />
             )}
