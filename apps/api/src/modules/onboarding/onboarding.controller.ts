@@ -2,28 +2,33 @@ import {
   Controller,
   Get,
   Post,
+  Patch,
+  Delete,
   Body,
   Param,
   Query,
   UseGuards,
   NotFoundException,
-} from '@nestjs/common';
-import { DataSource } from 'typeorm';
-import { OnboardingService } from './onboarding.service';
-import { Step1ProfileDto } from './dto/step1-profile.dto';
-import { InviteMemberDto } from './dto/invite-member.dto';
-import { AcceptInviteDto } from './dto/accept-invite.dto';
-import { ConnectSupplierDto } from './dto/connect-supplier.dto';
-import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
-import { CurrentUser } from '../auth/decorators/current-user.decorator';
+} from "@nestjs/common";
+import { DataSource } from "typeorm";
+import { OnboardingService } from "./onboarding.service";
+import { Step1ProfileDto } from "./dto/step1-profile.dto";
+import { InviteMemberDto } from "./dto/invite-member.dto";
+import { AcceptInviteDto } from "./dto/accept-invite.dto";
+import { ConnectSupplierDto } from "./dto/connect-supplier.dto";
+import { UploadDocumentDto } from "./dto/upload-document.dto";
+import { UpdateTeamMemberDto } from "./dto/update-team-member.dto";
+import { JwtAuthGuard } from "../auth/guards/jwt-auth.guard";
+import { CurrentUser } from "../auth/decorators/current-user.decorator";
 
 interface JwtPayload {
-  sub: string;
+  id: string;
+  sub?: string;
   email: string;
   role: string;
 }
 
-@Controller('onboarding')
+@Controller("onboarding")
 export class OnboardingController {
   constructor(
     private readonly onboardingService: OnboardingService,
@@ -36,75 +41,115 @@ export class OnboardingController {
       [userId],
     );
     if (!rows || rows.length === 0) {
-      throw new NotFoundException('Vendor tidak ditemukan untuk user ini');
+      throw new NotFoundException("Vendor tidak ditemukan untuk user ini");
     }
     return rows[0].id;
   }
 
   @UseGuards(JwtAuthGuard)
-  @Get('state')
+  @Get("state")
   async getState(@CurrentUser() user: JwtPayload) {
-    const vendorId = await this.getVendorId(user.sub);
+    const vendorId = await this.getVendorId(user.id);
     return this.onboardingService.getState(vendorId);
   }
 
   @UseGuards(JwtAuthGuard)
-  @Post('step1/profile')
+  @Post("step1/profile")
   async completeStep1Profile(
     @CurrentUser() user: JwtPayload,
     @Body() dto: Step1ProfileDto,
   ) {
-    const vendorId = await this.getVendorId(user.sub);
-    return this.onboardingService.completeStep1Profile(vendorId, dto);
+    const vendorId = await this.getVendorId(user.id);
+    return this.onboardingService.completeStep1Profile(vendorId, dto, user.id);
   }
 
   @UseGuards(JwtAuthGuard)
-  @Post('step2/team/invite')
+  @Post("step2/team/invite")
   async inviteTeamMember(
     @CurrentUser() user: JwtPayload,
     @Body() dto: InviteMemberDto,
   ) {
-    const vendorId = await this.getVendorId(user.sub);
-    return this.onboardingService.inviteTeamMember(vendorId, dto);
+    const vendorId = await this.getVendorId(user.id);
+    return this.onboardingService.inviteTeamMember(vendorId, dto, user.id);
   }
 
   @UseGuards(JwtAuthGuard)
-  @Get('step2/team')
+  @Get("step2/team")
   async getTeamStatus(@CurrentUser() user: JwtPayload) {
-    const vendorId = await this.getVendorId(user.sub);
+    const vendorId = await this.getVendorId(user.id);
     return this.onboardingService.getTeamStatus(vendorId);
   }
 
-  @Post('step2/team/accept/:token')
+  @Post("step2/team/accept/:token")
   async acceptInvite(
-    @Param('token') token: string,
+    @Param("token") token: string,
     @Body() dto: AcceptInviteDto,
   ) {
     return this.onboardingService.acceptInvite(token, dto);
   }
 
   @UseGuards(JwtAuthGuard)
-  @Post('step3/simulation/complete')
-  async completeStep3(@CurrentUser() user: JwtPayload) {
-    const vendorId = await this.getVendorId(user.sub);
-    return this.onboardingService.completeStep3(vendorId);
+  @Post("step2/team/:id/resend")
+  async resendTeamMemberInvite(
+    @CurrentUser() user: JwtPayload,
+    @Param("id") memberId: string,
+  ) {
+    const vendorId = await this.getVendorId(user.id);
+    return this.onboardingService.resendTeamMemberInvite(
+      vendorId,
+      memberId,
+      user.id,
+    );
   }
 
   @UseGuards(JwtAuthGuard)
-  @Post('step4/supplier/connect')
+  @Delete("step2/team/:id")
+  async removeTeamMember(
+    @CurrentUser() user: JwtPayload,
+    @Param("id") memberId: string,
+  ) {
+    const vendorId = await this.getVendorId(user.id);
+    return this.onboardingService.removeTeamMember(vendorId, memberId, user.id);
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Patch("step2/team/:id")
+  async updateTeamMember(
+    @CurrentUser() user: JwtPayload,
+    @Param("id") memberId: string,
+    @Body() dto: UpdateTeamMemberDto,
+  ) {
+    const vendorId = await this.getVendorId(user.id);
+    return this.onboardingService.updateTeamMember(
+      vendorId,
+      memberId,
+      dto,
+      user.id,
+    );
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Post("step3/simulation/complete")
+  async completeStep3(@CurrentUser() user: JwtPayload) {
+    const vendorId = await this.getVendorId(user.id);
+    return this.onboardingService.completeStep3(vendorId, user.id);
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Post("step4/supplier/connect")
   async connectSupplier(
     @CurrentUser() user: JwtPayload,
     @Body() dto: ConnectSupplierDto,
   ) {
-    const vendorId = await this.getVendorId(user.sub);
-    return this.onboardingService.connectSupplier(vendorId, dto);
+    const vendorId = await this.getVendorId(user.id);
+    return this.onboardingService.connectSupplier(vendorId, dto, user.id);
   }
 
   @UseGuards(JwtAuthGuard)
-  @Get('step4/suppliers')
+  @Get("step4/suppliers")
   async getSuppliers(
-    @Query('page') page?: string,
-    @Query('limit') limit?: string,
+    @Query("page") page?: string,
+    @Query("limit") limit?: string,
   ) {
     return this.onboardingService.getSuppliers(
       page ? parseInt(page, 10) : 1,
@@ -113,9 +158,33 @@ export class OnboardingController {
   }
 
   @UseGuards(JwtAuthGuard)
-  @Post('complete')
+  @Post("documents")
+  async uploadDocument(
+    @CurrentUser() user: JwtPayload,
+    @Body() dto: UploadDocumentDto,
+  ) {
+    const vendorId = await this.getVendorId(user.id);
+    return this.onboardingService.uploadDocument(vendorId, dto, user.id);
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Get("documents")
+  async getDocuments(@CurrentUser() user: JwtPayload) {
+    const vendorId = await this.getVendorId(user.id);
+    return this.onboardingService.getDocuments(vendorId);
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Get("readiness")
+  async getReadiness(@CurrentUser() user: JwtPayload) {
+    const vendorId = await this.getVendorId(user.id);
+    return this.onboardingService.getReadiness(vendorId, user.id);
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Post("complete")
   async completeOnboarding(@CurrentUser() user: JwtPayload) {
-    const vendorId = await this.getVendorId(user.sub);
-    return this.onboardingService.completeOnboarding(vendorId, user.sub);
+    const vendorId = await this.getVendorId(user.id);
+    return this.onboardingService.completeOnboarding(vendorId, user.id);
   }
 }
