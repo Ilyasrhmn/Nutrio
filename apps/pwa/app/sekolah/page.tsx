@@ -149,7 +149,7 @@ export default function SchoolDashboardPage() {
                 key={i}
                 className={`flex-shrink-0 w-16 h-20 rounded-xl flex flex-col items-center justify-center border-2 transition-colors ${
                   i === 0
-                    ? "bg-green-600 border-green-600 text-white"
+                    ? "bg-primary border-primary text-primary-foreground"
                     : "bg-white border-slate-100 text-slate-400"
                 }`}
               >

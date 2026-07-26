@@ -19,8 +19,8 @@ export function PageHeader({ title, showNotifications = true, showProfile = true
       <div className="flex items-center gap-3">
         {showProfile && user && (
           <Link href="/settings">
-            <div className="h-8 w-8 rounded-full bg-green-100 flex items-center justify-center text-green-700 font-bold text-xs border border-green-200">
-              {user.avatar || user.name.charAt(0)}
+            <div className="h-8 w-8 rounded-full bg-primary/10 flex items-center justify-center text-primary font-bold text-xs border border-primary/20">
+              {user.name.charAt(0)}
             </div>
           </Link>
         )}

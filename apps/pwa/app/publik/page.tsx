@@ -92,7 +92,7 @@ export default function PublikPage() {
               <ArrowLeft className="h-4 w-4 mr-1" /> Kembali
             </Button>
             <div className="flex items-start gap-4">
-              <div className="h-14 w-14 rounded-2xl bg-green-100 text-green-600 flex items-center justify-center flex-shrink-0">
+              <div className="h-14 w-14 rounded-2xl bg-primary/10 text-primary flex items-center justify-center flex-shrink-0">
                 <Building2 className="h-8 w-8" />
               </div>
               <div className="space-y-1">
@@ -157,7 +157,7 @@ export default function PublikPage() {
             <div className="relative">
               <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-slate-400" />
               <input
-                className="w-full h-14 bg-white border border-slate-200 rounded-2xl pl-12 pr-4 text-sm font-medium shadow-sm focus:ring-2 focus:ring-green-600 outline-none transition-all"
+                className="w-full h-14 bg-white border border-slate-200 rounded-2xl pl-12 pr-4 text-sm font-medium shadow-sm focus:ring-2 focus:ring-primary outline-none transition-all"
                 placeholder="Cari Vendor / SPPG..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
@@ -185,7 +185,7 @@ export default function PublikPage() {
                   >
                     <CardContent className="p-4 flex items-center justify-between">
                       <div className="flex items-center gap-3">
-                        <div className="h-10 w-10 rounded-xl bg-green-50 text-green-600 flex items-center justify-center">
+                        <div className="h-10 w-10 rounded-xl bg-primary/10 text-primary flex items-center justify-center">
                           <Building2 className="h-5 w-5" />
                         </div>
                         <div>
@@ -212,7 +212,7 @@ export default function PublikPage() {
           {overview && (
             <section className="pt-4 border-t border-slate-200">
               <div className="bg-slate-900 rounded-3xl p-6 text-white space-y-4 shadow-xl">
-                <div className="flex items-center gap-2 text-green-400">
+                <div className="flex items-center gap-2 text-primary">
                   <TrendingUp className="h-5 w-5" />
                   <p className="text-xs font-black uppercase tracking-widest">Statistik Hari Ini</p>
                 </div>
@@ -242,7 +242,7 @@ export default function PublikPage() {
 
       {loadingDetail && (
         <div className="fixed inset-0 bg-white/70 flex items-center justify-center z-50">
-          <Loader2 className="h-8 w-8 animate-spin text-green-600" />
+          <Loader2 className="h-8 w-8 animate-spin text-primary" />
         </div>
       )}
     </div>

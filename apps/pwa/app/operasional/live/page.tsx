@@ -6,8 +6,11 @@ import { StepIndicator } from "@/components/checkpoint/step-indicator";
 import { CameraCapture } from "@/components/checkpoint/camera-capture";
 import { AIResultCard } from "@/components/checkpoint/ai-result-card";
 import { Button } from "@workspace/ui/components/button";
-import { Loader2, ArrowRight, CheckCircle2 } from "lucide-react";
+import { Card, CardContent } from "@workspace/ui/components/card";
+import { Loader2, ArrowRight, CheckCircle2, AlertTriangle, CalendarClock } from "lucide-react";
 import { apiClient } from "@/lib/api-client";
+import { useOperationDayCheck } from "@/hooks/use-operation-day-check";
+import { enqueueCheckpointSubmit, isNetworkFailure } from "@/lib/offline-queue";
 
 const CHECKPOINT_DEFS = [
   { id: "CP1", label: "Bahan Mentah", instruction: "Foto semua bahan yang diterima hari ini" },
@@ -17,11 +20,18 @@ const CHECKPOINT_DEFS = [
 ];
 
 interface AiResult {
-  status: string;
-  score: number;
+  status: "pass" | "warning" | "pending" | "queued";
   confidence: number;
   notes: string;
-  detectedItems: string[];
+  scoreDelta?: number;
+}
+
+interface CheckpointEvent {
+  id: string;
+  cpType: string;
+  cpStatus: string;
+  scoreDelta: number;
+  aiValidation: { pass: boolean; reason: string; confidence: number } | null;
 }
 
 function base64ToBlob(base64: string): Blob {
@@ -33,10 +43,41 @@ function base64ToBlob(base64: string): Blob {
   return new Blob([arr], { type: mime });
 }
 
+function sleep(ms: number) {
+  return new Promise((resolve) => setTimeout(resolve, ms));
+}
+
+async function pollForAiResult(cpType: string, attempts = 6, delayMs = 2000): Promise<AiResult> {
+  for (let i = 0; i < attempts; i++) {
+    await sleep(delayMs);
+    try {
+      const res = await apiClient.get<CheckpointEvent[]>("/checkpoints/today");
+      const match = res.data.find((cp) => cp.cpType === cpType);
+      if (match?.aiValidation) {
+        return {
+          status: match.aiValidation.pass ? "pass" : "warning",
+          confidence: match.aiValidation.confidence,
+          notes: match.aiValidation.reason,
+          scoreDelta: match.scoreDelta,
+        };
+      }
+    } catch {
+      // keep polling; final iteration falls through to pending result below
+    }
+  }
+  return {
+    status: "pending",
+    confidence: 0,
+    notes: "Foto tersimpan, validasi AI masih diproses di server. Anda tetap bisa lanjut ke tahap berikutnya.",
+  };
+}
+
 export default function LiveCheckpointPage() {
+  const { check: dayCheck, retry: retryDayCheck } = useOperationDayCheck();
   const [currentStep, setCurrentStep] = useState(0);
   const [capturedImage, setCapturedImage] = useState<string | null>(null);
   const [isAnalyzing, setIsAnalyzing] = useState(false);
+  const [isPolling, setIsPolling] = useState(false);
   const [aiResult, setAiResult] = useState<AiResult | null>(null);
   const [isCompleted, setIsCompleted] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -48,32 +89,36 @@ export default function LiveCheckpointPage() {
     setIsAnalyzing(true);
     setError(null);
 
+    const blob = base64ToBlob(image);
+
     try {
-      const blob = base64ToBlob(image);
       const form = new FormData();
       form.append("photo", blob, `${currentDef.id}.jpg`);
 
       await apiClient.post(`/checkpoints/${currentDef.id}/submit`, form);
+      setIsAnalyzing(false);
+      setIsPolling(true);
 
-      setAiResult({
-        status: "pass",
-        score: 90,
-        confidence: 0.88,
-        notes: `${currentDef.label} berhasil diverifikasi dan disimpan.`,
-        detectedItems: [],
-      });
+      // AI validation runs async server-side; poll for the real result
+      // instead of fabricating one immediately.
+      const result = await pollForAiResult(currentDef.id);
+      setAiResult(result);
     } catch (err: any) {
+      if (isNetworkFailure(err)) {
+        await enqueueCheckpointSubmit({ cpId: currentDef.id, photoBlob: blob, photoType: "image/jpeg" });
+        setIsAnalyzing(false);
+        setAiResult({
+          status: "queued",
+          confidence: 0,
+          notes: "Tidak ada koneksi internet. Foto disimpan di perangkat dan akan otomatis terkirim saat online kembali.",
+        });
+        return;
+      }
       const msg: string = err?.response?.data?.message ?? err?.message ?? "Gagal mengirim foto";
       setError(msg);
-      setAiResult({
-        status: "warning",
-        score: 0,
-        confidence: 0,
-        notes: msg,
-        detectedItems: [],
-      });
-    } finally {
       setIsAnalyzing(false);
+    } finally {
+      setIsPolling(false);
     }
   };
 
@@ -87,6 +132,94 @@ export default function LiveCheckpointPage() {
       setIsCompleted(true);
     }
   };
+
+  if (dayCheck.status === "checking") {
+    return (
+      <div className="flex flex-col min-h-screen">
+        <PageHeader title="Live Checkpoint" />
+        <div className="flex-1 flex flex-col items-center justify-center p-8 gap-4">
+          <Loader2 className="h-8 w-8 text-primary animate-spin" />
+          <p className="text-sm text-slate-500">Memeriksa hari operasional...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (dayCheck.status === "no-menu-plan") {
+    return (
+      <div className="flex flex-col min-h-screen">
+        <PageHeader title="Live Checkpoint" />
+        <div className="p-4">
+          <Card className="border-none shadow-sm">
+            <CardContent className="p-8 flex flex-col items-center text-center gap-3">
+              <div className="h-14 w-14 rounded-full bg-amber-100 flex items-center justify-center text-amber-600">
+                <CalendarClock className="h-7 w-7" />
+              </div>
+              <div>
+                <p className="font-bold text-slate-900">Rencana Menu Belum Dibuat</p>
+                <p className="text-sm text-slate-500 mt-1">
+                  Susun target porsi dan bahan hari ini di halaman Kalkulasi Bahan (portal web)
+                  sebelum memulai checkpoint.
+                </p>
+              </div>
+              <Button variant="outline" onClick={retryDayCheck} className="mt-2">
+                Coba Lagi
+              </Button>
+            </CardContent>
+          </Card>
+        </div>
+      </div>
+    );
+  }
+
+  if (dayCheck.status === "insufficient-inventory") {
+    return (
+      <div className="flex flex-col min-h-screen">
+        <PageHeader title="Live Checkpoint" />
+        <div className="p-4">
+          <Card className="border-none shadow-sm">
+            <CardContent className="p-6 space-y-4">
+              <div className="flex items-center gap-3">
+                <div className="h-12 w-12 rounded-full bg-red-100 flex items-center justify-center text-red-600 shrink-0">
+                  <AlertTriangle className="h-6 w-6" />
+                </div>
+                <div>
+                  <p className="font-bold text-slate-900">Stok Belum Cukup</p>
+                  <p className="text-sm text-slate-500">Kebutuhan menu hari ini melebihi stok tersedia.</p>
+                </div>
+              </div>
+              <div className="space-y-1.5">
+                {dayCheck.shortages.map((s, i) => (
+                  <div key={i} className="flex items-center justify-between text-sm bg-red-50 rounded-lg px-3 py-2">
+                    <span className="text-red-700 font-medium">Kurang {s.shortage} {s.unit}</span>
+                  </div>
+                ))}
+              </div>
+              <Button variant="outline" onClick={retryDayCheck} className="w-full">
+                Sudah Belanja, Coba Lagi
+              </Button>
+            </CardContent>
+          </Card>
+        </div>
+      </div>
+    );
+  }
+
+  if (dayCheck.status === "error") {
+    return (
+      <div className="flex flex-col min-h-screen">
+        <PageHeader title="Live Checkpoint" />
+        <div className="p-4">
+          <Card className="border-none shadow-sm">
+            <CardContent className="p-6 text-center space-y-3">
+              <p className="text-sm text-red-600">{dayCheck.message}</p>
+              <Button variant="outline" onClick={retryDayCheck}>Coba Lagi</Button>
+            </CardContent>
+          </Card>
+        </div>
+      </div>
+    );
+  }
 
   if (isCompleted) {
     return (
@@ -102,6 +235,9 @@ export default function LiveCheckpointPage() {
           </div>
           <Button className="w-full bg-green-600 hover:bg-green-700 h-12 font-bold" asChild>
             <a href="/">Kembali ke Dashboard</a>
+          </Button>
+          <Button variant="ghost" className="w-full font-bold text-slate-500" asChild>
+            <a href="/operasional/progress">Lihat Progress Checkpoint</a>
           </Button>
         </div>
       </div>
@@ -137,8 +273,24 @@ export default function LiveCheckpointPage() {
             <Loader2 className="h-8 w-8 text-green-600 animate-spin" />
             <div className="text-center">
               <p className="font-bold text-slate-900">Mengirim foto...</p>
-              <p className="text-xs text-slate-500">Memverifikasi standar checkpoint</p>
+              <p className="text-xs text-slate-500">Mengunggah ke server</p>
             </div>
+          </div>
+        )}
+
+        {isPolling && (
+          <div className="flex flex-col items-center justify-center p-8 space-y-4 bg-slate-50 rounded-2xl border border-dashed border-slate-300">
+            <Loader2 className="h-8 w-8 text-green-600 animate-spin" />
+            <div className="text-center">
+              <p className="font-bold text-slate-900">Menunggu hasil AI...</p>
+              <p className="text-xs text-slate-500">Foto sedang diverifikasi server</p>
+            </div>
+          </div>
+        )}
+
+        {error && !aiResult && (
+          <div className="flex items-start gap-3 p-4 bg-red-50 border border-red-100 rounded-2xl">
+            <p className="text-sm text-red-700 font-medium">{error}</p>
           </div>
         )}
 
@@ -147,7 +299,7 @@ export default function LiveCheckpointPage() {
             <AIResultCard result={aiResult} />
             <div className="mt-auto pt-4 pb-8">
               <Button
-                className="w-full bg-green-600 hover:bg-green-700 h-14 text-lg font-bold shadow-lg shadow-green-200 active:scale-95 transition-transform"
+                className="w-full bg-primary hover:bg-primary/90 h-14 text-lg font-bold shadow-lg shadow-primary/20 active:scale-95 transition-transform"
                 onClick={nextStep}
                 disabled={!!error}
               >

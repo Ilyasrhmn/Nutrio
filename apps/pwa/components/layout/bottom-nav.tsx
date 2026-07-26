@@ -10,7 +10,7 @@ import { UserRole } from "@workspace/common/types";
 const ALL_NAV_ITEMS = [
   { label: "Home", href: "/", icon: Home, roles: [UserRole.VENDOR, UserRole.SUPPLIER, UserRole.COORDINATOR_SPPG, UserRole.PUBLIC] },
   { label: "Operasional", href: "/operasional/live", icon: ClipboardList, roles: [UserRole.VENDOR] },
-  { label: "Orders", href: "/orders", icon: Package, roles: [UserRole.SUPPLIER] },
+  { label: "Pesanan", href: "/pesanan", icon: Package, roles: [UserRole.SUPPLIER] },
   { label: "Sekolah", href: "/sekolah", icon: School, roles: [UserRole.COORDINATOR_SPPG] },
   { label: "Publik", href: "/publik", icon: Globe, roles: [UserRole.VENDOR, UserRole.SUPPLIER, UserRole.COORDINATOR_SPPG, UserRole.PUBLIC] },
 ];
@@ -34,7 +34,7 @@ export function BottomNavigation() {
               href={item.href}
               className={cn(
                 "flex flex-col items-center justify-center flex-1 h-full transition-all duration-200",
-                isActive ? "text-green-600 scale-110" : "text-slate-400 hover:text-slate-600"
+                isActive ? "text-primary scale-110" : "text-slate-400 hover:text-slate-600"
               )}
             >
               <item.icon className={cn("h-5 w-5 mb-1", isActive && "stroke-[2.5px]")} />

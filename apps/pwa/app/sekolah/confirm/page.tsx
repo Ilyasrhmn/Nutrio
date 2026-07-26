@@ -130,7 +130,7 @@ export default function SchoolConfirmPage() {
       <div className="p-4 space-y-6">
         {fetchingInfo && (
           <div className="flex flex-col items-center justify-center py-16 space-y-3">
-            <Loader2 className="h-8 w-8 animate-spin text-green-600" />
+            <Loader2 className="h-8 w-8 animate-spin text-primary" />
             <p className="text-sm text-slate-500">Memverifikasi token...</p>
           </div>
         )}
@@ -162,7 +162,7 @@ export default function SchoolConfirmPage() {
                   <div className="h-20 w-20 bg-slate-800 rounded-full flex items-center justify-center mx-auto text-slate-400">
                     <QrCode className="h-10 w-10" />
                   </div>
-                  <Button className="bg-green-600 font-bold" onClick={() => setIsScanning(true)}>
+                  <Button className="font-bold" onClick={() => setIsScanning(true)}>
                     Aktifkan Kamera
                   </Button>
                 </div>
@@ -178,19 +178,19 @@ export default function SchoolConfirmPage() {
               <p className="text-sm text-slate-500">Verifikasi data di bawah sebelum konfirmasi.</p>
             </div>
 
-            <Card className="border-green-100 bg-green-50/30 overflow-hidden">
+            <Card className="border-primary/20 bg-primary/5 overflow-hidden">
               <CardContent className="p-5 space-y-4">
                 <div className="flex items-start gap-3">
-                  <MapPin className="h-5 w-5 text-green-600 mt-0.5" />
+                  <MapPin className="h-5 w-5 text-primary mt-0.5" />
                   <div>
-                    <p className="text-[10px] text-green-700 font-bold uppercase">Vendor</p>
+                    <p className="text-[10px] text-primary font-bold uppercase">Vendor</p>
                     <p className="font-bold text-slate-900">{deliveryInfo.vendorName}</p>
                   </div>
                 </div>
                 <div className="flex items-start gap-3">
-                  <Package className="h-5 w-5 text-green-600 mt-0.5" />
+                  <Package className="h-5 w-5 text-primary mt-0.5" />
                   <div>
-                    <p className="text-[10px] text-green-700 font-bold uppercase">Jumlah Porsi</p>
+                    <p className="text-[10px] text-primary font-bold uppercase">Jumlah Porsi</p>
                     <p className="font-bold text-slate-900">{deliveryInfo.porsiCount} Porsi</p>
                   </div>
                 </div>
@@ -207,7 +207,7 @@ export default function SchoolConfirmPage() {
                   value={jumlahDiterima}
                   onChange={(e) => setJumlahDiterima(e.target.value)}
                   required
-                  className="h-12 w-full bg-white border border-slate-200 rounded-xl px-4 text-slate-900 font-bold focus:ring-2 focus:ring-green-600 outline-none"
+                  className="h-12 w-full bg-white border border-slate-200 rounded-xl px-4 text-slate-900 font-bold focus:ring-2 focus:ring-primary outline-none"
                 />
               </div>
 
@@ -216,7 +216,7 @@ export default function SchoolConfirmPage() {
                 <select
                   value={kondisi}
                   onChange={(e) => setKondisi(e.target.value as "baik" | "ada_masalah")}
-                  className="w-full h-12 bg-white border border-slate-200 rounded-xl px-4 text-sm font-medium focus:ring-2 focus:ring-green-600 outline-none"
+                  className="w-full h-12 bg-white border border-slate-200 rounded-xl px-4 text-sm font-medium focus:ring-2 focus:ring-primary outline-none"
                 >
                   <option value="baik">Sangat Baik / Layak</option>
                   <option value="ada_masalah">Ada Masalah</option>
@@ -228,7 +228,7 @@ export default function SchoolConfirmPage() {
                 <textarea
                   value={catatan}
                   onChange={(e) => setCatatan(e.target.value)}
-                  className="w-full bg-white border border-slate-200 rounded-xl p-4 text-sm font-medium focus:ring-2 focus:ring-green-600 outline-none min-h-[100px]"
+                  className="w-full bg-white border border-slate-200 rounded-xl p-4 text-sm font-medium focus:ring-2 focus:ring-primary outline-none min-h-[100px]"
                   placeholder="Contoh: Sayur agak tumpah sedikit..."
                 />
               </div>
@@ -240,7 +240,7 @@ export default function SchoolConfirmPage() {
               <Button
                 type="submit"
                 disabled={submitting || !jumlahDiterima}
-                className="w-full bg-green-600 hover:bg-green-700 h-14 text-lg font-bold shadow-lg shadow-green-100 mt-4"
+                className="w-full h-14 text-lg font-bold shadow-lg shadow-primary/20 mt-4"
               >
                 {submitting ? <Loader2 className="h-5 w-5 animate-spin" /> : "Konfirmasi Penerimaan"}
               </Button>

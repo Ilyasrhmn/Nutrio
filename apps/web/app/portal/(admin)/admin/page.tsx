@@ -30,6 +30,8 @@ import { rolesService } from '@/lib/services/roles.service';
 import { permissionsService } from '@/lib/services/permissions.service';
 import { menusService } from '@/lib/services/menus.service';
 import { MenuTree, RoleWithPermissions } from '@workspace/common';
+import { QueryState, QueryStatus } from '@workspace/ui/components/query-state';
+import { toQueryError } from '@/lib/services/error-handler';
 
 // Dynamic import for ApexCharts to handle SSR properly
 const ReactApexChart = dynamic(() => import('react-apexcharts'), { ssr: false });
@@ -42,11 +44,17 @@ export default function AdminDashboard() {
     unassignedMenus: number;
   } | null>(null);
   const [loading, setLoading] = useState(true);
+  const [loadError, setLoadError] = useState<{ status: QueryStatus; errorMessage: string; isNetworkError: boolean } | null>(null);
   const [searchQuery, setSearchQuery] = useState('');
 
   useEffect(() => {
-    async function loadStats() {
-      try {
+    loadStats();
+  }, []);
+
+  async function loadStats() {
+    try {
+        setLoading(true);
+        setLoadError(null);
         const [rolesRes, permsRes, menusRes] = await Promise.all([
           rolesService.getAll(1, 10),
           permissionsService.getAll(),
@@ -63,20 +71,18 @@ export default function AdminDashboard() {
         };
         const flatMenus = flattenMenus(menusRes);
 
-        setData({
-          roles: rolesRes.items,
-          permissionsCount: allPerms.length,
-          menusCount: flatMenus.length,
-          unassignedMenus: flatMenus.filter(m => !m.assignedRoles?.length).length
-        });
-      } catch (err) {
-        console.error('Failed to load dashboard data:', err);
-      } finally {
-        setLoading(false);
-      }
+      setData({
+        roles: rolesRes.items,
+        permissionsCount: allPerms.length,
+        menusCount: flatMenus.length,
+        unassignedMenus: flatMenus.filter(m => !m.assignedRoles?.length).length
+      });
+    } catch (err) {
+      setLoadError(toQueryError(err));
+    } finally {
+      setLoading(false);
     }
-    loadStats();
-  }, []);
+  }
 
   const stats = [
     {
@@ -133,14 +139,17 @@ export default function AdminDashboard() {
     stroke: { lineCap: 'round' }
   };
 
-  if (loading) {
+  if (loading || loadError || !data) {
     return (
-      <div className="flex items-center justify-center min-h-[400px]">
-        <div className="flex flex-col items-center gap-4">
-          <div className="size-12 border-4 border-primary/20 border-t-primary rounded-full animate-spin" />
-          <p className="text-sm font-bold text-muted-foreground animate-pulse">Analyzing Access System...</p>
-        </div>
-      </div>
+      <QueryState
+        status={loadError ? loadError.status : 'loading'}
+        errorMessage={loadError?.errorMessage}
+        isNetworkError={loadError?.isNetworkError}
+        loadingLabel="Analyzing Access System..."
+        onRetry={loadStats}
+      >
+        {null}
+      </QueryState>
     );
   }
 

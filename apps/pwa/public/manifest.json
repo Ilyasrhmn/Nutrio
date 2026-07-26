@@ -2,7 +2,7 @@
   "name": "MBG Platform",
   "short_name": "MBG",
   "description": "Platform Vendor Makan Bergizi Gratis Indonesia",
-  "theme_color": "#16a34a",
+  "theme_color": "#0084d1",
   "background_color": "#ffffff",
   "display": "standalone",
   "orientation": "portrait",

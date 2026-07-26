@@ -1,14 +1,40 @@
 const API_URL = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:3333';
 
+export const TokenStorage = {
+  getAccessToken: () => (typeof window === 'undefined' ? null : localStorage.getItem('pwa_accessToken')),
+  getRefreshToken: () => (typeof window === 'undefined' ? null : localStorage.getItem('pwa_refreshToken')),
+  setTokens: (accessToken: string, refreshToken: string) => {
+    localStorage.setItem('pwa_accessToken', accessToken);
+    localStorage.setItem('pwa_refreshToken', refreshToken);
+  },
+  clearTokens: () => {
+    localStorage.removeItem('pwa_accessToken');
+    localStorage.removeItem('pwa_refreshToken');
+  },
+};
+
 type RequestConfig = {
   headers?: Record<string, string>;
 };
 
-async function refreshToken(): Promise<void> {
-  await fetch(`${API_URL}/auth/refresh`, {
+const AUTH_EXEMPT_PATHS = ['/auth/login', '/auth/register', '/auth/refresh'];
+
+let isRefreshing = false;
+let refreshPromise: Promise<void> | null = null;
+
+async function refreshAccessToken(): Promise<void> {
+  const refreshToken = TokenStorage.getRefreshToken();
+  if (!refreshToken) throw new Error('No refresh token');
+
+  const res = await fetch(`${API_URL}/auth/refresh`, {
     method: 'POST',
-    credentials: 'include',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ refreshToken }),
   });
+  if (!res.ok) throw new Error('Refresh failed');
+
+  const data = (await res.json()) as { accessToken: string; refreshToken: string };
+  TokenStorage.setTokens(data.accessToken, data.refreshToken);
 }
 
 async function request<T>(
@@ -23,18 +49,30 @@ async function request<T>(
     headers['Content-Type'] = 'application/json';
   }
 
+  const isExempt = AUTH_EXEMPT_PATHS.some((p) => path.startsWith(p));
+  if (!isExempt) {
+    const token = TokenStorage.getAccessToken();
+    if (token) headers['Authorization'] = `Bearer ${token}`;
+  }
+
   const res = await fetch(`${API_URL}${path}`, {
     method,
-    credentials: 'include',
     headers,
     body: body ?? undefined,
   });
 
-  if (res.status === 401 && !retried) {
+  if (res.status === 401 && !retried && !isExempt) {
     try {
-      await refreshToken();
+      if (!isRefreshing) {
+        isRefreshing = true;
+        refreshPromise = refreshAccessToken().finally(() => {
+          isRefreshing = false;
+        });
+      }
+      await refreshPromise;
       return request<T>(method, path, body, config, true);
     } catch {
+      TokenStorage.clearTokens();
       if (typeof window !== 'undefined') window.location.href = '/login';
       throw new Error('Unauthenticated');
     }
@@ -43,7 +81,7 @@ async function request<T>(
   if (!res.ok) {
     let message = 'Request failed';
     try {
-      const json = await res.json() as { message?: string };
+      const json = (await res.json()) as { message?: string };
       message = json.message ?? message;
     } catch {
       // ignore parse errors
@@ -54,7 +92,7 @@ async function request<T>(
     throw err;
   }
 
-  const data = res.status === 204 ? null : (await res.json()) as T;
+  const data = res.status === 204 ? null : ((await res.json()) as T);
   return { data: data as T };
 }
 

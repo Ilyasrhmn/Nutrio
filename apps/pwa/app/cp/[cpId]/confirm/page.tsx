@@ -4,28 +4,46 @@ import * as React from "react"
 import { useParams, useRouter } from "next/navigation"
 import { useState } from "react"
 import { Button } from "@workspace/ui/components/button"
+import { Card, CardContent } from "@workspace/ui/components/card"
+import { Badge } from "@workspace/ui/components/badge"
 import { cn } from "@workspace/ui/lib/utils"
+import {
+  Sparkles,
+  Salad,
+  ClipboardList,
+  CookingPot,
+  Thermometer,
+  CheckCircle2,
+  Circle,
+  Package,
+  Tag,
+  Truck,
+  Handshake,
+  FileText,
+  Camera,
+  Target,
+} from "lucide-react"
 
-const CP_CHECKLIST: Record<string, Array<{ icon: string; label: string }>> = {
+const CP_CHECKLIST: Record<string, Array<{ icon: typeof Sparkles; label: string }>> = {
   CP1: [
-    { icon: '🧼', label: 'Area dapur sudah bersih' },
-    { icon: '🥦', label: 'Bahan baku sudah disiapkan' },
-    { icon: '📋', label: 'Jumlah porsi sudah dicek' },
+    { icon: Sparkles, label: 'Area dapur sudah bersih' },
+    { icon: Salad, label: 'Bahan baku sudah disiapkan' },
+    { icon: ClipboardList, label: 'Jumlah porsi sudah dicek' },
   ],
   CP2: [
-    { icon: '🍳', label: 'Semua porsi sudah matang' },
-    { icon: '🌡️', label: 'Suhu makanan aman (>70°C)' },
-    { icon: '✅', label: 'Rasa dan penampilan sesuai' },
+    { icon: CookingPot, label: 'Semua porsi sudah matang' },
+    { icon: Thermometer, label: 'Suhu makanan aman (>70°C)' },
+    { icon: CheckCircle2, label: 'Rasa dan penampilan sesuai' },
   ],
   CP3: [
-    { icon: '📦', label: 'Semua porsi sudah dikemas' },
-    { icon: '🏷️', label: 'Label terpasang dengan benar' },
-    { icon: '🚚', label: 'Siap diserahkan ke kurir' },
+    { icon: Package, label: 'Semua porsi sudah dikemas' },
+    { icon: Tag, label: 'Label terpasang dengan benar' },
+    { icon: Truck, label: 'Siap diserahkan ke kurir' },
   ],
   CP4: [
-    { icon: '🤝', label: 'Kurir sudah menerima makanan' },
-    { icon: '📝', label: 'Jumlah porsi sesuai' },
-    { icon: '📸', label: 'Foto serah terima sudah diambil' },
+    { icon: Handshake, label: 'Kurir sudah menerima makanan' },
+    { icon: FileText, label: 'Jumlah porsi sesuai' },
+    { icon: Camera, label: 'Foto serah terima sudah diambil' },
   ],
 }
 
@@ -49,41 +67,57 @@ export default function CPConfirmPage() {
 
   if (done) {
     return (
-      <div className="min-h-screen bg-green-600 flex flex-col items-center justify-center gap-4 text-white">
-        <div className="text-7xl">🎯</div>
-        <h1 className="text-2xl font-bold">{cpId} Selesai!</h1>
-        <p className="text-green-100 text-sm">Kembali ke halaman utama...</p>
+      <div className="min-h-screen flex items-center justify-center p-4">
+        <Card className="border-none shadow-sm w-full max-w-sm">
+          <CardContent className="p-8 flex flex-col items-center text-center gap-3">
+            <div className="h-14 w-14 rounded-full bg-green-100 flex items-center justify-center text-green-600">
+              <Target className="h-7 w-7" />
+            </div>
+            <p className="font-bold text-slate-900">{cpId} Selesai!</p>
+            <p className="text-sm text-slate-500">Kembali ke halaman utama...</p>
+          </CardContent>
+        </Card>
       </div>
     )
   }
 
   return (
-    <div className="min-h-screen bg-slate-50 flex flex-col px-6 py-8" style={{ maxWidth: 480, margin: '0 auto' }}>
+    <div className="flex flex-col px-6 py-8 max-w-md mx-auto min-h-screen">
       <div className="mb-2">
-        <span className="bg-green-600 text-white text-xs px-2 py-1 rounded-full font-medium">{cpId}</span>
+        <Badge className="bg-primary text-primary-foreground border-none">{cpId}</Badge>
       </div>
-      <h1 className="text-2xl font-bold mt-2 mb-2">Konfirmasi</h1>
+      <h1 className="text-2xl font-bold mt-2 mb-2 text-slate-900">Konfirmasi</h1>
       <p className="text-slate-500 text-sm mb-6">Centang semua item untuk menyelesaikan checkpoint ini</p>
 
       <div className="flex-1 space-y-3">
-        {checklist.map((item, i) => (
-          <button
-            key={i}
-            onClick={() => toggle(i)}
-            className={cn(
-              'w-full flex items-center gap-4 p-4 rounded-xl border-2 transition-all text-left',
-              checked[i] ? 'border-green-400 bg-green-50' : 'border-slate-200 bg-white',
-            )}
-          >
-            <span className="text-2xl">{item.icon}</span>
-            <span className={cn('flex-1 text-sm font-medium', checked[i] ? 'text-green-700 line-through' : 'text-slate-700')}>
-              {item.label}
-            </span>
-            <span className={cn('text-xl', checked[i] ? 'text-green-500' : 'text-slate-200')}>
-              {checked[i] ? '✅' : '⬜'}
-            </span>
-          </button>
-        ))}
+        {checklist.map((item, i) => {
+          const ItemIcon = item.icon
+          return (
+            <button
+              key={i}
+              onClick={() => toggle(i)}
+              className={cn(
+                'w-full flex items-center gap-4 p-4 rounded-xl border-2 transition-all text-left',
+                checked[i] ? 'border-green-400 bg-green-50' : 'border-slate-200 bg-white',
+              )}
+            >
+              <div className={cn(
+                'h-9 w-9 rounded-lg flex items-center justify-center shrink-0',
+                checked[i] ? 'bg-green-100 text-green-600' : 'bg-slate-100 text-slate-400',
+              )}>
+                <ItemIcon className="h-4.5 w-4.5" />
+              </div>
+              <span className={cn('flex-1 text-sm font-medium', checked[i] ? 'text-green-700 line-through' : 'text-slate-700')}>
+                {item.label}
+              </span>
+              {checked[i] ? (
+                <CheckCircle2 className="h-5 w-5 text-green-500 shrink-0" />
+              ) : (
+                <Circle className="h-5 w-5 text-slate-200 shrink-0" />
+              )}
+            </button>
+          )
+        })}
       </div>
 
       <Button
@@ -92,7 +126,7 @@ export default function CPConfirmPage() {
         disabled={!allChecked}
         onClick={handleConfirm}
       >
-        {allChecked ? 'SELESAIKAN CHECKPOINT ✓' : `Centang semua (${checked.filter(Boolean).length}/${checklist.length})`}
+        {allChecked ? 'Selesaikan Checkpoint' : `Centang semua (${checked.filter(Boolean).length}/${checklist.length})`}
       </Button>
     </div>
   )

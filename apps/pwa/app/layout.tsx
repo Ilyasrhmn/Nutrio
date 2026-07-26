@@ -1,7 +1,8 @@
 import { Plus_Jakarta_Sans, Geist_Mono } from "next/font/google";
-import "@workspace/ui/globals.css";
+import "@workspace/ui/styles/globals.css";
 import { BottomNavigation } from "@/components/layout/bottom-nav";
 import { AuthProvider } from "@/components/providers/auth-provider";
+import { OfflineQueueBanner } from "@/components/offline-queue-banner";
 import { Toaster } from "@workspace/ui/components/toaster";
 import type { Metadata, Viewport } from "next";
 
@@ -30,7 +31,7 @@ export const metadata: Metadata = {
 };
 
 export const viewport: Viewport = {
-  themeColor: "#16a34a",
+  themeColor: "#0084d1",
   width: "device-width",
   initialScale: 1,
   maximumScale: 1,
@@ -48,6 +49,7 @@ export default function RootLayout({
         className={`${fontSans.variable} ${fontMono.variable} font-sans antialiased bg-slate-50 text-slate-900 min-h-screen flex flex-col`}
       >
         <AuthProvider>
+          <OfflineQueueBanner />
           <main className="flex-1 pb-20 overflow-x-hidden">
             {children}
           </main>

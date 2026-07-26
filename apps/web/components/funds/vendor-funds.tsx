@@ -62,18 +62,13 @@ type Expense = {
   description: string;
 }
 
-const INITIAL_EXPENSES: Expense[] = [
-  { id: '1', date: '2026-03-01', category: 'Bahan Baku', amount: 2500000, description: 'Beli Beras & Sayur dari Supplier' },
-  { id: '2', date: '2026-03-05', category: 'Gaji Pegawai', amount: 5000000, description: 'Gaji koki dan kurir' },
-  { id: '3', date: '2026-03-10', category: 'Operasional', amount: 750000, description: 'Bensin dan perawatan motor' },
-]
-
-const TOTAL_INCOME = 45000000; // Example total funds received from APBN
+const STORAGE_KEY = "nutrio.vendor-funds.draft"
 
 export function VendorFundsDashboard() {
-  const [expenses, setExpenses] = React.useState<Expense[]>(INITIAL_EXPENSES);
+  const [expenses, setExpenses] = React.useState<Expense[]>([]);
+  const [totalIncome, setTotalIncome] = React.useState(0);
   const [isModalOpen, setIsModalOpen] = React.useState(false);
-  
+
   // Form State
   const [editingId, setEditingId] = React.useState<string | null>(null);
   const [date, setDate] = React.useState(format(new Date(), 'yyyy-MM-dd'));
@@ -81,25 +76,48 @@ export function VendorFundsDashboard() {
   const [amount, setAmount] = React.useState('');
   const [description, setDescription] = React.useState('');
 
+  React.useEffect(() => {
+    try {
+      const raw = localStorage.getItem(STORAGE_KEY)
+      if (raw) {
+        const parsed = JSON.parse(raw)
+        setExpenses(parsed.expenses ?? [])
+        setTotalIncome(parsed.totalIncome ?? 0)
+      }
+    } catch {
+      // ignore corrupt local draft
+    }
+  }, [])
+
+  const persist = (next: { expenses: Expense[]; totalIncome: number }) => {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(next))
+  }
+
   const totalExpense = expenses.reduce((acc, curr) => acc + curr.amount, 0);
-  const remainingBalance = TOTAL_INCOME - totalExpense;
+  const remainingBalance = totalIncome - totalExpense;
+
+  const handleIncomeChange = (value: string) => {
+    const next = Math.max(0, Number(value) || 0)
+    setTotalIncome(next)
+    persist({ expenses, totalIncome: next })
+  }
 
   const handleSave = () => {
     if (!category || !amount || !description) return;
 
     const newExpense: Expense = {
-      id: editingId || Math.random().toString(36).substr(2, 9),
+      id: editingId || crypto.randomUUID(),
       date,
       category,
       amount: Number(amount),
       description
     };
 
-    if (editingId) {
-      setExpenses(expenses.map(e => e.id === editingId ? newExpense : e));
-    } else {
-      setExpenses([newExpense, ...expenses]);
-    }
+    const nextExpenses = editingId
+      ? expenses.map(e => e.id === editingId ? newExpense : e)
+      : [newExpense, ...expenses];
+    setExpenses(nextExpenses);
+    persist({ expenses: nextExpenses, totalIncome });
 
     closeModal();
   }
@@ -115,7 +133,9 @@ export function VendorFundsDashboard() {
 
   const handleDelete = (id: string) => {
     if(confirm('Hapus pencatatan pengeluaran ini?')) {
-      setExpenses(expenses.filter(e => e.id !== id));
+      const next = expenses.filter(e => e.id !== id);
+      setExpenses(next);
+      persist({ expenses: next, totalIncome });
     }
   }
 
@@ -255,9 +275,16 @@ export function VendorFundsDashboard() {
                  </div>
               </div>
               <div className="space-y-1">
-                <h3 className="text-3xl lg:text-4xl font-black text-slate-900 tracking-tighter">{formatRupiah(TOTAL_INCOME)}</h3>
+                <Input
+                  type="number"
+                  min="0"
+                  value={totalIncome || ''}
+                  onChange={(e) => handleIncomeChange(e.target.value)}
+                  placeholder="0"
+                  className="text-2xl font-black text-slate-900 tracking-tighter h-11 rounded-lg border-slate-200"
+                />
                 <p className="text-[11px] text-slate-400 font-bold flex items-center gap-1.5 mt-2">
-                  <Activity className="size-3.5 text-emerald-500" /> Dari Pencairan BGN
+                  <Activity className="size-3.5 text-emerald-500" /> Input manual — belum tersambung data pencairan
                 </p>
               </div>
             </CardContent>
