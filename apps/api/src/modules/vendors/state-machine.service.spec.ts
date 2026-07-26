@@ -19,7 +19,7 @@ describe('StateMachineService — transition logic', () => {
             actorType: 'system',
             actorUserId: null,
             reason: null,
-            correlationId: 'correlation-id',
+            correlationId: '00000000-0000-4000-8000-000000000003',
             createdAt: new Date('2026-07-26T00:00:00.000Z'),
           },
         ]),
@@ -189,7 +189,7 @@ describe('StateMachineService — transition logic', () => {
           null,
           'system',
           'demo readiness',
-          'corr-1',
+          '00000000-0000-4000-8000-000000000001',
         ),
       ).resolves.toHaveLength(8);
 
@@ -224,9 +224,25 @@ describe('StateMachineService — transition logic', () => {
           null,
           'system',
           'bad',
-          'corr-2',
+          '00000000-0000-4000-8000-000000000002',
         ),
       ).rejects.toThrow('tidak diizinkan');
+    });
+
+    it('rejects an invalid correlation ID before changing the lifecycle', async () => {
+      await expect(
+        advanceService.advanceTo(
+          vendorId,
+          VendorLifecycleStatus.ACTIVE,
+          null,
+          'system',
+          'bad correlation ID',
+          'corr-3',
+        ),
+      ).rejects.toThrow('UUID');
+
+      expect(lifecycleStatus).toBe(VendorLifecycleStatus.REGISTERED);
+      expect(persistedEvents).toHaveLength(0);
     });
   });
 });

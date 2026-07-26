@@ -1,5 +1,6 @@
 import { Injectable, BadRequestException, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
+import { isUUID } from 'class-validator';
 import { Repository, DataSource } from 'typeorm';
 import { Vendor, VendorLifecycleStatus } from './entities/vendor.entity';
 import { VendorLifecycleEvent } from './entities/vendor-lifecycle-event.entity';
@@ -141,6 +142,10 @@ export class StateMachineService {
     reason: string,
     correlationId: string,
   ): Promise<TransitionResult[]> {
+    if (!isUUID(correlationId)) {
+      throw new BadRequestException('Correlation ID harus UUID yang valid.');
+    }
+
     return this.dataSource.transaction(async (manager) => {
       const [vendor] = await manager.query(
         `SELECT id, lifecycle_status
