@@ -1,24 +1,46 @@
-import { Injectable, BadRequestException, NotFoundException } from '@nestjs/common';
-import { InjectRepository } from '@nestjs/typeorm';
-import { isUUID } from 'class-validator';
-import { Repository, DataSource } from 'typeorm';
-import { Vendor, VendorLifecycleStatus } from './entities/vendor.entity';
-import { VendorLifecycleEvent } from './entities/vendor-lifecycle-event.entity';
+import {
+  Injectable,
+  BadRequestException,
+  NotFoundException,
+} from "@nestjs/common";
+import { randomUUID } from "crypto";
+import { InjectRepository } from "@nestjs/typeorm";
+import { isUUID } from "class-validator";
+import { Repository, DataSource } from "typeorm";
+import { Vendor, VendorLifecycleStatus } from "./entities/vendor.entity";
+import { VendorLifecycleEvent } from "./entities/vendor-lifecycle-event.entity";
 
 // ─── Allowed transitions ─────────────────────────────────────────────────────
-const ALLOWED_TRANSITIONS: Record<VendorLifecycleStatus, VendorLifecycleStatus[]> = {
-  [VendorLifecycleStatus.ANONYMOUS]: [VendorLifecycleStatus.ELIGIBILITY_CHECKED],
-  [VendorLifecycleStatus.ELIGIBILITY_CHECKED]: [VendorLifecycleStatus.REGISTERED],
+const ALLOWED_TRANSITIONS: Record<
+  VendorLifecycleStatus,
+  VendorLifecycleStatus[]
+> = {
+  [VendorLifecycleStatus.ANONYMOUS]: [
+    VendorLifecycleStatus.ELIGIBILITY_CHECKED,
+  ],
+  [VendorLifecycleStatus.ELIGIBILITY_CHECKED]: [
+    VendorLifecycleStatus.REGISTERED,
+  ],
   [VendorLifecycleStatus.REGISTERED]: [VendorLifecycleStatus.PREPARING_DOCS],
-  [VendorLifecycleStatus.PREPARING_DOCS]: [VendorLifecycleStatus.DOCS_SUBMITTED],
-  [VendorLifecycleStatus.DOCS_SUBMITTED]: [VendorLifecycleStatus.INSPECTION_SCHEDULED],
-  [VendorLifecycleStatus.INSPECTION_SCHEDULED]: [VendorLifecycleStatus.INSPECTION_COMPLETED],
-  [VendorLifecycleStatus.INSPECTION_COMPLETED]: [VendorLifecycleStatus.UNDER_REVIEW],
+  [VendorLifecycleStatus.PREPARING_DOCS]: [
+    VendorLifecycleStatus.DOCS_SUBMITTED,
+  ],
+  [VendorLifecycleStatus.DOCS_SUBMITTED]: [
+    VendorLifecycleStatus.INSPECTION_SCHEDULED,
+  ],
+  [VendorLifecycleStatus.INSPECTION_SCHEDULED]: [
+    VendorLifecycleStatus.INSPECTION_COMPLETED,
+  ],
+  [VendorLifecycleStatus.INSPECTION_COMPLETED]: [
+    VendorLifecycleStatus.UNDER_REVIEW,
+  ],
   [VendorLifecycleStatus.UNDER_REVIEW]: [
     VendorLifecycleStatus.APPROVED,
     VendorLifecycleStatus.REVISION_REQUESTED,
   ],
-  [VendorLifecycleStatus.REVISION_REQUESTED]: [VendorLifecycleStatus.PREPARING_DOCS],
+  [VendorLifecycleStatus.REVISION_REQUESTED]: [
+    VendorLifecycleStatus.PREPARING_DOCS,
+  ],
   [VendorLifecycleStatus.APPROVED]: [VendorLifecycleStatus.ONBOARDING],
   [VendorLifecycleStatus.ONBOARDING]: [VendorLifecycleStatus.ACTIVE],
   [VendorLifecycleStatus.ACTIVE]: [
@@ -73,7 +95,7 @@ export class StateMachineService {
   async getTimeline(vendorId: string): Promise<VendorLifecycleTimelineEvent[]> {
     const events = await this.lifecycleEventRepo.find({
       where: { vendorId },
-      order: { createdAt: 'DESC' },
+      order: { createdAt: "DESC" },
     });
 
     return events.map((event) => ({
@@ -89,7 +111,8 @@ export class StateMachineService {
 
   async getLifecycleStatus(vendorId: string): Promise<VendorLifecycleStatus> {
     const vendor = await this.vendorRepo.findOne({ where: { id: vendorId } });
-    if (!vendor) throw new NotFoundException(`Vendor ${vendorId} tidak ditemukan`);
+    if (!vendor)
+      throw new NotFoundException(`Vendor ${vendorId} tidak ditemukan`);
     return vendor.lifecycleStatus;
   }
 
@@ -100,14 +123,15 @@ export class StateMachineService {
     reason?: string,
   ): Promise<TransitionResult> {
     const vendor = await this.vendorRepo.findOne({ where: { id: vendorId } });
-    if (!vendor) throw new NotFoundException(`Vendor ${vendorId} tidak ditemukan`);
+    if (!vendor)
+      throw new NotFoundException(`Vendor ${vendorId} tidak ditemukan`);
 
     const from = vendor.lifecycleStatus;
     const allowed = ALLOWED_TRANSITIONS[from] ?? [];
 
     if (!allowed.includes(to)) {
       throw new BadRequestException(
-        `Transisi dari ${from} ke ${to} tidak diizinkan. Transisi yang valid: [${allowed.join(', ')}]`,
+        `Transisi dari ${from} ke ${to} tidak diizinkan. Transisi yang valid: [${allowed.join(", ")}]`,
       );
     }
 
@@ -115,6 +139,16 @@ export class StateMachineService {
 
     // Update lifecycle status
     await this.vendorRepo.update(vendorId, { lifecycleStatus: to });
+
+    await this.lifecycleEventRepo.insert({
+      vendorId,
+      fromStatus: from,
+      toStatus: to,
+      actorUserId: actorId,
+      actorType: "user",
+      reason: reason ?? null,
+      correlationId: randomUUID(),
+    });
 
     // Append-only audit log (bypass TypeORM to avoid trigger conflicts)
     await this.dataSource.query(
@@ -126,7 +160,7 @@ export class StateMachineService {
         vendorId,
         JSON.stringify({ lifecycle_status: from }),
         JSON.stringify({ lifecycle_status: to }),
-        JSON.stringify({ field: 'lifecycle_status', from, to }),
+        JSON.stringify({ field: "lifecycle_status", from, to }),
         reason ?? null,
       ],
     );
@@ -143,7 +177,7 @@ export class StateMachineService {
     correlationId: string,
   ): Promise<TransitionResult[]> {
     if (!isUUID(correlationId)) {
-      throw new BadRequestException('Correlation ID harus UUID yang valid.');
+      throw new BadRequestException("Correlation ID harus UUID yang valid.");
     }
 
     return this.dataSource.transaction(async (manager) => {
@@ -154,24 +188,37 @@ export class StateMachineService {
          FOR UPDATE`,
         [vendorId],
       );
-      if (!vendor) throw new NotFoundException(`Vendor ${vendorId} tidak ditemukan`);
+      if (!vendor)
+        throw new NotFoundException(`Vendor ${vendorId} tidak ditemukan`);
 
       let from = vendor.lifecycle_status as VendorLifecycleStatus;
-      const currentPathIndex = DEMO_PATH.indexOf(from as (typeof DEMO_PATH)[number]);
-      const targetPathIndex = DEMO_PATH.indexOf(target as (typeof DEMO_PATH)[number]);
+      const currentPathIndex = DEMO_PATH.indexOf(
+        from as (typeof DEMO_PATH)[number],
+      );
+      const targetPathIndex = DEMO_PATH.indexOf(
+        target as (typeof DEMO_PATH)[number],
+      );
 
       if (targetPathIndex === -1 || targetPathIndex <= currentPathIndex) {
         throw new BadRequestException(`Transisi ke ${target} tidak diizinkan.`);
       }
 
       const results: TransitionResult[] = [];
-      for (const to of DEMO_PATH.slice(currentPathIndex + 1, targetPathIndex + 1)) {
+      for (const to of DEMO_PATH.slice(
+        currentPathIndex + 1,
+        targetPathIndex + 1,
+      )) {
         if (!this.canTransition(from, to)) {
-          throw new BadRequestException(`Transisi dari ${from} ke ${to} tidak diizinkan.`);
+          throw new BadRequestException(
+            `Transisi dari ${from} ke ${to} tidak diizinkan.`,
+          );
         }
 
         const timestamp = new Date();
-        await manager.query(`UPDATE vendors SET lifecycle_status = $1 WHERE id = $2`, [to, vendorId]);
+        await manager.query(
+          `UPDATE vendors SET lifecycle_status = $1 WHERE id = $2`,
+          [to, vendorId],
+        );
         await manager.insert(VendorLifecycleEvent, {
           vendorId,
           fromStatus: from,
@@ -190,7 +237,7 @@ export class StateMachineService {
             vendorId,
             JSON.stringify({ lifecycle_status: from }),
             JSON.stringify({ lifecycle_status: to }),
-            JSON.stringify({ field: 'lifecycle_status', from, to }),
+            JSON.stringify({ field: "lifecycle_status", from, to }),
             reason,
           ],
         );
@@ -202,7 +249,10 @@ export class StateMachineService {
     });
   }
 
-  canTransition(from: VendorLifecycleStatus, to: VendorLifecycleStatus): boolean {
+  canTransition(
+    from: VendorLifecycleStatus,
+    to: VendorLifecycleStatus,
+  ): boolean {
     return (ALLOWED_TRANSITIONS[from] ?? []).includes(to);
   }
 
@@ -215,7 +265,7 @@ export class StateMachineService {
     switch (status) {
       case VendorLifecycleStatus.ANONYMOUS:
       case VendorLifecycleStatus.ELIGIBILITY_CHECKED:
-        return '/eligibility';
+        return "/eligibility";
       case VendorLifecycleStatus.REGISTERED:
       case VendorLifecycleStatus.PREPARING_DOCS:
       case VendorLifecycleStatus.DOCS_SUBMITTED:
@@ -224,17 +274,17 @@ export class StateMachineService {
       case VendorLifecycleStatus.UNDER_REVIEW:
       case VendorLifecycleStatus.REVISION_REQUESTED:
       case VendorLifecycleStatus.APPROVED:
-        return '/portal/status';
+        return "/portal/status";
       case VendorLifecycleStatus.ONBOARDING:
-        return '/portal/onboarding';
+        return "/portal/onboarding";
       case VendorLifecycleStatus.ACTIVE:
-        return '/portal/mission-control';
+        return "/portal/mission-control";
       case VendorLifecycleStatus.SUSPENDED:
-        return '/portal/suspended';
+        return "/portal/suspended";
       case VendorLifecycleStatus.REVOKED:
-        return '/portal/revoked';
+        return "/portal/revoked";
       default:
-        return '/portal';
+        return "/portal";
     }
   }
 }
