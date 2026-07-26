@@ -120,8 +120,8 @@ describe("Vendor readiness lifecycle (e2e)", () => {
         }),
       );
     await db.query(
-      `INSERT INTO documents (vendor_id,doc_type,file_url,file_key,file_hash,status) VALUES ($1,'nib','documents/nib.pdf','documents/nib.pdf','hash','verified')`,
-      [vendorId],
+      `INSERT INTO documents (vendor_id,doc_type,file_url,file_key,file_hash,status) VALUES ($1,'nib',$2,$2,'hash','verified')`,
+      [vendorId, `documents/${runId}-nib.pdf`],
     );
     await request(app.getHttpServer())
       .get("/onboarding/readiness")
