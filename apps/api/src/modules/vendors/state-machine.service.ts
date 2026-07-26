@@ -2,6 +2,7 @@ import { Injectable, BadRequestException, NotFoundException } from '@nestjs/comm
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository, DataSource } from 'typeorm';
 import { Vendor, VendorLifecycleStatus } from './entities/vendor.entity';
+import { VendorLifecycleEvent } from './entities/vendor-lifecycle-event.entity';
 
 // ─── Allowed transitions ─────────────────────────────────────────────────────
 const ALLOWED_TRANSITIONS: Record<VendorLifecycleStatus, VendorLifecycleStatus[]> = {
@@ -37,13 +38,42 @@ export interface TransitionResult {
   timestamp: Date;
 }
 
+export interface VendorLifecycleTimelineEvent {
+  from: VendorLifecycleStatus;
+  to: VendorLifecycleStatus;
+  actorType: string;
+  actorUserId: string | null;
+  reason: string | null;
+  correlationId: string;
+  createdAt: Date;
+}
+
 @Injectable()
 export class StateMachineService {
   constructor(
     @InjectRepository(Vendor)
     private readonly vendorRepo: Repository<Vendor>,
+    @InjectRepository(VendorLifecycleEvent)
+    private readonly lifecycleEventRepo: Repository<VendorLifecycleEvent>,
     private readonly dataSource: DataSource,
   ) {}
+
+  async getTimeline(vendorId: string): Promise<VendorLifecycleTimelineEvent[]> {
+    const events = await this.lifecycleEventRepo.find({
+      where: { vendorId },
+      order: { createdAt: 'DESC' },
+    });
+
+    return events.map((event) => ({
+      from: event.fromStatus,
+      to: event.toStatus,
+      actorType: event.actorType,
+      actorUserId: event.actorUserId,
+      reason: event.reason,
+      correlationId: event.correlationId,
+      createdAt: event.createdAt,
+    }));
+  }
 
   async getLifecycleStatus(vendorId: string): Promise<VendorLifecycleStatus> {
     const vendor = await this.vendorRepo.findOne({ where: { id: vendorId } });

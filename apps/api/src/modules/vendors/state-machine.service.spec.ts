@@ -10,6 +10,20 @@ describe('StateMachineService — transition logic', () => {
     service = {
       canTransition: StateMachineService.prototype.canTransition,
       getAllowedTransitions: StateMachineService.prototype.getAllowedTransitions,
+      getTimeline: StateMachineService.prototype.getTimeline,
+      lifecycleEventRepo: {
+        find: jest.fn().mockResolvedValue([
+          {
+            fromStatus: VendorLifecycleStatus.REGISTERED,
+            toStatus: VendorLifecycleStatus.PREPARING_DOCS,
+            actorType: 'system',
+            actorUserId: null,
+            reason: null,
+            correlationId: 'correlation-id',
+            createdAt: new Date('2026-07-26T00:00:00.000Z'),
+          },
+        ]),
+      },
     } as unknown as Partial<StateMachineService>;
   });
 
@@ -106,6 +120,20 @@ describe('StateMachineService — transition logic', () => {
       expect(StateMachineService.resolvePortalRoute(VendorLifecycleStatus.ANONYMOUS)).toBe(
         '/eligibility',
       );
+    });
+  });
+
+  describe('getTimeline', () => {
+    it('returns lifecycle events in reverse chronological order', async () => {
+      const vendorId = 'vendor-id';
+
+      expect(await service.getTimeline!(vendorId)).toEqual([
+        expect.objectContaining({
+          from: VendorLifecycleStatus.REGISTERED,
+          to: VendorLifecycleStatus.PREPARING_DOCS,
+          actorType: 'system',
+        }),
+      ]);
     });
   });
 });
