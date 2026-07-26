@@ -1,7 +1,7 @@
-"use client"
+"use client";
 
-import * as React from "react"
-import { useRouter } from "next/navigation"
+import * as React from "react";
+import { useRouter } from "next/navigation";
 import {
   CheckCircle2,
   Lock,
@@ -19,47 +19,56 @@ import {
   BoxSelect,
   Truck,
   ClipboardCheck,
-} from "lucide-react"
+} from "lucide-react";
 
-import { Button } from "@workspace/ui/components/button"
-import { Card, CardContent, CardHeader, CardTitle } from "@workspace/ui/components/card"
-import { Input } from "@workspace/ui/components/input"
-import { Label } from "@workspace/ui/components/label"
-import { Badge } from "@workspace/ui/components/badge"
-import { Progress } from "@workspace/ui/components/progress"
-import { Checkbox } from "@workspace/ui/components/checkbox"
-import { cn } from "@workspace/ui/lib/utils"
-import { useToast } from "@workspace/ui/hooks/use-toast"
-import { api } from "../../../../lib/api-client"
+import { Button } from "@workspace/ui/components/button";
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+} from "@workspace/ui/components/card";
+import { Input } from "@workspace/ui/components/input";
+import { Label } from "@workspace/ui/components/label";
+import { Badge } from "@workspace/ui/components/badge";
+import { Progress } from "@workspace/ui/components/progress";
+import { Checkbox } from "@workspace/ui/components/checkbox";
+import { cn } from "@workspace/ui/lib/utils";
+import { useToast } from "@workspace/ui/hooks/use-toast";
+import { api } from "../../../../lib/api-client";
+import {
+  vendorReadinessService,
+  type ReadinessSnapshot,
+} from "@/lib/services/vendor-readiness.service";
 
 // ---------------------------------------------------------------------------
 // Types
 // ---------------------------------------------------------------------------
 
 interface OnboardingProgressState {
-  step1Done: boolean
-  step2Done: boolean
-  step3Done: boolean
-  step4Done: boolean
-  step5Done: boolean
-  completedAt: string | null
+  step1Done: boolean;
+  step2Done: boolean;
+  step3Done: boolean;
+  step4Done: boolean;
+  step5Done: boolean;
+  completedAt: string | null;
 }
 
 interface TeamMember {
-  id: string
-  role: string
-  inviteEmail: string
-  status: string
-  acceptedAt: string | null
+  id: string;
+  role: string;
+  inviteEmail: string;
+  status: string;
+  acceptedAt: string | null;
 }
 
 interface Supplier {
-  id: string
-  businessName: string
-  supplierType: string
-  addressCity: string
-  addressProvince: string
-  hasHalalCert: boolean
+  id: string;
+  businessName: string;
+  supplierType: string;
+  addressCity: string;
+  addressProvince: string;
+  hasHalalCert: boolean;
 }
 
 // ---------------------------------------------------------------------------
@@ -70,18 +79,24 @@ const ROLE_LABELS: Record<string, string> = {
   kepala_dapur: "Kepala Dapur",
   staf_masak: "Staf Masak",
   admin: "Admin",
-}
+};
 
 function firstIncompleteStep(p: OnboardingProgressState): number {
-  if (!p.step1Done) return 1
-  if (!p.step2Done) return 2
-  if (!p.step3Done) return 3
-  if (!p.step4Done) return 4
-  return 5
+  if (!p.step1Done) return 1;
+  if (!p.step2Done) return 2;
+  if (!p.step3Done) return 3;
+  if (!p.step4Done) return 4;
+  return 5;
 }
 
 function countDone(p: OnboardingProgressState): number {
-  return [p.step1Done, p.step2Done, p.step3Done, p.step4Done, p.step5Done].filter(Boolean).length
+  return [
+    p.step1Done,
+    p.step2Done,
+    p.step3Done,
+    p.step4Done,
+    p.step5Done,
+  ].filter(Boolean).length;
 }
 
 // ---------------------------------------------------------------------------
@@ -89,15 +104,22 @@ function countDone(p: OnboardingProgressState): number {
 // ---------------------------------------------------------------------------
 
 interface StepHeaderProps {
-  number: number
-  title: string
-  done: boolean
-  current: boolean
-  locked: boolean
-  onClick: () => void
+  number: number;
+  title: string;
+  done: boolean;
+  current: boolean;
+  locked: boolean;
+  onClick: () => void;
 }
 
-function StepHeader({ number, title, done, current, locked, onClick }: StepHeaderProps) {
+function StepHeader({
+  number,
+  title,
+  done,
+  current,
+  locked,
+  onClick,
+}: StepHeaderProps) {
   return (
     <button
       onClick={onClick}
@@ -114,11 +136,18 @@ function StepHeader({ number, title, done, current, locked, onClick }: StepHeade
         className={cn(
           "size-10 rounded-full flex items-center justify-center shrink-0 text-sm font-black border-2 transition-all",
           done && "bg-emerald-500 border-emerald-500 text-white",
-          current && "bg-blue-600 border-blue-600 text-white shadow-lg shadow-blue-200",
+          current &&
+            "bg-blue-600 border-blue-600 text-white shadow-lg shadow-blue-200",
           locked && "bg-slate-100 border-slate-200 text-slate-400",
         )}
       >
-        {done ? <CheckCircle2 className="size-5" /> : locked ? <Lock className="size-4" /> : <span>{number}</span>}
+        {done ? (
+          <CheckCircle2 className="size-5" />
+        ) : locked ? (
+          <Lock className="size-4" />
+        ) : (
+          <span>{number}</span>
+        )}
       </div>
 
       <div className="flex-1 min-w-0">
@@ -133,7 +162,9 @@ function StepHeader({ number, title, done, current, locked, onClick }: StepHeade
           {title}
         </span>
         {locked && (
-          <p className="text-[11px] text-slate-400 mt-0.5">Selesaikan langkah sebelumnya terlebih dahulu</p>
+          <p className="text-[11px] text-slate-400 mt-0.5">
+            Selesaikan langkah sebelumnya terlebih dahulu
+          </p>
         )}
       </div>
 
@@ -148,7 +179,7 @@ function StepHeader({ number, title, done, current, locked, onClick }: StepHeade
         </Badge>
       )}
     </button>
-  )
+  );
 }
 
 // ---------------------------------------------------------------------------
@@ -156,46 +187,54 @@ function StepHeader({ number, title, done, current, locked, onClick }: StepHeade
 // ---------------------------------------------------------------------------
 
 export default function OnboardingPage() {
-  const router = useRouter()
-  const { toast } = useToast()
+  const router = useRouter();
+  const { toast } = useToast();
 
   // Core state
-  const [progress, setProgress] = React.useState<OnboardingProgressState | null>(null)
-  const [isLoading, setIsLoading] = React.useState(true)
-  const [activeStep, setActiveStep] = React.useState<number>(1)
-  const [celebrating, setCelebrating] = React.useState(false)
+  const [progress, setProgress] =
+    React.useState<OnboardingProgressState | null>(null);
+  const [readiness, setReadiness] = React.useState<ReadinessSnapshot | null>(
+    null,
+  );
+  const [isLoading, setIsLoading] = React.useState(true);
+  const [activeStep, setActiveStep] = React.useState<number>(1);
+  const [celebrating, setCelebrating] = React.useState(false);
 
   // Step 1 state
-  const [phone, setPhone] = React.useState("")
-  const [addressStreet, setAddressStreet] = React.useState("")
-  const [addressCity, setAddressCity] = React.useState("")
-  const [addressProvince, setAddressProvince] = React.useState("")
-  const [logoUrl, setLogoUrl] = React.useState<string | undefined>()
-  const [logoPreview, setLogoPreview] = React.useState<string | undefined>()
-  const [uploadingLogo, setUploadingLogo] = React.useState(false)
-  const [savingStep1, setSavingStep1] = React.useState(false)
-  const fileInputRef = React.useRef<HTMLInputElement>(null)
+  const [phone, setPhone] = React.useState("");
+  const [addressStreet, setAddressStreet] = React.useState("");
+  const [addressCity, setAddressCity] = React.useState("");
+  const [addressProvince, setAddressProvince] = React.useState("");
+  const [logoUrl, setLogoUrl] = React.useState<string | undefined>();
+  const [logoPreview, setLogoPreview] = React.useState<string | undefined>();
+  const [uploadingLogo, setUploadingLogo] = React.useState(false);
+  const [savingStep1, setSavingStep1] = React.useState(false);
+  const fileInputRef = React.useRef<HTMLInputElement>(null);
 
   // Step 2 state
-  const [inviteEmail, setInviteEmail] = React.useState("")
-  const [inviteRole, setInviteRole] = React.useState<"kepala_dapur" | "staf_masak" | "admin">("kepala_dapur")
-  const [invitePhone, setInvitePhone] = React.useState("")
-  const [sendingInvite, setSendingInvite] = React.useState(false)
-  const [teamMembers, setTeamMembers] = React.useState<TeamMember[]>([])
-  const pollRef = React.useRef<ReturnType<typeof setInterval> | null>(null)
+  const [inviteEmail, setInviteEmail] = React.useState("");
+  const [inviteRole, setInviteRole] = React.useState<
+    "kepala_dapur" | "staf_masak" | "admin"
+  >("kepala_dapur");
+  const [invitePhone, setInvitePhone] = React.useState("");
+  const [sendingInvite, setSendingInvite] = React.useState(false);
+  const [teamMembers, setTeamMembers] = React.useState<TeamMember[]>([]);
+  const pollRef = React.useRef<ReturnType<typeof setInterval> | null>(null);
 
   // Step 3 state
-  const [simulationChecked, setSimulationChecked] = React.useState(false)
-  const [completingSimulation, setCompletingSimulation] = React.useState(false)
-  const [guideStep, setGuideStep] = React.useState(0)
+  const [simulationChecked, setSimulationChecked] = React.useState(false);
+  const [completingSimulation, setCompletingSimulation] = React.useState(false);
+  const [guideStep, setGuideStep] = React.useState(0);
 
   // Step 4 state
-  const [suppliers, setSuppliers] = React.useState<Supplier[]>([])
-  const [loadingSuppliers, setLoadingSuppliers] = React.useState(false)
-  const [connectingSupplier, setConnectingSupplier] = React.useState<string | null>(null)
+  const [suppliers, setSuppliers] = React.useState<Supplier[]>([]);
+  const [loadingSuppliers, setLoadingSuppliers] = React.useState(false);
+  const [connectingSupplier, setConnectingSupplier] = React.useState<
+    string | null
+  >(null);
 
   // Step 5 state
-  const [completingOnboarding, setCompletingOnboarding] = React.useState(false)
+  const [completingOnboarding, setCompletingOnboarding] = React.useState(false);
 
   // ---------------------------------------------------------------------------
   // Fetch progress
@@ -203,90 +242,106 @@ export default function OnboardingPage() {
 
   const fetchProgress = React.useCallback(async () => {
     try {
-      const data = await api.get<OnboardingProgressState>("/onboarding/state")
-      setProgress(data)
+      const [data, readinessData] = await Promise.all([
+        api.get<OnboardingProgressState>("/onboarding/state"),
+        vendorReadinessService.get(),
+      ]);
+      setProgress(data);
+      setReadiness(readinessData);
       // Only update activeStep on first load (isLoading === true) to avoid overriding user navigation
       setActiveStep((prev) => {
-        if (isLoading) return firstIncompleteStep(data)
-        return prev
-      })
+        if (isLoading) return firstIncompleteStep(data);
+        return prev;
+      });
     } catch (err) {
-      toast({ title: "Gagal memuat progress onboarding", variant: "destructive" })
+      toast({
+        title: "Gagal memuat progress onboarding",
+        variant: "destructive",
+      });
     } finally {
-      setIsLoading(false)
+      setIsLoading(false);
     }
-  }, [isLoading, toast])
+  }, [isLoading, toast]);
 
   React.useEffect(() => {
-    fetchProgress()
+    fetchProgress();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [])
+  }, []);
 
   // Poll team when step 2 is active
   const fetchTeam = React.useCallback(async () => {
     try {
-      const data = await api.get<TeamMember[]>("/onboarding/step2/team")
-      setTeamMembers(data)
+      const data = await api.get<TeamMember[]>("/onboarding/step2/team");
+      setTeamMembers(data);
     } catch {
       // silently ignore poll errors
     }
-  }, [])
+  }, []);
 
   React.useEffect(() => {
     if (activeStep === 2 && progress?.step1Done) {
-      fetchTeam()
+      fetchTeam();
       pollRef.current = setInterval(() => {
-        fetchTeam()
-        fetchProgress()
-      }, 10_000)
+        fetchTeam();
+        fetchProgress();
+      }, 10_000);
     }
     return () => {
-      if (pollRef.current) clearInterval(pollRef.current)
-    }
-  }, [activeStep, progress?.step1Done, fetchTeam, fetchProgress])
+      if (pollRef.current) clearInterval(pollRef.current);
+    };
+  }, [activeStep, progress?.step1Done, fetchTeam, fetchProgress]);
 
   // Load suppliers when step 4 becomes active
   React.useEffect(() => {
     if (activeStep === 4 && progress?.step3Done && suppliers.length === 0) {
-      setLoadingSuppliers(true)
+      setLoadingSuppliers(true);
       api
         .get<Supplier[]>("/onboarding/step4/suppliers?page=1&limit=10")
         .then((data) => setSuppliers(data))
-        .catch(() => toast({ title: "Gagal memuat daftar pemasok", variant: "destructive" }))
-        .finally(() => setLoadingSuppliers(false))
+        .catch(() =>
+          toast({
+            title: "Gagal memuat daftar pemasok",
+            variant: "destructive",
+          }),
+        )
+        .finally(() => setLoadingSuppliers(false));
     }
-  }, [activeStep, progress?.step3Done, suppliers.length, toast])
+  }, [activeStep, progress?.step3Done, suppliers.length, toast]);
 
   // ---------------------------------------------------------------------------
   // Step handlers
   // ---------------------------------------------------------------------------
 
   const handleLogoUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0]
-    if (!file) return
-    setUploadingLogo(true)
+    const file = e.target.files?.[0];
+    if (!file) return;
+    setUploadingLogo(true);
     try {
-      const formData = new FormData()
-      formData.append("file", file)
-      const result = await api.post<{ fileUrl: string; fileKey: string }>("/storage/upload", formData, {
-        headers: { "Content-Type": "multipart/form-data" },
-      })
-      setLogoUrl(result.fileUrl)
-      setLogoPreview(URL.createObjectURL(file))
-      toast({ title: "Logo berhasil diunggah" })
+      const formData = new FormData();
+      formData.append("file", file);
+      const result = await api.post<{ fileUrl: string; fileKey: string }>(
+        "/storage/upload",
+        formData,
+        {
+          headers: { "Content-Type": "multipart/form-data" },
+        },
+      );
+      setLogoUrl(result.fileUrl);
+      setLogoPreview(URL.createObjectURL(file));
+      toast({ title: "Logo berhasil diunggah" });
     } catch {
-      toast({ title: "Gagal mengunggah logo", variant: "destructive" })
+      toast({ title: "Gagal mengunggah logo", variant: "destructive" });
     } finally {
-      setUploadingLogo(false)
+      setUploadingLogo(false);
     }
-  }
+  };
 
   const handleStep1Submit = async () => {
     if (!phone || !addressStreet || !addressCity || !addressProvince) {
-      toast({ title: "Lengkapi semua field wajib", variant: "destructive" })
-      return
+      toast({ title: "Lengkapi semua field wajib", variant: "destructive" });
+      return;
     }
-    setSavingStep1(true)
+    setSavingStep1(true);
     try {
       await api.post("/onboarding/step1/profile", {
         phone,
@@ -294,119 +349,146 @@ export default function OnboardingPage() {
         addressCity,
         addressProvince,
         ...(logoUrl ? { logoUrl } : {}),
-      })
-      await fetchProgress()
-      setActiveStep(2)
-      toast({ title: "Profil berhasil disimpan!" })
+      });
+      await fetchProgress();
+      setActiveStep(2);
+      toast({ title: "Profil berhasil disimpan!" });
     } catch (err: any) {
-      toast({ title: err?.message || "Gagal menyimpan profil", variant: "destructive" })
+      toast({
+        title: err?.message || "Gagal menyimpan profil",
+        variant: "destructive",
+      });
     } finally {
-      setSavingStep1(false)
+      setSavingStep1(false);
     }
-  }
+  };
 
   const handleSendInvite = async () => {
     if (!inviteEmail) {
-      toast({ title: "Email tidak boleh kosong", variant: "destructive" })
-      return
+      toast({ title: "Email tidak boleh kosong", variant: "destructive" });
+      return;
     }
-    setSendingInvite(true)
+    setSendingInvite(true);
     try {
       await api.post("/onboarding/step2/team/invite", {
         email: inviteEmail,
         role: inviteRole,
         ...(invitePhone ? { phone: invitePhone } : {}),
-      })
-      setInviteEmail("")
-      setInvitePhone("")
-      await fetchTeam()
-      toast({ title: `Undangan dikirim ke ${inviteEmail}` })
+      });
+      setInviteEmail("");
+      setInvitePhone("");
+      await fetchTeam();
+      toast({ title: `Undangan dikirim ke ${inviteEmail}` });
     } catch (err: any) {
-      toast({ title: err?.message || "Gagal mengirim undangan", variant: "destructive" })
+      toast({
+        title: err?.message || "Gagal mengirim undangan",
+        variant: "destructive",
+      });
     } finally {
-      setSendingInvite(false)
+      setSendingInvite(false);
     }
-  }
+  };
 
   const handleStep3Complete = async () => {
-    if (!simulationChecked) return
-    setCompletingSimulation(true)
+    if (!simulationChecked) return;
+    setCompletingSimulation(true);
     try {
-      await api.post("/onboarding/step3/simulation/complete", {})
-      await fetchProgress()
-      setActiveStep(4)
-      toast({ title: "Simulasi selesai! Lanjut ke langkah berikutnya." })
+      await api.post("/onboarding/step3/simulation/complete", {});
+      await fetchProgress();
+      setActiveStep(4);
+      toast({ title: "Simulasi selesai! Lanjut ke langkah berikutnya." });
     } catch (err: any) {
-      toast({ title: err?.message || "Gagal menyelesaikan simulasi", variant: "destructive" })
+      toast({
+        title: err?.message || "Gagal menyelesaikan simulasi",
+        variant: "destructive",
+      });
     } finally {
-      setCompletingSimulation(false)
+      setCompletingSimulation(false);
     }
-  }
+  };
 
   const handleConnectSupplier = async (supplierId: string) => {
-    setConnectingSupplier(supplierId)
+    setConnectingSupplier(supplierId);
     try {
-      await api.post("/onboarding/step4/supplier/connect", { supplierId })
-      toast({ title: "Pemasok berhasil dihubungkan!" })
-      await fetchProgress()
-      setActiveStep(5)
+      await api.post("/onboarding/step4/supplier/connect", { supplierId });
+      toast({ title: "Pemasok berhasil dihubungkan!" });
+      await fetchProgress();
+      setActiveStep(5);
     } catch (err: any) {
-      toast({ title: err?.message || "Gagal menghubungkan pemasok", variant: "destructive" })
+      toast({
+        title: err?.message || "Gagal menghubungkan pemasok",
+        variant: "destructive",
+      });
     } finally {
-      setConnectingSupplier(null)
+      setConnectingSupplier(null);
     }
-  }
+  };
 
   const handleCompleteOnboarding = async () => {
-    setCompletingOnboarding(true)
+    setCompletingOnboarding(true);
     try {
-      await api.post("/onboarding/complete", {})
-      setCelebrating(true)
-      await fetchProgress()
+      await api.post("/onboarding/complete", {});
+      setCelebrating(true);
+      await fetchProgress();
       setTimeout(() => {
-        router.push("/portal/mission-control")
-      }, 3000)
+        router.push("/portal/mission-control");
+      }, 3000);
     } catch (err: any) {
-      toast({ title: err?.message || "Gagal menyelesaikan onboarding", variant: "destructive" })
-      setCompletingOnboarding(false)
+      toast({
+        title: err?.message || "Gagal menyelesaikan onboarding",
+        variant: "destructive",
+      });
+      setCompletingOnboarding(false);
     }
-  }
+  };
 
   // ---------------------------------------------------------------------------
   // Derived
   // ---------------------------------------------------------------------------
 
   const isStepLocked = (step: number): boolean => {
-    if (!progress) return step > 1
+    if (!progress) return step > 1;
     switch (step) {
-      case 1: return false
-      case 2: return !progress.step1Done
-      case 3: return !progress.step2Done
-      case 4: return !progress.step3Done
-      case 5: return !progress.step4Done
-      default: return true
+      case 1:
+        return false;
+      case 2:
+        return !progress.step1Done;
+      case 3:
+        return !progress.step2Done;
+      case 4:
+        return !progress.step3Done;
+      case 5:
+        return !progress.step4Done;
+      default:
+        return true;
     }
-  }
+  };
 
   const isStepDone = (step: number): boolean => {
-    if (!progress) return false
+    if (!progress) return false;
     switch (step) {
-      case 1: return progress.step1Done
-      case 2: return progress.step2Done
-      case 3: return progress.step3Done
-      case 4: return progress.step4Done
-      case 5: return progress.step5Done
-      default: return false
+      case 1:
+        return progress.step1Done;
+      case 2:
+        return progress.step2Done;
+      case 3:
+        return progress.step3Done;
+      case 4:
+        return progress.step4Done;
+      case 5:
+        return progress.step5Done;
+      default:
+        return false;
     }
-  }
+  };
 
   const toggleStep = (step: number) => {
-    if (isStepLocked(step)) return
-    setActiveStep((prev) => (prev === step ? -1 : step))
-  }
+    if (isStepLocked(step)) return;
+    setActiveStep((prev) => (prev === step ? -1 : step));
+  };
 
-  const doneCount = progress ? countDone(progress) : 0
-  const progressPercent = (doneCount / 5) * 100
+  const doneCount = progress ? countDone(progress) : 0;
+  const progressPercent = (doneCount / 5) * 100;
 
   // ---------------------------------------------------------------------------
   // Full-screen completion
@@ -431,7 +513,7 @@ export default function OnboardingPage() {
           </Button>
         </div>
       </div>
-    )
+    );
   }
 
   // Celebration overlay
@@ -450,7 +532,7 @@ export default function OnboardingPage() {
           </div>
         </div>
       </div>
-    )
+    );
   }
 
   // Loading
@@ -463,7 +545,7 @@ export default function OnboardingPage() {
           <div key={i} className="h-20 bg-slate-100 rounded-2xl" />
         ))}
       </div>
-    )
+    );
   }
 
   // ---------------------------------------------------------------------------
@@ -472,13 +554,24 @@ export default function OnboardingPage() {
 
   return (
     <div className="p-8 max-w-3xl mx-auto space-y-8 animate-in fade-in duration-500">
+      {readiness && (
+        <div className="rounded-xl border border-blue-200 bg-blue-50 p-4 text-sm text-blue-950">
+          <p className="font-bold">
+            Status readiness: {readiness.ready ? "siap aktif" : "belum siap"}
+          </p>
+          {!readiness.ready && (
+            <p className="mt-1">Langkah berikutnya: {readiness.nextAction}</p>
+          )}
+        </div>
+      )}
       {/* Header */}
       <div className="space-y-3">
         <h1 className="text-2xl font-black text-slate-900 tracking-tight">
           Onboarding — Aktifkan Akun Vendor
         </h1>
         <p className="text-muted-foreground text-sm font-medium">
-          Selesaikan {5 - doneCount} langkah lagi untuk mulai beroperasi di program MBG.
+          Selesaikan {5 - doneCount} langkah lagi untuk mulai beroperasi di
+          program MBG.
         </p>
         <div className="space-y-1.5">
           <div className="flex items-center justify-between text-xs font-bold text-slate-500">
@@ -511,7 +604,11 @@ export default function OnboardingPage() {
               <div className="flex items-center gap-4">
                 {logoPreview ? (
                   <div className="size-16 rounded-xl overflow-hidden border-2 border-border shadow-sm">
-                    <img src={logoPreview} alt="Logo preview" className="object-cover w-full h-full" />
+                    <img
+                      src={logoPreview}
+                      alt="Logo preview"
+                      className="object-cover w-full h-full"
+                    />
                   </div>
                 ) : (
                   <div className="size-16 rounded-xl border-2 border-dashed border-slate-200 bg-slate-50 flex items-center justify-center">
@@ -549,7 +646,10 @@ export default function OnboardingPage() {
 
             {/* Phone */}
             <div className="space-y-1.5">
-              <Label htmlFor="phone" className="text-xs font-bold text-slate-600 uppercase tracking-wide">
+              <Label
+                htmlFor="phone"
+                className="text-xs font-bold text-slate-600 uppercase tracking-wide"
+              >
                 Nomor HP <span className="text-red-500">*</span>
               </Label>
               <Input
@@ -564,7 +664,10 @@ export default function OnboardingPage() {
 
             {/* Address Street */}
             <div className="space-y-1.5">
-              <Label htmlFor="street" className="text-xs font-bold text-slate-600 uppercase tracking-wide">
+              <Label
+                htmlFor="street"
+                className="text-xs font-bold text-slate-600 uppercase tracking-wide"
+              >
                 Alamat Lengkap (Jalan) <span className="text-red-500">*</span>
               </Label>
               <Input
@@ -579,7 +682,10 @@ export default function OnboardingPage() {
             {/* City & Province */}
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-1.5">
-                <Label htmlFor="city" className="text-xs font-bold text-slate-600 uppercase tracking-wide">
+                <Label
+                  htmlFor="city"
+                  className="text-xs font-bold text-slate-600 uppercase tracking-wide"
+                >
                   Kota/Kabupaten <span className="text-red-500">*</span>
                 </Label>
                 <Input
@@ -591,7 +697,10 @@ export default function OnboardingPage() {
                 />
               </div>
               <div className="space-y-1.5">
-                <Label htmlFor="province" className="text-xs font-bold text-slate-600 uppercase tracking-wide">
+                <Label
+                  htmlFor="province"
+                  className="text-xs font-bold text-slate-600 uppercase tracking-wide"
+                >
                   Provinsi <span className="text-red-500">*</span>
                 </Label>
                 <Input
@@ -635,10 +744,15 @@ export default function OnboardingPage() {
           <div className="space-y-6">
             {/* Invite form */}
             <div className="space-y-4 p-4 bg-slate-50 rounded-2xl border border-slate-100">
-              <p className="text-xs font-black text-slate-600 uppercase tracking-wide">Kirim Undangan Anggota Tim</p>
+              <p className="text-xs font-black text-slate-600 uppercase tracking-wide">
+                Kirim Undangan Anggota Tim
+              </p>
 
               <div className="space-y-1.5">
-                <Label htmlFor="inviteEmail" className="text-xs font-bold text-slate-500">
+                <Label
+                  htmlFor="inviteEmail"
+                  className="text-xs font-bold text-slate-500"
+                >
                   Email <span className="text-red-500">*</span>
                 </Label>
                 <Input
@@ -652,13 +766,18 @@ export default function OnboardingPage() {
               </div>
 
               <div className="space-y-1.5">
-                <Label htmlFor="inviteRole" className="text-xs font-bold text-slate-500">
+                <Label
+                  htmlFor="inviteRole"
+                  className="text-xs font-bold text-slate-500"
+                >
                   Peran <span className="text-red-500">*</span>
                 </Label>
                 <select
                   id="inviteRole"
                   value={inviteRole}
-                  onChange={(e) => setInviteRole(e.target.value as typeof inviteRole)}
+                  onChange={(e) =>
+                    setInviteRole(e.target.value as typeof inviteRole)
+                  }
                   className="w-full h-10 rounded-xl border border-input bg-white px-3 py-2 text-sm font-medium text-slate-700 focus:outline-none focus:ring-2 focus:ring-primary/30 transition-all"
                 >
                   <option value="kepala_dapur">Kepala Dapur</option>
@@ -668,7 +787,10 @@ export default function OnboardingPage() {
               </div>
 
               <div className="space-y-1.5">
-                <Label htmlFor="invitePhone" className="text-xs font-bold text-slate-500">
+                <Label
+                  htmlFor="invitePhone"
+                  className="text-xs font-bold text-slate-500"
+                >
                   Nomor HP (Opsional)
                 </Label>
                 <Input
@@ -703,7 +825,9 @@ export default function OnboardingPage() {
             {/* Team list */}
             {teamMembers.length > 0 && (
               <div className="space-y-2">
-                <p className="text-xs font-black text-slate-500 uppercase tracking-wide">Anggota Tim</p>
+                <p className="text-xs font-black text-slate-500 uppercase tracking-wide">
+                  Anggota Tim
+                </p>
                 <div className="space-y-2">
                   {teamMembers.map((member) => (
                     <div
@@ -731,7 +855,9 @@ export default function OnboardingPage() {
                             : "bg-amber-50 text-amber-600 border-amber-200",
                         )}
                       >
-                        {member.status === "accepted" ? "Diterima ✓" : "Menunggu..."}
+                        {member.status === "accepted"
+                          ? "Diterima ✓"
+                          : "Menunggu..."}
                       </Badge>
                     </div>
                   ))}
@@ -744,7 +870,8 @@ export default function OnboardingPage() {
               <div className="flex items-center gap-3 p-3 bg-amber-50 border border-amber-100 rounded-xl">
                 <Clock className="size-4 text-amber-500 shrink-0" />
                 <p className="text-xs text-amber-700 font-medium">
-                  Menunggu konfirmasi Kepala Dapur... Status diperbarui otomatis setiap 10 detik.
+                  Menunggu konfirmasi Kepala Dapur... Status diperbarui otomatis
+                  setiap 10 detik.
                 </p>
               </div>
             )}
@@ -777,10 +904,13 @@ export default function OnboardingPage() {
           <div className="space-y-5">
             {/* Info box */}
             <div className="p-4 bg-blue-50 border border-blue-100 rounded-2xl space-y-2">
-              <p className="text-sm font-black text-blue-800">Selamat datang di program MBG!</p>
+              <p className="text-sm font-black text-blue-800">
+                Selamat datang di program MBG!
+              </p>
               <p className="text-xs text-blue-700 leading-relaxed font-medium">
-                Tonton video panduan berikut sebelum memulai operasional. Pastikan Anda memahami alur
-                penerimaan, produksi, dan distribusi makanan bergizi setiap hari sekolah.
+                Tonton video panduan berikut sebelum memulai operasional.
+                Pastikan Anda memahami alur penerimaan, produksi, dan distribusi
+                makanan bergizi setiap hari sekolah.
               </p>
             </div>
 
@@ -799,7 +929,8 @@ export default function OnboardingPage() {
                 htmlFor="sim-check"
                 className="text-sm text-slate-700 leading-relaxed cursor-pointer font-medium"
               >
-                Saya telah memahami alur operasional harian dan siap memulai sebagai vendor MBG
+                Saya telah memahami alur operasional harian dan siap memulai
+                sebagai vendor MBG
               </Label>
             </div>
 
@@ -836,21 +967,29 @@ export default function OnboardingPage() {
         >
           <div className="space-y-5">
             <div>
-              <p className="text-sm font-black text-slate-700">Cari Pemasok Terverifikasi</p>
+              <p className="text-sm font-black text-slate-700">
+                Cari Pemasok Terverifikasi
+              </p>
               <p className="text-xs text-slate-500 font-medium mt-1">
-                Pilih satu pemasok untuk mulai terhubung dan mendapatkan pasokan bahan baku.
+                Pilih satu pemasok untuk mulai terhubung dan mendapatkan pasokan
+                bahan baku.
               </p>
             </div>
 
             {loadingSuppliers ? (
               <div className="space-y-3">
                 {[1, 2, 3].map((i) => (
-                  <div key={i} className="h-24 rounded-2xl bg-slate-100 animate-pulse" />
+                  <div
+                    key={i}
+                    className="h-24 rounded-2xl bg-slate-100 animate-pulse"
+                  />
                 ))}
               </div>
             ) : suppliers.length === 0 ? (
               <div className="text-center py-10 text-slate-400">
-                <p className="text-sm font-medium">Tidak ada pemasok tersedia saat ini.</p>
+                <p className="text-sm font-medium">
+                  Tidak ada pemasok tersedia saat ini.
+                </p>
               </div>
             ) : (
               <div className="space-y-3">
@@ -861,14 +1000,18 @@ export default function OnboardingPage() {
                   >
                     <div className="flex-1 min-w-0 space-y-1">
                       <div className="flex items-center gap-2 flex-wrap">
-                        <p className="font-black text-slate-800 text-sm truncate">{supplier.businessName}</p>
+                        <p className="font-black text-slate-800 text-sm truncate">
+                          {supplier.businessName}
+                        </p>
                         {supplier.hasHalalCert && (
                           <Badge className="bg-emerald-50 text-emerald-700 border-emerald-200 text-[10px] font-black uppercase border shrink-0">
                             Halal ✓
                           </Badge>
                         )}
                       </div>
-                      <p className="text-[11px] text-slate-500 font-medium">{supplier.supplierType}</p>
+                      <p className="text-[11px] text-slate-500 font-medium">
+                        {supplier.supplierType}
+                      </p>
                       <p className="text-[11px] text-slate-400 font-medium">
                         {supplier.addressCity}, {supplier.addressProvince}
                       </p>
@@ -910,10 +1053,13 @@ export default function OnboardingPage() {
             {/* Celebration banner */}
             <div className="p-6 bg-gradient-to-br from-emerald-50 to-teal-50 border border-emerald-100 rounded-2xl text-center space-y-3">
               <div className="text-5xl">🎉</div>
-              <p className="font-black text-emerald-800 text-lg">Hampir selesai!</p>
+              <p className="font-black text-emerald-800 text-lg">
+                Hampir selesai!
+              </p>
               <p className="text-xs text-emerald-700 font-medium leading-relaxed">
-                Semua langkah persiapan telah selesai. Tekan tombol di bawah untuk mengaktifkan akun
-                vendor Anda dan mulai menerima jadwal distribusi MBG.
+                Semua langkah persiapan telah selesai. Tekan tombol di bawah
+                untuk mengaktifkan akun vendor Anda dan mulai menerima jadwal
+                distribusi MBG.
               </p>
             </div>
 
@@ -924,10 +1070,22 @@ export default function OnboardingPage() {
               </p>
               <div className="space-y-2">
                 {[
-                  { day: "Senin", desc: "Orientasi Tim & Pengecekan Peralatan Dapur" },
-                  { day: "Selasa", desc: "Simulasi Resep Standar MBG (Gizi Seimbang)" },
-                  { day: "Rabu", desc: "Uji Coba Alur Penerimaan Bahan dari Pemasok" },
-                  { day: "Kamis", desc: "Dry-Run Distribusi ke 2 Sekolah Terdekat" },
+                  {
+                    day: "Senin",
+                    desc: "Orientasi Tim & Pengecekan Peralatan Dapur",
+                  },
+                  {
+                    day: "Selasa",
+                    desc: "Simulasi Resep Standar MBG (Gizi Seimbang)",
+                  },
+                  {
+                    day: "Rabu",
+                    desc: "Uji Coba Alur Penerimaan Bahan dari Pemasok",
+                  },
+                  {
+                    day: "Kamis",
+                    desc: "Dry-Run Distribusi ke 2 Sekolah Terdekat",
+                  },
                   { day: "Jumat", desc: "Review & Evaluasi Minggu Pertama" },
                 ].map((item) => (
                   <div key={item.day} className="flex items-start gap-3">
@@ -937,7 +1095,9 @@ export default function OnboardingPage() {
                     >
                       {item.day}
                     </Badge>
-                    <p className="text-xs text-slate-600 font-medium leading-relaxed">{item.desc}</p>
+                    <p className="text-xs text-slate-600 font-medium leading-relaxed">
+                      {item.desc}
+                    </p>
                   </div>
                 ))}
               </div>
@@ -964,7 +1124,7 @@ export default function OnboardingPage() {
         </StepCard>
       </div>
     </div>
-  )
+  );
 }
 
 // ---------------------------------------------------------------------------
@@ -1042,12 +1202,18 @@ const GUIDE_STEPS = [
     ],
     tip: "Skor harian dimulai dari 100 dan berkurang jika checkpoint tidak diselesaikan tepat waktu.",
   },
-]
+];
 
-function OperationalGuide({ step, onStepChange }: { step: number; onStepChange: (s: number) => void }) {
-  const current = GUIDE_STEPS[step]!
-  const Icon = current.icon
-  const total = GUIDE_STEPS.length
+function OperationalGuide({
+  step,
+  onStepChange,
+}: {
+  step: number;
+  onStepChange: (s: number) => void;
+}) {
+  const current = GUIDE_STEPS[step]!;
+  const Icon = current.icon;
+  const total = GUIDE_STEPS.length;
 
   return (
     <div className="w-full rounded-2xl border-2 border-slate-100 bg-white overflow-hidden">
@@ -1056,19 +1222,31 @@ function OperationalGuide({ step, onStepChange }: { step: number; onStepChange: 
         <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">
           Panduan Operasional Harian MBG
         </p>
-        <p className="text-[10px] font-bold text-slate-400">{step + 1} / {total}</p>
+        <p className="text-[10px] font-bold text-slate-400">
+          {step + 1} / {total}
+        </p>
       </div>
 
       {/* Content */}
       <div className="p-5 space-y-4">
         {/* Step header */}
         <div className="flex items-center gap-4">
-          <div className={cn("size-14 rounded-2xl flex items-center justify-center shrink-0 ring-2", current.color, current.ring)}>
+          <div
+            className={cn(
+              "size-14 rounded-2xl flex items-center justify-center shrink-0 ring-2",
+              current.color,
+              current.ring,
+            )}
+          >
             <Icon className="size-7" />
           </div>
           <div>
-            <p className="text-[11px] font-bold text-slate-400 uppercase tracking-wider">{current.time}</p>
-            <h3 className="text-base font-black text-slate-800 leading-tight">{current.title}</h3>
+            <p className="text-[11px] font-bold text-slate-400 uppercase tracking-wider">
+              {current.time}
+            </p>
+            <h3 className="text-base font-black text-slate-800 leading-tight">
+              {current.title}
+            </h3>
           </div>
         </div>
 
@@ -1077,9 +1255,13 @@ function OperationalGuide({ step, onStepChange }: { step: number; onStepChange: 
           {current.steps.map((s, i) => (
             <div key={i} className="flex items-start gap-3">
               <div className="size-5 rounded-full bg-slate-100 flex items-center justify-center shrink-0 mt-0.5">
-                <span className="text-[10px] font-black text-slate-500">{i + 1}</span>
+                <span className="text-[10px] font-black text-slate-500">
+                  {i + 1}
+                </span>
               </div>
-              <p className="text-sm text-slate-700 font-medium leading-snug">{s}</p>
+              <p className="text-sm text-slate-700 font-medium leading-snug">
+                {s}
+              </p>
             </div>
           ))}
         </div>
@@ -1087,7 +1269,9 @@ function OperationalGuide({ step, onStepChange }: { step: number; onStepChange: 
         {/* Tip */}
         <div className="flex items-start gap-2 p-3 bg-amber-50 border border-amber-100 rounded-xl">
           <span className="text-sm shrink-0">💡</span>
-          <p className="text-xs text-amber-800 font-medium leading-relaxed">{current.tip}</p>
+          <p className="text-xs text-amber-800 font-medium leading-relaxed">
+            {current.tip}
+          </p>
         </div>
       </div>
 
@@ -1110,7 +1294,9 @@ function OperationalGuide({ step, onStepChange }: { step: number; onStepChange: 
               onClick={() => onStepChange(i)}
               className={cn(
                 "rounded-full transition-all",
-                i === step ? "size-2.5 bg-primary" : "size-2 bg-slate-200 hover:bg-slate-300",
+                i === step
+                  ? "size-2.5 bg-primary"
+                  : "size-2 bg-slate-200 hover:bg-slate-300",
               )}
             />
           ))}
@@ -1126,7 +1312,7 @@ function OperationalGuide({ step, onStepChange }: { step: number; onStepChange: 
         </button>
       </div>
     </div>
-  )
+  );
 }
 
 // ---------------------------------------------------------------------------
@@ -1134,24 +1320,34 @@ function OperationalGuide({ step, onStepChange }: { step: number; onStepChange: 
 // ---------------------------------------------------------------------------
 
 interface StepCardProps {
-  stepNumber: number
-  title: string
-  done: boolean
-  locked: boolean
-  expanded: boolean
-  onToggle: () => void
-  children: React.ReactNode
+  stepNumber: number;
+  title: string;
+  done: boolean;
+  locked: boolean;
+  expanded: boolean;
+  onToggle: () => void;
+  children: React.ReactNode;
 }
 
-function StepCard({ stepNumber, title, done, locked, expanded, onToggle, children }: StepCardProps) {
-  const current = !done && !locked
+function StepCard({
+  stepNumber,
+  title,
+  done,
+  locked,
+  expanded,
+  onToggle,
+  children,
+}: StepCardProps) {
+  const current = !done && !locked;
 
   return (
     <Card
       className={cn(
         "rounded-2xl border transition-all duration-200 overflow-hidden",
         done && "border-emerald-200 bg-emerald-50/30",
-        current && expanded && "border-blue-200 bg-blue-50/20 shadow-lg shadow-blue-100/50",
+        current &&
+          expanded &&
+          "border-blue-200 bg-blue-50/20 shadow-lg shadow-blue-100/50",
         current && !expanded && "border-blue-100",
         locked && "border-slate-100 bg-slate-50/50",
       )}
@@ -1172,5 +1368,5 @@ function StepCard({ stepNumber, title, done, locked, expanded, onToggle, childre
         </CardContent>
       )}
     </Card>
-  )
+  );
 }
