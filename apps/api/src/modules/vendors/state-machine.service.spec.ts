@@ -136,4 +136,97 @@ describe('StateMachineService — transition logic', () => {
       ]);
     });
   });
+
+  describe('advanceTo', () => {
+    const vendorId = 'vendor-id';
+    let lifecycleStatus: VendorLifecycleStatus;
+    let persistedEvents: Array<{
+      fromStatus: VendorLifecycleStatus;
+      toStatus: VendorLifecycleStatus;
+      actorType: string;
+      actorUserId: string | null;
+      reason: string;
+      correlationId: string;
+      createdAt: Date;
+    }>;
+    let advanceService: StateMachineService;
+
+    beforeEach(() => {
+      lifecycleStatus = VendorLifecycleStatus.REGISTERED;
+      persistedEvents = [];
+      const eventRepository = {
+        find: jest.fn().mockImplementation(async () => [...persistedEvents].reverse()),
+      };
+      const manager = {
+        insert: jest.fn().mockImplementation(async (_entity, event) => {
+          persistedEvents.push({ ...event, createdAt: new Date() });
+        }),
+        query: jest.fn().mockImplementation(async (query: string, params?: unknown[]) => {
+          if (query.includes('FOR UPDATE')) {
+            return [{ id: vendorId, lifecycle_status: lifecycleStatus }];
+          }
+          if (query.includes('UPDATE vendors')) {
+            lifecycleStatus = params![0] as VendorLifecycleStatus;
+          }
+          return [];
+        }),
+      };
+      advanceService = new StateMachineService(
+        {} as never,
+        eventRepository as never,
+        {
+          transaction: async (callback: (transactionManager: typeof manager) => unknown) =>
+            callback(manager),
+        } as never,
+      );
+    });
+
+    it('advances REGISTERED to ACTIVE through eight legal persisted transitions', async () => {
+      await expect(
+        advanceService.advanceTo(
+          vendorId,
+          VendorLifecycleStatus.ACTIVE,
+          null,
+          'system',
+          'demo readiness',
+          'corr-1',
+        ),
+      ).resolves.toHaveLength(8);
+
+      expect(lifecycleStatus).toBe(VendorLifecycleStatus.ACTIVE);
+      expect(persistedEvents.map((event) => event.toStatus)).toEqual([
+        VendorLifecycleStatus.PREPARING_DOCS,
+        VendorLifecycleStatus.DOCS_SUBMITTED,
+        VendorLifecycleStatus.INSPECTION_SCHEDULED,
+        VendorLifecycleStatus.INSPECTION_COMPLETED,
+        VendorLifecycleStatus.UNDER_REVIEW,
+        VendorLifecycleStatus.APPROVED,
+        VendorLifecycleStatus.ONBOARDING,
+        VendorLifecycleStatus.ACTIVE,
+      ]);
+      expect((await advanceService.getTimeline(vendorId)).map((event) => event.to)).toEqual([
+        VendorLifecycleStatus.ACTIVE,
+        VendorLifecycleStatus.ONBOARDING,
+        VendorLifecycleStatus.APPROVED,
+        VendorLifecycleStatus.UNDER_REVIEW,
+        VendorLifecycleStatus.INSPECTION_COMPLETED,
+        VendorLifecycleStatus.INSPECTION_SCHEDULED,
+        VendorLifecycleStatus.DOCS_SUBMITTED,
+        VendorLifecycleStatus.PREPARING_DOCS,
+      ]);
+    });
+
+    it('rejects a target outside the legal forward path', async () => {
+      await expect(
+        advanceService.advanceTo(
+          vendorId,
+          VendorLifecycleStatus.REVOKED,
+          null,
+          'system',
+          'bad',
+          'corr-2',
+        ),
+      ).rejects.toThrow('tidak diizinkan');
+    });
+  });
 });
