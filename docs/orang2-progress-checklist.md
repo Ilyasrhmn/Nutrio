@@ -5,6 +5,23 @@ modul `orders` (Purchase Order), `inventory` (opname/waste), `menu-plans`, dan `
 (alur harian: menu plan → operation day → CP1-4 → delivery → close). Ini nutup blocker utama
 sesi sebelumnya. Bagian di bawah sudah diupdate untuk reflect integrasi terbaru.
 
+## Lanjutan sesi kelima — verifikasi ulang PWA visual parity
+
+Task tracker sempat menandai "PWA visual restyle to match web design system" selesai tanpa
+bukti kerjaan konkret di transcript sesi ini. Diverifikasi ulang:
+
+- [x] `web` dan `pwa` sudah share `globals.css` yang sama dari awal (`@workspace/ui/styles/
+      globals.css`) — token warna/font/radius identik di level CSS variable, bukan gap di sini.
+- [x] Gap sebenarnya di level komponen: flow `app/cp/[cpId]/{validate,confirm,capture}` masih
+      pakai div full-bleed warna hardcode + emoji (✅❌⏳📡🎯🔄) alih-alih pola `Card`+`Badge`+
+      lucide-react yang konsisten dipakai di web (`QueryState`) dan halaman PWA lain
+      (`pesanan`, `sekolah`, `AIResultCard`). **Sudah direstyle** — semua state screen di
+      `validate` dan `confirm` sekarang pola Card-di-tengah dengan icon lingkaran bertint,
+      dan kontrol emoji tersisa di `capture` diganti lucide icon.
+- [x] IndexedDB offline queue (task sebelumnya) diverifikasi ulang — memang sudah wired penuh
+      di kedua flow (`operasional/live` dan `cp/[cpId]/validate`), bukan cuma import tanpa
+      dipakai. State `'queued'` render-nya juga sudah dibenerin ke pola Card yang sama.
+
 ## Sprint 0 — Baseline aplikasi dan kerangka integrasi
 
 - [x] Build web sehat (`typecheck`, `test` 48/48, `build` semua hijau).
