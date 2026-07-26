@@ -116,7 +116,7 @@ export default function CPContextPage() {
         </button>
 
         <div className="mb-2">
-          <span className="bg-green-600 text-white text-xs px-2 py-1 rounded-full font-medium">{cpId}</span>
+          <span className="bg-primary text-primary-foreground text-xs px-2 py-1 rounded-full font-medium">{cpId}</span>
         </div>
         <h1 className="text-2xl font-bold mt-2 mb-4">{ctx.title}</h1>
         <p className="text-slate-300 text-sm leading-relaxed mb-6">{ctx.body}</p>
@@ -134,7 +134,7 @@ export default function CPContextPage() {
 
       <Button
         size="lg"
-        className="w-full h-14 text-base font-bold bg-green-600 hover:bg-green-700 mt-8"
+        className="w-full h-14 text-base font-bold mt-8"
         onClick={() => router.push(`/cp/${cpId}/capture`)}
       >
         Mulai Foto →

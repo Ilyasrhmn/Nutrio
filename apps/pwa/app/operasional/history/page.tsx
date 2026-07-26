@@ -33,18 +33,18 @@ export default function CheckpointHistoryPage() {
       <PageHeader title="Riwayat Checkpoint" />
 
       <div className="p-4 space-y-4">
-        <section className="bg-green-600 rounded-2xl p-6 text-white shadow-lg">
-          <p className="text-xs font-bold text-green-100 uppercase tracking-widest">Rata-rata Minggu Ini</p>
+        <section className="bg-primary rounded-2xl p-6 text-primary-foreground shadow-lg">
+          <p className="text-xs font-bold text-primary-foreground/80 uppercase tracking-widest">Rata-rata Minggu Ini</p>
           <div className="flex items-end gap-2 mt-1">
             {loading ? (
-              <Loader2 className="h-8 w-8 animate-spin text-green-200" />
+              <Loader2 className="h-8 w-8 animate-spin text-primary-foreground/70" />
             ) : avg !== null ? (
               <>
                 <h3 className="text-4xl font-black">{avg}</h3>
-                <span className="text-lg font-bold text-green-100 mb-1">/ 100</span>
+                <span className="text-lg font-bold text-primary-foreground/80 mb-1">/ 100</span>
               </>
             ) : (
-              <h3 className="text-2xl font-black text-green-100">Belum ada data</h3>
+              <h3 className="text-2xl font-black text-primary-foreground/80">Belum ada data</h3>
             )}
           </div>
           {avg !== null && !loading && (

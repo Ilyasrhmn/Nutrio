@@ -21,7 +21,7 @@ export function StepIndicator({ currentStep, totalSteps, steps }: StepIndicatorP
               <div 
                 className={cn(
                   "absolute h-[2px] w-full top-5 left-1/2 -z-10",
-                  isCompleted ? "bg-green-600" : "bg-slate-200"
+                  isCompleted ? "bg-primary" : "bg-slate-200"
                 )}
               />
             )}
@@ -29,7 +29,7 @@ export function StepIndicator({ currentStep, totalSteps, steps }: StepIndicatorP
             <div
               className={cn(
                 "h-10 w-10 rounded-full flex items-center justify-center border-2 transition-all duration-300",
-                isCompleted ? "bg-green-600 border-green-600 text-white" :
+                isCompleted ? "bg-primary border-primary text-primary-foreground" :
                 isActive ? "bg-white border-primary text-primary shadow-sm" :
                 "bg-white border-slate-200 text-slate-400"
               )}
