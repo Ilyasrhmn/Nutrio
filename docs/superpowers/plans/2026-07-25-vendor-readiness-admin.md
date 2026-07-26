@@ -120,7 +120,7 @@ await expect(
     "demo readiness",
     "corr-1",
   ),
-).resolves.toHaveLength(11);
+).resolves.toHaveLength(8);
 await expect(
   service.advanceTo(
     vendorId,
