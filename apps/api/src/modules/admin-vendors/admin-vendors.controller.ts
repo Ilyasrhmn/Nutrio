@@ -1,7 +1,9 @@
 import {
   Body,
   Controller,
+  Delete,
   Get,
+  Patch,
   Param,
   Post,
   Query,
@@ -15,6 +17,7 @@ import { Roles } from "../auth/decorators/roles.decorator";
 import { AdminVendorsService } from "./admin-vendors.service";
 import { ListVendorsQueryDto } from "./dto/list-vendors-query.dto";
 import { RevisionRequestDto, VendorActionDto } from "./dto/vendor-action.dto";
+import { UpdateTeamMemberDto } from "../onboarding/dto/update-team-member.dto";
 
 @Controller("admin/vendors")
 @UseGuards(JwtAuthGuard, RolesGuard)
@@ -62,5 +65,27 @@ export class AdminVendorsController {
       dto.reason,
       dto.missingRequirements,
     );
+  }
+
+  @Patch(":id/team/:memberId")
+  updateTeam(
+    @Param("id") id: string,
+    @Param("memberId") memberId: string,
+    @Body() dto: UpdateTeamMemberDto,
+  ) {
+    return this.service.updateTeamMember(id, memberId, dto);
+  }
+
+  @Post(":id/team/:memberId/resend")
+  resendTeamInvite(
+    @Param("id") id: string,
+    @Param("memberId") memberId: string,
+  ) {
+    return this.service.resendTeamMemberInvite(id, memberId);
+  }
+
+  @Delete(":id/team/:memberId")
+  removeTeam(@Param("id") id: string, @Param("memberId") memberId: string) {
+    return this.service.removeTeamMember(id, memberId);
   }
 }

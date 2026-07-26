@@ -9,6 +9,7 @@ import { VendorReadinessService } from "../vendors/vendor-readiness.service";
 import { StateMachineService } from "../vendors/state-machine.service";
 import { VendorLifecycleStatus } from "../vendors/entities/vendor.entity";
 import { ListVendorsQueryDto } from "./dto/list-vendors-query.dto";
+import { UpdateTeamMemberDto } from "../onboarding/dto/update-team-member.dto";
 
 @Injectable()
 export class AdminVendorsService {
@@ -128,5 +129,49 @@ export class AdminVendorsService {
       result,
     );
     return result;
+  }
+
+  async updateTeamMember(
+    vendorId: string,
+    memberId: string,
+    dto: UpdateTeamMemberDto,
+  ) {
+    const [member] = await this.dataSource.query(
+      `UPDATE vendor_team_members
+       SET role = COALESCE($3, role), invite_email = COALESCE($4, invite_email),
+           invite_phone = COALESCE($5, invite_phone), updated_at = NOW()
+       WHERE id = $1 AND vendor_id = $2
+       RETURNING id, role, invite_email AS "inviteEmail", invite_phone AS "invitePhone", status`,
+      [
+        memberId,
+        vendorId,
+        dto.role ?? null,
+        dto.email ?? null,
+        dto.phone ?? null,
+      ],
+    );
+    if (!member) throw new NotFoundException("Anggota tim tidak ditemukan");
+    return member;
+  }
+
+  async resendTeamMemberInvite(vendorId: string, memberId: string) {
+    const [member] = await this.dataSource.query(
+      `UPDATE vendor_team_members SET invite_sent_at = NOW(), updated_at = NOW()
+       WHERE id = $1 AND vendor_id = $2 AND status = 'pending'
+       RETURNING id, status, invite_sent_at AS "inviteSentAt"`,
+      [memberId, vendorId],
+    );
+    if (!member)
+      throw new NotFoundException("Undangan pending tidak ditemukan");
+    return member;
+  }
+
+  async removeTeamMember(vendorId: string, memberId: string) {
+    const rows = await this.dataSource.query(
+      `DELETE FROM vendor_team_members WHERE id = $1 AND vendor_id = $2 RETURNING id`,
+      [memberId, vendorId],
+    );
+    if (!rows[0]) throw new NotFoundException("Anggota tim tidak ditemukan");
+    return { ok: true };
   }
 }
